@@ -28,3 +28,4 @@ pnpm-debug.log*
 
 # Temp
 .tmp/
+.icon-import-progress.json

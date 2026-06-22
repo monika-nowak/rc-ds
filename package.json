@@ -8,6 +8,8 @@
     "dev": "storybook dev -p 6006",
     "build": "tsc -b && vite build",
     "build-storybook": "storybook build",
+    "generate:icons": "node scripts/generate-icon-list.mjs && node scripts/generate-curated-map.mjs",
+    "prebuild-storybook": "npm run generate:icons",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -19,12 +21,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@phosphor-icons/core": "^2.1.1",
     "@storybook/addon-docs": "^9.0.4",
     "@storybook/addon-links": "^9.0.4",
     "@storybook/react-vite": "^9.0.4",
+    "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@types/node": "^22.15.3",
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",

@@ -17,6 +17,7 @@ const preview: Preview = {
           'Introduction',
           'Foundations',
           ['Colors', 'Templates', 'Typography', 'Spacing', 'Radius', 'Elevation'],
+          'Icons',
           'Components',
           '*',
         ],

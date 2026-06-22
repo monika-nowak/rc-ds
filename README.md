@@ -17,6 +17,21 @@ npm run dev        # Storybook at http://localhost:6006
 npm run build-storybook
 ```
 
+Storybook is deployed to GitHub Pages on push to `main`: https://monika-nowak.github.io/rc-ds/
+
+## Icons
+
+Phosphor Icons (Regular) — see **Icons** in Storybook.
+
+- **Curated set** (116 icons) — preferred for UI; matches Figma `Icon/*` components
+- **Full set** (1512 icons) — search in Storybook; use `@phosphor-icons/react` directly
+
+```tsx
+import { Icon } from '@real-chemistry/ds';
+
+<Icon name="pencil-simple" size={16} />
+```
+
 ## Components (v0.1)
 
 | Component | Status |
@@ -25,6 +40,7 @@ npm run build-storybook
 | Icon Button | ✅ |
 | Split Button | ✅ |
 | Menu | ✅ |
+| Icon (`<Icon />`) | ✅ |
 | Badge | ✅ |
 | Input | ✅ |
 | Checkbox | ✅ |

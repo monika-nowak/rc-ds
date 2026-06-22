@@ -1,0 +1,9 @@
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--rc-icon-primary);
+}
+
+.icon :global(svg) {
+  display: block;
+}
