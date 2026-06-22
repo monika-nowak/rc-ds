@@ -19,6 +19,8 @@ npm run build-storybook
 
 Storybook is deployed to GitHub Pages on push to `main`: https://monika-nowak.github.io/rc-ds/
 
+> **One-time setup:** In repo **Settings → Pages**, set **Source** to **Deploy from a branch**, branch `gh-pages` / `/ (root)`.
+
 ## Icons
 
 Phosphor Icons (Regular) — see **Icons** in Storybook.
