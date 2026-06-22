@@ -1,52 +1,49 @@
-import type { InputHTMLAttributes } from 'react';
+import { useEffect, useId, useRef, type InputHTMLAttributes } from 'react';
 import { Check, Minus } from '@phosphor-icons/react';
 import { cn } from '../../lib/cn';
 import styles from './Checkbox.module.css';
 
-export type CheckboxState = 'unchecked' | 'checked' | 'indeterminate';
-
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
   showLabel?: boolean;
-  checkboxState?: CheckboxState;
+  indeterminate?: boolean;
 }
 
 export function Checkbox({
   label = 'Label',
   showLabel = true,
-  checkboxState = 'unchecked',
   disabled,
   className,
   id,
+  indeterminate = false,
   ...props
 }: CheckboxProps) {
-  const inputId = id ?? `checkbox-${label.replace(/\s+/g, '-').toLowerCase()}`;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.indeterminate = indeterminate;
+    }
+  }, [indeterminate]);
 
   return (
     <label
       className={cn(styles.root, !showLabel && styles.iconOnly, disabled && styles.disabled, className)}
-      htmlFor={inputId}
     >
-      <span
-        className={cn(
-          styles.box,
-          checkboxState === 'checked' && styles.checked,
-          checkboxState === 'indeterminate' && styles.indeterminate,
-        )}
-        aria-hidden
-      >
-        {checkboxState === 'checked' ? <Check weight="bold" /> : null}
-        {checkboxState === 'indeterminate' ? <Minus weight="bold" /> : null}
-      </span>
       <input
+        ref={inputRef}
         id={inputId}
         type="checkbox"
         className={styles.input}
         disabled={disabled}
-        checked={checkboxState === 'checked'}
-        aria-checked={checkboxState === 'indeterminate' ? 'mixed' : checkboxState === 'checked'}
         {...props}
       />
+      <span className={styles.box} aria-hidden>
+        <Check className={styles.checkIcon} weight="bold" />
+        <Minus className={styles.minusIcon} weight="bold" />
+      </span>
       {showLabel ? <span className={styles.label}>{label}</span> : null}
     </label>
   );

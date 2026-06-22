@@ -105,6 +105,10 @@
   background: var(--rc-button-primary-hover);
 }
 
+.primary:active:not(.disabled) {
+  background: var(--rc-button-primary-active);
+}
+
 .secondary {
   background: var(--rc-button-secondary);
   color: var(--rc-text-primary);
@@ -133,52 +137,12 @@
   background: color-mix(in srgb, var(--rc-button-disabled-text) 60%, transparent);
 }
 
-/* Dropdown menu */
+/* Dropdown menu — positioned under caret */
 .menu {
   position: absolute;
   top: calc(100% + var(--rc-spacing-1));
   right: 0;
   z-index: 50;
-  min-width: 100%;
-  margin: 0;
-  padding: var(--rc-spacing-1) 0;
-  list-style: none;
-  background: var(--rc-layer-01);
-  border: 1px solid var(--rc-border-subtle-01);
-  border-radius: var(--rc-radius-sm);
-  box-shadow: var(--rc-shadow-md);
-}
-
-.menuItem {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  border: none;
-  background: transparent;
-  color: var(--rc-text-primary);
-  font-family: var(--rc-font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0.16px;
-  text-align: left;
-  white-space: nowrap;
-  cursor: pointer;
-  padding: var(--rc-spacing-2) var(--rc-spacing-4);
-}
-
-.menuItem:hover:not(:disabled) {
-  background: var(--rc-layer-hover-01);
-}
-
-.menuItem:disabled {
-  color: var(--rc-text-disabled);
-  cursor: not-allowed;
-}
-
-.menuItem:focus-visible {
-  outline: 2px solid var(--rc-focus-default);
-  outline-offset: -2px;
 }
 
 .main:focus-visible,

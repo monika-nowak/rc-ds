@@ -1,6 +1,6 @@
 # Real Chemistry Design System (`rc-ds`)
 
-React component library and design tokens for Real Chemistry products. Built to match the [Figma Design System](https://www.figma.com/design/bAfW17PaIBzJodq0a6DXXQ/Design-System) (Midday-inspired, neutral-first, sharp corners).
+React component library and design tokens for Real Chemistry products. Built to match the [Figma Design System](https://www.figma.com/design/bAfW17PaIBzJodq0a6DXXQ/Design-System).
 
 ## Stack
 
@@ -24,6 +24,7 @@ npm run build-storybook
 | Button | ✅ |
 | Icon Button | ✅ |
 | Split Button | ✅ |
+| Menu | ✅ |
 | Badge | ✅ |
 | Input | ✅ |
 | Checkbox | ✅ |
@@ -32,11 +33,12 @@ npm run build-storybook
 
 ## Design principles
 
-- **Neutral-first** — primary actions use neutral-900, brand purple as accent
-- **Sharp corners** — 4px radius on interactive elements
-- **Flat surfaces** — borders over shadows
-- **Typography** — Helvetica Now Display (UI), DM Mono (data/numbers)
-- **Tokens** — synced with Figma variables (`Color`, `Spacing`, `Radius`)
+- **Semantic color** — primitives map to roles (background, layer, field, border, text, support). Canvas ≠ surface: layouts use `background/canvas` or `background/blank`, UI chrome uses `layer/01`.
+- **Neutral-first** — primary actions use `button/primary` (neutral-900). Brand purple (`background/brand`) for brand accents. Error/destructive uses orange (`support/error`).
+- **Radius scale** — `radius/sm` (4px) for controls · `radius/md` (8px) for menus · `radius/full` for pills.
+- **Borders + elevation** — flat UI with borders day-to-day; shadows (`elevation/sm`–`xl`) for overlays (dropdowns, modals).
+- **Typography** — Helvetica Now Display (Heading H1–H9, Body, Label, Helper). DM Mono for code and data. 24px is always H6.
+- **Tokens** — synced with Figma Foundations (Light): `Color`, `Typography`, `Spacing`, `Radius`, `Elevation`
 
 ## Repo structure
 
@@ -44,6 +46,8 @@ npm run build-storybook
 src/
   components/     # React components + stories
   styles/         # CSS design tokens
+  tokens/         # Figma token export + helpers
+  foundations/    # Storybook foundation UI
   lib/            # Utilities
 .storybook/       # Storybook config
 ```
@@ -52,8 +56,8 @@ src/
 
 | Figma | Code |
 |-------|------|
-| `Heading/H1–H9` | Typography tokens / CSS |
-| `Label/*` | Component label styles |
+| `Heading/H1–H9` | `src/styles/typography.css` |
+| `Label/*`, `Body/*`, `Helper/*` | Component + foundation styles |
 | `button/*` tokens | `--rc-button-*` CSS vars |
 | Components on DS pages | `src/components/*` |
 

@@ -19,7 +19,7 @@
     "icon/primary": "#151316", "icon/secondary": "#757277", "icon/on-color": "#ffffff", "icon/disabled": "#bfbec0", "icon/inverse": "#fafafa",
     "support/error": "#ff5001", "support/success": "#15803d", "support/warning": "#f59e0b", "support/info": "#4500f9",
     "focus/default": "#151316", "focus/inverse": "#ffffff",
-    "button/primary": "#151316", "button/primary-hover": "#1b191d", "button/primary-active": "#232025", "button/secondary": "#eaeaeb", "button/secondary-hover": "#bfbec0", "button/tertiary": "#bfbec0", "button/tertiary-hover": "#fafafa", "button/ghost-hover": "#eaeaeb", "button/danger": "#ff5001", "button/danger-hover": "#c43b01", "button/disabled": "#eaeaeb", "button/disabled-text": "#a09ea2"
+    "button/primary": "#151316", "button/primary-hover": "#2d292f", "button/primary-active": "#232025", "button/secondary": "#eaeaeb", "button/secondary-hover": "#bfbec0", "button/tertiary": "#bfbec0", "button/tertiary-hover": "#fafafa", "button/ghost-hover": "#eaeaeb", "button/danger": "#ff5001", "button/danger-hover": "#c43b01", "button/disabled": "#eaeaeb", "button/disabled-text": "#a09ea2"
   },
   "spacing": { "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64 },
   "radius": { "none": 0, "sm": 4, "md": 8, "lg": 12, "full": 9999 }

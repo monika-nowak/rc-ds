@@ -1,51 +1,63 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--rc-space-1);
+  gap: 6px;
   width: 100%;
-  max-width: 320px;
+  max-width: 280px;
 }
 
 .label {
+  font-family: var(--rc-font-sans);
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
-  color: var(--rc-text-primary);
+  letter-spacing: 0.16px;
+  color: var(--rc-text-secondary);
 }
 
 .input {
-  height: var(--rc-height-md);
-  padding: 0 12px;
+  width: 100%;
+  padding: var(--rc-spacing-3);
   border: 1px solid var(--rc-border-subtle-02);
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-field-01);
+  background: var(--rc-field-02);
   color: var(--rc-text-primary);
+  font-family: var(--rc-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.14px;
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  transition: border-color 120ms ease, background-color 120ms ease;
 }
 
 .input::placeholder {
   color: var(--rc-text-placeholder);
 }
 
-.input:hover:not(:disabled) {
-  background: var(--rc-field-hover-01);
-}
-
-.input:focus,
-.focus {
-  border-color: var(--rc-focus);
-  box-shadow: 0 0 0 1px var(--rc-focus);
+.input:focus:not(:disabled):not(.error),
+.focus:not(.error) {
+  padding: 11.5px;
+  border-width: 1.5px;
+  border-color: var(--rc-border-interactive);
 }
 
 .error {
+  padding: 11.5px;
+  border-width: 1.5px;
   border-color: var(--rc-support-error);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--rc-support-error) 30%, transparent);
+}
+
+.error:focus {
+  border-color: var(--rc-support-error);
 }
 
 .helper {
+  font-family: var(--rc-font-sans);
   font-size: 12px;
+  font-weight: 400;
   line-height: 16px;
+  letter-spacing: 0.32px;
   color: var(--rc-text-helper);
 }
 
@@ -59,7 +71,12 @@
 }
 
 .input:disabled {
-  background: var(--rc-button-disabled);
+  background: var(--rc-field-01);
+  border-color: var(--rc-border-disabled);
   color: var(--rc-text-disabled);
   cursor: not-allowed;
+}
+
+.input:disabled::placeholder {
+  color: var(--rc-text-disabled);
 }

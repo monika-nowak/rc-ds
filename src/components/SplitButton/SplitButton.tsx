@@ -8,32 +8,50 @@ import {
 } from 'react';
 import { CaretDown } from '@phosphor-icons/react';
 import { cn } from '../../lib/cn';
+import { Menu, type MenuEntry } from '../Menu';
 import styles from './SplitButton.module.css';
 
 export type SplitButtonStyle = 'primary' | 'secondary';
 export type SplitButtonSize = 'sm' | 'md';
 
-export interface SplitButtonMenuItem {
-  id: string;
-  label: string;
-  disabled?: boolean;
-  onSelect?: () => void;
-}
+export type SplitButtonMenuItem = MenuEntry;
 
 export interface SplitButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: SplitButtonStyle;
   size?: SplitButtonSize;
-  menuItems: SplitButtonMenuItem[];
+  menuItems: MenuEntry[];
+  /** Optional section title above menu items. Omit or pass `""` to hide. */
+  menuGroupLabel?: string;
   menuIcon?: ReactNode;
   onMainClick?: () => void;
   children: ReactNode;
+}
+
+function resolveMenuEntries(
+  menuItems: MenuEntry[],
+  menuGroupLabel?: string,
+): MenuEntry[] {
+  if (menuGroupLabel === undefined) {
+    return menuItems;
+  }
+
+  const withoutGroups = menuItems.filter((entry) => entry.kind !== 'group');
+  if (!menuGroupLabel) {
+    return withoutGroups;
+  }
+
+  return [
+    { kind: 'group', id: 'menu-group', label: menuGroupLabel },
+    ...withoutGroups,
+  ];
 }
 
 export function SplitButton({
   variant = 'primary',
   size = 'md',
   menuItems,
+  menuGroupLabel,
   menuIcon,
   onMainClick,
   className,
@@ -65,12 +83,6 @@ export function SplitButton({
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [open]);
-
-  const selectItem = (item: SplitButtonMenuItem) => {
-    if (item.disabled) return;
-    item.onSelect?.();
-    setOpen(false);
-  };
 
   return (
     <div ref={wrapperRef} className={cn(styles.wrapper, className)}>
@@ -108,21 +120,12 @@ export function SplitButton({
       </div>
 
       {open && !disabled ? (
-        <ul id={menuId} className={styles.menu} role="menu">
-          {menuItems.map((item) => (
-            <li key={item.id} role="none">
-              <button
-                type="button"
-                role="menuitem"
-                disabled={item.disabled}
-                className={styles.menuItem}
-                onClick={() => selectItem(item)}
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <Menu
+          id={menuId}
+          className={styles.menu}
+          entries={resolveMenuEntries(menuItems, menuGroupLabel)}
+          onSelect={() => setOpen(false)}
+        />
       ) : null}
     </div>
   );

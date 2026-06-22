@@ -1,7 +1,8 @@
 .root {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--rc-space-2);
+  gap: var(--rc-spacing-2);
   cursor: pointer;
   user-select: none;
 }
@@ -12,55 +13,92 @@
 
 .input {
   position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  margin: 0;
   opacity: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .box {
   width: 18px;
   height: 18px;
-  border: 1px solid var(--rc-border-strong-01);
+  border: 1px solid var(--rc-border-interactive);
   border-radius: var(--rc-radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: var(--rc-field-02);
   color: var(--rc-text-on-color);
-  background: transparent;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
-.box :global(svg) {
+.checkIcon,
+.minusIcon {
+  display: none;
   width: 12px;
   height: 12px;
 }
 
-.checked,
-.indeterminate {
+.input:checked + .box {
   background: var(--rc-button-primary);
   border-color: var(--rc-button-primary);
 }
 
+.input:checked + .box .checkIcon {
+  display: block;
+}
+
+.input:indeterminate + .box {
+  background: var(--rc-button-primary);
+  border-color: var(--rc-button-primary);
+}
+
+.input:indeterminate + .box .minusIcon {
+  display: block;
+}
+
+.input:indeterminate + .box .checkIcon {
+  display: none;
+}
+
 .label {
+  font-family: var(--rc-font-sans);
   font-size: 14px;
+  font-weight: 400;
   line-height: 20px;
+  letter-spacing: 0.14px;
   color: var(--rc-text-primary);
+}
+
+.root:has(.input:focus-visible) .box {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
 }
 
 .disabled {
   cursor: not-allowed;
 }
 
-.disabled .box {
-  border-color: var(--rc-text-disabled);
-  background: var(--rc-button-disabled);
+.disabled .input {
+  cursor: not-allowed;
 }
 
-.disabled.checked .box,
-.disabled.indeterminate .box {
-  background: var(--rc-text-disabled);
-  border-color: var(--rc-text-disabled);
+.input:disabled + .box {
+  background: var(--rc-field-01);
+  border-color: var(--rc-border-disabled);
+}
+
+.input:disabled:checked + .box,
+.input:disabled:indeterminate + .box {
+  background: var(--rc-button-disabled);
+  border-color: var(--rc-border-disabled);
+  color: var(--rc-text-disabled);
 }
 
 .disabled .label {

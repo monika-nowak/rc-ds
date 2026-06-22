@@ -1,0 +1,38 @@
+.subtitle {
+  margin: 0 0 16px;
+  font: 700 24px/32px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+}
+
+.list {
+  margin: 0 0 32px;
+  padding-left: 20px;
+  max-width: 860px;
+  font: 400 14px/22px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+}
+
+.list li + li {
+  margin-top: 12px;
+}
+
+.list strong {
+  font-weight: 500;
+}
+
+.tokenRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.token {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-layer-02);
+  font: 400 12px/16px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+}
