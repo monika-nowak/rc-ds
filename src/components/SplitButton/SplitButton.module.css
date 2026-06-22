@@ -1,0 +1,188 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.root {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: var(--rc-radius-sm);
+  overflow: hidden;
+}
+
+.main,
+.caret {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: var(--rc-font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main:disabled,
+.caret:disabled {
+  cursor: not-allowed;
+}
+
+.main {
+  flex: 0 1 auto;
+}
+
+.label {
+  display: block;
+  white-space: nowrap;
+}
+
+.caret {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.caret :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.divider {
+  width: 1px;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+/* Sizes — match Figma Label/MD and Label/SM */
+.md {
+  height: var(--rc-height-md);
+}
+
+.sm {
+  height: var(--rc-height-sm);
+}
+
+.md .main {
+  padding: 0 var(--rc-spacing-4);
+}
+
+.md .label {
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+}
+
+.md .caret {
+  padding: var(--rc-spacing-3);
+}
+
+.sm .main {
+  padding: 0 var(--rc-spacing-3);
+}
+
+.sm .label {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+}
+
+.sm .caret {
+  padding: var(--rc-spacing-2);
+}
+
+/* Variants */
+.primary {
+  background: var(--rc-button-primary);
+  color: var(--rc-text-on-color);
+}
+
+.primary .divider {
+  background: color-mix(in srgb, var(--rc-text-on-color) 35%, transparent);
+}
+
+.primary:hover:not(.disabled),
+.primary.open:not(.disabled) {
+  background: var(--rc-button-primary-hover);
+}
+
+.secondary {
+  background: var(--rc-button-secondary);
+  color: var(--rc-text-primary);
+}
+
+.secondary .divider {
+  background: color-mix(in srgb, var(--rc-text-primary) 14%, transparent);
+}
+
+.secondary:hover:not(.disabled),
+.secondary.open:not(.disabled) {
+  background: var(--rc-button-secondary-hover);
+}
+
+.secondary:hover:not(.disabled) .divider,
+.secondary.open:not(.disabled) .divider {
+  background: color-mix(in srgb, var(--rc-text-primary) 18%, transparent);
+}
+
+.disabled {
+  background: var(--rc-button-disabled);
+  color: var(--rc-button-disabled-text);
+}
+
+.disabled .divider {
+  background: color-mix(in srgb, var(--rc-button-disabled-text) 60%, transparent);
+}
+
+/* Dropdown menu */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--rc-spacing-1));
+  right: 0;
+  z-index: 50;
+  min-width: 100%;
+  margin: 0;
+  padding: var(--rc-spacing-1) 0;
+  list-style: none;
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  box-shadow: var(--rc-shadow-md);
+}
+
+.menuItem {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  border: none;
+  background: transparent;
+  color: var(--rc-text-primary);
+  font-family: var(--rc-font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: var(--rc-spacing-2) var(--rc-spacing-4);
+}
+
+.menuItem:hover:not(:disabled) {
+  background: var(--rc-layer-hover-01);
+}
+
+.menuItem:disabled {
+  color: var(--rc-text-disabled);
+  cursor: not-allowed;
+}
+
+.menuItem:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: -2px;
+}
+
+.main:focus-visible,
+.caret:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: -2px;
+}

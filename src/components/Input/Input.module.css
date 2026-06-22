@@ -1,0 +1,65 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-space-1);
+  width: 100%;
+  max-width: 320px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--rc-text-primary);
+}
+
+.input {
+  height: var(--rc-height-md);
+  padding: 0 12px;
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-field-01);
+  color: var(--rc-text-primary);
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.input::placeholder {
+  color: var(--rc-text-placeholder);
+}
+
+.input:hover:not(:disabled) {
+  background: var(--rc-field-hover-01);
+}
+
+.input:focus,
+.focus {
+  border-color: var(--rc-focus);
+  box-shadow: 0 0 0 1px var(--rc-focus);
+}
+
+.error {
+  border-color: var(--rc-support-error);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--rc-support-error) 30%, transparent);
+}
+
+.helper {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--rc-text-helper);
+}
+
+.helperError {
+  color: var(--rc-text-error);
+}
+
+.disabled .label,
+.disabled .helper {
+  color: var(--rc-text-disabled);
+}
+
+.input:disabled {
+  background: var(--rc-button-disabled);
+  color: var(--rc-text-disabled);
+  cursor: not-allowed;
+}

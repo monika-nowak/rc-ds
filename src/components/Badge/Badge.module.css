@@ -1,0 +1,78 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 5px 8px;
+  border-radius: var(--rc-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: 0.32px;
+  white-space: nowrap;
+}
+
+/*
+ * Color pairs audited for WCAG AA at 12px (min 4.5:1).
+ * Bright fills (warning, error) use dark text.
+ */
+
+/* Primary */
+.primary.neutral {
+  background: var(--rc-neutral-900);
+  color: var(--rc-neutral-25);
+}
+.primary.success {
+  background: var(--rc-support-success);
+  color: var(--rc-neutral-25);
+}
+.primary.warning {
+  background: var(--rc-support-warning);
+  color: var(--rc-text-primary);
+}
+.primary.error {
+  background: var(--rc-support-error);
+  color: var(--rc-text-primary);
+}
+.primary.info {
+  background: var(--rc-support-info);
+  color: var(--rc-neutral-25);
+}
+.primary.purple {
+  background: var(--rc-purple-700);
+  color: var(--rc-neutral-25);
+}
+.primary.blue {
+  background: var(--rc-blue-700);
+  color: var(--rc-neutral-25);
+}
+
+/* Subtle */
+.subtle.neutral {
+  background: var(--rc-layer-02);
+  color: var(--rc-text-primary);
+}
+.subtle.success {
+  background: var(--rc-green-100);
+  color: var(--rc-green-900);
+}
+.subtle.warning {
+  background: var(--rc-amber-100);
+  color: var(--rc-orange-900);
+}
+.subtle.error {
+  background: var(--rc-orange-100);
+  color: var(--rc-text-error);
+}
+.subtle.info {
+  background: var(--rc-blue-100);
+  color: var(--rc-blue-900);
+}
+.subtle.purple {
+  background: var(--rc-purple-100);
+  color: var(--rc-purple-900);
+}
+.subtle.blue {
+  background: var(--rc-blue-100);
+  color: var(--rc-blue-900);
+}

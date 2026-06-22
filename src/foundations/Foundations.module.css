@@ -1,0 +1,195 @@
+.section {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font: 700 32px/42px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+}
+
+.description {
+  margin: 0 0 32px;
+  max-width: 860px;
+  font: 400 14px/20px var(--rc-font-sans);
+  color: var(--rc-text-secondary);
+}
+
+.swatchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.swatchColor {
+  height: 48px;
+  border-radius: var(--rc-radius-sm);
+}
+
+.swatchName {
+  font: 400 11px/14px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+  word-break: break-word;
+}
+
+.groupTitle {
+  margin: 32px 0 12px;
+  font: 500 14px/18px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+}
+
+.ramp {
+  margin-bottom: 24px;
+}
+
+.rampLabel {
+  margin-bottom: 8px;
+  font: 500 13px/18px var(--rc-font-sans);
+  color: var(--rc-text-secondary);
+  text-transform: capitalize;
+}
+
+.rampRow {
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  border-radius: var(--rc-radius-sm);
+  border: 1px solid var(--rc-border-subtle-02);
+}
+
+.rampStep {
+  flex: 1;
+  min-width: 0;
+}
+
+.rampColor {
+  height: 48px;
+}
+
+.rampStepName {
+  padding: 4px;
+  font: 400 10px/12px var(--rc-font-mono);
+  text-align: center;
+  color: var(--rc-text-secondary);
+  background: var(--rc-layer-01);
+}
+
+.spacingRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.spacingBar {
+  height: 16px;
+  background: var(--rc-button-primary);
+  border-radius: var(--rc-radius-sm);
+}
+
+.spacingLabel {
+  width: 80px;
+  font: 400 12px/16px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+}
+
+.radiusRow {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.radiusCard {
+  width: 120px;
+  height: 80px;
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 12px/16px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+}
+
+.elevationRow {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.elevationCard {
+  width: 160px;
+  height: 100px;
+  background: var(--rc-layer-01);
+  border-radius: var(--rc-radius-sm);
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+  font: 400 12px/16px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+}
+
+.typeRow {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rc-border-subtle-02);
+}
+
+.typeMeta {
+  margin-bottom: 8px;
+  font: 400 12px/16px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+}
+
+.templateRow {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.templateWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.templateFrame {
+  width: 380px;
+  height: 200px;
+  overflow: hidden;
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-sm);
+}
+
+.templateNav {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 12px/18px var(--rc-font-sans);
+  color: var(--rc-text-secondary);
+  border-bottom: 1px solid var(--rc-border-subtle-02);
+}
+
+.templateContent {
+  padding: 16px;
+}
+
+.templateCard {
+  padding: 16px;
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-sm);
+  font: 400 14px/20px var(--rc-font-sans);
+}
+
+.templateCaption {
+  font: 400 12px/16px var(--rc-font-mono);
+  color: var(--rc-text-secondary);
+}

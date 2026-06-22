@@ -1,0 +1,26 @@
+{
+  "primitives": {
+    "purple/50": "#f7f6ff", "purple/100": "#ece9ff", "purple/200": "#d7d0ff", "purple/300": "#beafff", "purple/400": "#a285ff", "purple/500": "#8752fa", "purple/600": "#663dc0", "purple/700": "#4b2b8f", "purple/800": "#311a61", "purple/900": "#1c0d3c", "purple/950": "#13092a",
+    "light-purple/50": "#fbf7ff", "light-purple/100": "#f6eaff", "light-purple/200": "#ebd2ff", "light-purple/300": "#deb3ff", "light-purple/400": "#cd83ff", "light-purple/500": "#ad6ed7", "light-purple/600": "#8352a4", "light-purple/700": "#5c3874", "light-purple/800": "#3c234d", "light-purple/900": "#23122e", "light-purple/950": "#190b22",
+    "orange/50": "#fff6f4", "orange/100": "#ffebe5", "orange/200": "#ffd3c6", "orange/300": "#ffb49d", "orange/400": "#ff8b68", "orange/500": "#ff5001", "orange/600": "#c43b01", "orange/700": "#922a00", "orange/800": "#631a00", "orange/900": "#3d0c00", "orange/950": "#320d01",
+    "blue/50": "#f1f4ff", "blue/100": "#dfe5ff", "blue/200": "#bcc7ff", "blue/300": "#92a0ff", "blue/400": "#656cff", "blue/500": "#4500f9", "blue/600": "#3300bf", "blue/700": "#23008e", "blue/800": "#150061", "blue/900": "#09003b", "blue/950": "#090132",
+    "neutral/25": "#fafafa", "neutral/50": "#eaeaeb", "neutral/100": "#bfbec0", "neutral/200": "#a09ea2", "neutral/300": "#757277", "neutral/400": "#5a575d", "neutral/500": "#312d34", "neutral/600": "#2d292f", "neutral/700": "#232025", "neutral/800": "#1b191d", "neutral/900": "#151316",
+    "green/50": "#f0fdf4", "green/100": "#dcfce7", "green/200": "#bbf7d0", "green/300": "#86efac", "green/400": "#4ade80", "green/500": "#22c55e", "green/600": "#16a34a", "green/700": "#15803d", "green/800": "#166534", "green/900": "#14532d", "green/950": "#0a2e18",
+    "amber/50": "#fffbeb", "amber/100": "#fff6d1", "amber/200": "#fee68a", "amber/300": "#fcd34d", "amber/400": "#fbbf24", "amber/500": "#f59e0b", "amber/600": "#d97706",
+    "white/1000": "#ffffff", "black/1000": "#000000"
+  },
+  "semanticLight": {
+    "background/default": "#fafafa", "background/hover": "#eaeaeb", "background/active": "#bfbec0", "background/selected": "#eaeaeb", "background/selected-hover": "#eaeaeb", "background/inverse": "#151316", "background/brand": "#8752fa", "background/canvas": "#fafafa", "background/blank": "#ffffff",
+    "layer/01": "#ffffff", "layer/02": "#fafafa", "layer/03": "#fafafa", "layer/hover-01": "#fafafa", "layer/active-01": "#eaeaeb", "layer/selected-01": "#eaeaeb", "layer/selected": "#eaeaeb",
+    "field/01": "#fafafa", "field/02": "#ffffff", "field/03": "#fafafa", "field/hover-01": "#eaeaeb", "field/hover-02": "#fafafa", "field/hover-03": "#eaeaeb",
+    "border/subtle-00": "#fafafa", "border/subtle-01": "#bfbec0", "border/subtle-02": "#eaeaeb", "border/subtle-03": "#bfbec0", "border/subtle-selected-01": "#bfbec0", "border/subtle-selected-02": "#eaeaeb", "border/subtle-selected-03": "#eaeaeb", "border/strong-01": "#151316", "border/interactive": "#151316", "border/inverse": "#151316", "border/disabled": "#bfbec0",
+    "text/primary": "#151316", "text/secondary": "#5a575d", "text/placeholder": "#757277", "text/helper": "#757277", "text/error": "#c43b01", "text/on-color": "#ffffff", "text/on-color-disabled": "#a09ea2", "text/inverse": "#fafafa", "text/disabled": "#bfbec0",
+    "link/primary": "#151316", "link/primary-hover": "#2d292f", "link/inverse": "#fafafa", "link/visited": "#312d34",
+    "icon/primary": "#151316", "icon/secondary": "#757277", "icon/on-color": "#ffffff", "icon/disabled": "#bfbec0", "icon/inverse": "#fafafa",
+    "support/error": "#ff5001", "support/success": "#15803d", "support/warning": "#f59e0b", "support/info": "#4500f9",
+    "focus/default": "#151316", "focus/inverse": "#ffffff",
+    "button/primary": "#151316", "button/primary-hover": "#1b191d", "button/primary-active": "#232025", "button/secondary": "#eaeaeb", "button/secondary-hover": "#bfbec0", "button/tertiary": "#bfbec0", "button/tertiary-hover": "#fafafa", "button/ghost-hover": "#eaeaeb", "button/danger": "#ff5001", "button/danger-hover": "#c43b01", "button/disabled": "#eaeaeb", "button/disabled-text": "#a09ea2"
+  },
+  "spacing": { "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64 },
+  "radius": { "none": 0, "sm": 4, "md": 8, "lg": 12, "full": 9999 }
+}

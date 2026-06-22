@@ -1,0 +1,22 @@
+/* Typography — synced with Figma text styles */
+
+.rc-heading-h1 { font: 700 64px/70px var(--rc-font-sans); letter-spacing: 0.01em; }
+.rc-heading-h2 { font: 700 56px/64px var(--rc-font-sans); }
+.rc-heading-h3 { font: 700 48px/58px var(--rc-font-sans); }
+.rc-heading-h4 { font: 700 40px/50px var(--rc-font-sans); }
+.rc-heading-h5 { font: 700 32px/42px var(--rc-font-sans); }
+.rc-heading-h6 { font: 700 24px/32px var(--rc-font-sans); }
+.rc-heading-h7 { font: 700 18px/24px var(--rc-font-sans); }
+.rc-heading-h8 { font: 700 16px/22px var(--rc-font-sans); }
+.rc-heading-h9 { font: 700 14px/18px var(--rc-font-sans); }
+
+.rc-body-lg { font: 400 20px/32px var(--rc-font-sans); }
+.rc-body-md { font: 400 16px/24px var(--rc-font-sans); }
+.rc-body-sm { font: 400 14px/20px var(--rc-font-sans); }
+.rc-body-xs { font: 400 12px/18px var(--rc-font-sans); }
+
+.rc-label-lg { font: 700 16px/24px var(--rc-font-sans); }
+.rc-label-md { font: 500 14px/18px var(--rc-font-sans); }
+.rc-label-sm { font: 500 12px/16px var(--rc-font-sans); }
+
+.rc-helper-sm { font: 400 12px/16px var(--rc-font-sans); color: var(--rc-text-helper); }

@@ -1,0 +1,68 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-space-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.iconOnly {
+  gap: 0;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.box {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--rc-border-strong-01);
+  border-radius: var(--rc-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rc-text-on-color);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.box :global(svg) {
+  width: 12px;
+  height: 12px;
+}
+
+.checked,
+.indeterminate {
+  background: var(--rc-button-primary);
+  border-color: var(--rc-button-primary);
+}
+
+.label {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--rc-text-primary);
+}
+
+.disabled {
+  cursor: not-allowed;
+}
+
+.disabled .box {
+  border-color: var(--rc-text-disabled);
+  background: var(--rc-button-disabled);
+}
+
+.disabled.checked .box,
+.disabled.indeterminate .box {
+  background: var(--rc-text-disabled);
+  border-color: var(--rc-text-disabled);
+}
+
+.disabled .label {
+  color: var(--rc-text-disabled);
+}
