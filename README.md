@@ -37,7 +37,7 @@ npm run build-storybook
 - **Neutral-first** — primary actions use `button/primary` (neutral-900). Brand purple (`background/brand`) for brand accents. Error/destructive uses orange (`support/error`).
 - **Radius scale** — `radius/sm` (4px) for controls · `radius/md` (8px) for menus · `radius/full` for pills.
 - **Borders + elevation** — flat UI with borders day-to-day; shadows (`elevation/sm`–`xl`) for overlays (dropdowns, modals).
-- **Typography** — Helvetica Now Display (Heading H1–H9, Body, Label, Helper). DM Mono for code and data. 24px is always H6.
+- **Typography** — Helvetica Now Display (Heading H1–H9, Body, Label, Helper). 24px is always H6.
 - **Tokens** — synced with Figma Foundations (Light): `Color`, `Typography`, `Spacing`, `Radius`, `Elevation`
 
 ## Repo structure

@@ -29,7 +29,7 @@ const principles = [
   },
   {
     title: 'Typography',
-    body: 'Helvetica Now Display — Heading H1–H9 (Bold) for titles, Body for content, Label for controls, Helper for captions. Rule: 24px is always H6, never body. DM Mono for code and numeric data.',
+    body: 'Helvetica Now Display — Heading H1–H9 (Bold) for titles, Body for content, Label for controls, Helper for captions. Rule: 24px is always H6, never body.',
   },
   {
     title: 'Figma-synced tokens',

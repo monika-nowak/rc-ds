@@ -7,7 +7,6 @@
 :root {
   /* Typography families */
   --rc-font-sans: 'Helvetica Now Display', 'Helvetica Neue', Arial, system-ui, sans-serif;
-  --rc-font-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Primitives */
   --rc-purple-50: #f7f6ff; --rc-purple-100: #ece9ff; --rc-purple-200: #d7d0ff; --rc-purple-300: #beafff;

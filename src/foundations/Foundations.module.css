@@ -35,7 +35,7 @@
 }
 
 .swatchName {
-  font: 400 11px/14px var(--rc-font-mono);
+  font: 400 11px/14px var(--rc-font-sans);
   color: var(--rc-text-secondary);
   word-break: break-word;
 }
@@ -76,7 +76,7 @@
 
 .rampStepName {
   padding: 4px;
-  font: 400 10px/12px var(--rc-font-mono);
+  font: 400 10px/12px var(--rc-font-sans);
   text-align: center;
   color: var(--rc-text-secondary);
   background: var(--rc-layer-01);
@@ -97,7 +97,7 @@
 
 .spacingLabel {
   width: 80px;
-  font: 400 12px/16px var(--rc-font-mono);
+  font: 400 12px/16px var(--rc-font-sans);
   color: var(--rc-text-secondary);
 }
 
@@ -115,7 +115,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 400 12px/16px var(--rc-font-mono);
+  font: 400 12px/16px var(--rc-font-sans);
   color: var(--rc-text-secondary);
 }
 
@@ -133,7 +133,7 @@
   display: flex;
   align-items: flex-end;
   padding: 12px;
-  font: 400 12px/16px var(--rc-font-mono);
+  font: 400 12px/16px var(--rc-font-sans);
   color: var(--rc-text-secondary);
 }
 
@@ -144,7 +144,7 @@
 
 .typeMeta {
   margin-bottom: 8px;
-  font: 400 12px/16px var(--rc-font-mono);
+  font: 400 12px/16px var(--rc-font-sans);
   color: var(--rc-text-secondary);
 }
 
@@ -190,6 +190,6 @@
 }
 
 .templateCaption {
-  font: 400 12px/16px var(--rc-font-mono);
+  font: 400 12px/16px var(--rc-font-sans);
   color: var(--rc-text-secondary);
 }
