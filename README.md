@@ -23,15 +23,23 @@ Storybook is deployed to GitHub Pages on push to `main`: https://monika-nowak.gi
 
 ## Icons
 
-Phosphor Icons (Regular) — see **Icons** in Storybook.
+Phosphor Icons (Regular) — **all 1512 icons** are available. See **Icons** in Storybook.
 
-- **Curated set** (116 icons) — preferred for UI; matches Figma `Icon/*` components
-- **Full set** (1512 icons) — search in Storybook; use `@phosphor-icons/react` directly
+| Set | Count | How to use |
+|-----|-------|------------|
+| **Full library** | 1512 | `import { Horse } from '@phosphor-icons/react'` |
+| **DS curated** | 116 | `import { Icon } from '@real-chemistry/ds'` |
+
+Curated icons match Figma `Icon/*` components and cover common UI patterns (navigation, files, actions, status). For any other icon, import directly from `@phosphor-icons/react` — Storybook **All icons** provides copy-ready snippets.
 
 ```tsx
+// Curated — via DS component
 import { Icon } from '@real-chemistry/ds';
-
 <Icon name="pencil-simple" size={16} />
+
+// Any Phosphor icon — direct import
+import { Horse } from '@phosphor-icons/react';
+<Horse size={24} weight="regular" />
 ```
 
 ## Components (v0.1)

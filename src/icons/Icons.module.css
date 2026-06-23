@@ -17,6 +17,38 @@
   color: var(--rc-text-secondary);
 }
 
+.callout {
+  margin: 0 0 32px;
+  padding: 16px 20px;
+  border: 1px solid var(--rc-border-subtle-02);
+  border-left: 3px solid var(--rc-background-brand);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-02);
+}
+
+.calloutTitle {
+  margin: 0 0 8px;
+  font: 600 14px/20px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+}
+
+.calloutText {
+  margin: 0 0 12px;
+  font: 400 14px/20px var(--rc-font-sans);
+  color: var(--rc-text-secondary);
+}
+
+.calloutList {
+  margin: 0;
+  padding-left: 20px;
+  font: 400 13px/20px var(--rc-font-sans);
+  color: var(--rc-text-secondary);
+}
+
+.calloutList li + li {
+  margin-top: 4px;
+}
+
 .search {
   width: 100%;
   max-width: 360px;
@@ -37,7 +69,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
 }
 
@@ -57,6 +89,63 @@
   color: var(--rc-text-secondary);
   text-align: center;
   word-break: break-word;
+}
+
+.badge {
+  padding: 2px 6px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-50);
+  font: 500 9px/12px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.usage {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+}
+
+.snippet {
+  display: block;
+  padding: 4px 6px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-02);
+  font: 400 9px/12px var(--rc-font-mono, ui-monospace, monospace);
+  color: var(--rc-text-secondary);
+  text-align: center;
+  word-break: break-all;
+}
+
+.copyButton {
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-field-02);
+  font: 500 10px/12px var(--rc-font-sans);
+  color: var(--rc-text-primary);
+  cursor: pointer;
+}
+
+.copyButton:hover {
+  background: var(--rc-layer-hover-01);
+}
+
+.previewImg {
+  display: block;
+  color: var(--rc-icon-primary);
+}
+
+.previewFallback {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--rc-layer-02);
 }
 
 .count {

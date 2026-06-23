@@ -4,6 +4,11 @@ import { getPhosphorIcon } from './phosphor';
 import styles from './Icon.module.css';
 
 export interface IconProps {
+  /**
+   * Icon name in kebab-case (Phosphor Regular).
+   * The DS ships 116 curated names via `<Icon />`.
+   * For any other icon from the 1512-icon library, import directly from `@phosphor-icons/react`.
+   */
   name: string;
   size?: number;
   weight?: PhosphorIconProps['weight'];

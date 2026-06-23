@@ -18,3 +18,15 @@ export function getPhosphorIcon(name: string): PhosphorIconComponent | null {
 export function isCuratedIcon(name: string): boolean {
   return name in CURATED_ICON_MAP;
 }
+
+/** Copy-paste snippet for any Phosphor icon (direct import). */
+export function getPhosphorImportSnippet(name: string): string {
+  const component = toPascalCase(name);
+  return `import { ${component} } from '@phosphor-icons/react';\n\n<${component} size={24} weight="regular" />`;
+}
+
+/** Copy-paste snippet for DS `<Icon />` when the name is in the curated set. */
+export function getDsIconSnippet(name: string): string | null {
+  if (!isCuratedIcon(name)) return null;
+  return `import { Icon } from '@real-chemistry/ds';\n\n<Icon name="${name}" size={24} />`;
+}
