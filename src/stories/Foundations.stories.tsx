@@ -142,7 +142,7 @@ const typeScale = [
   { cls: 'rc-body-lg', name: 'Body/LG', spec: '20 / 32 · Regular' },
   { cls: 'rc-body-md', name: 'Body/MD', spec: '16 / 24 · Regular' },
   { cls: 'rc-body-sm', name: 'Body/SM', spec: '14 / 20 · Regular' },
-  { cls: 'rc-body-xs', name: 'Body/XS', spec: '12 / 18 · Regular' },
+  { cls: 'rc-body-xs', name: 'Body/XS', spec: '12 / 16 · Regular' },
   { cls: 'rc-label-lg', name: 'Label/LG', spec: '16 / 24 · Bold' },
   { cls: 'rc-label-md', name: 'Label/MD', spec: '14 / 18 · Bold' },
   { cls: 'rc-label-sm', name: 'Label/SM', spec: '12 / 16 · Bold' },

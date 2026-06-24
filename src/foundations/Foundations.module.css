@@ -173,7 +173,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 400 12px/18px var(--rc-font-sans);
+  font: 400 12px/16px var(--rc-font-sans);
   color: var(--rc-text-secondary);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
