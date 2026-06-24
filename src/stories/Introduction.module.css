@@ -30,7 +30,7 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  border: 1px solid var(--rc-border-subtle-02);
+  border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-full);
   background: var(--rc-layer-02);
   font: 400 12px/16px var(--rc-font-sans);

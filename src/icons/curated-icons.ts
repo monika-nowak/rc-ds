@@ -102,6 +102,7 @@ export const CURATED_ICON_NAMES = [
   'lock-open',
   'calendar',
   'calendar-blank',
+  'cards-three',
   'clock',
   'chat-circle',
   'chat-circle-text',

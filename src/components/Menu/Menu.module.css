@@ -15,7 +15,7 @@
   padding: var(--rc-spacing-2) var(--rc-spacing-3) var(--rc-spacing-1);
   font-family: var(--rc-font-sans);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 16px;
   letter-spacing: 0.32px;
   color: var(--rc-text-secondary);
@@ -27,7 +27,7 @@
 
 .separatorLine {
   height: 1px;
-  background: var(--rc-border-subtle-02);
+  background: var(--rc-border-subtle-01);
 }
 
 .item {

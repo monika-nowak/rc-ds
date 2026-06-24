@@ -31,7 +31,7 @@ export const Colors: Story = {
   <>
     <FoundationSection
       title="Colors"
-      description="Primitive palette and semantic tokens (Light). Canvas: background/canvas or background/blank. Surfaces: layer/01. background/default = canvas alias."
+      description="Primitive palette and semantic tokens (Light). Canvas: background/canvas or background/blank. Surfaces: layer/01–03 with hover, active, and selected-01 states."
     >
       <h3 className={styles.groupTitle}>Primitives</h3>
       {primitiveFamilies.map((family) => (
@@ -46,7 +46,7 @@ export const Colors: Story = {
                 className={styles.rampColor}
                 style={{
                   background: `var(${toVar(step)})`,
-                  border: step.startsWith('white') ? '1px solid var(--rc-border-subtle-02)' : undefined,
+                  border: step.startsWith('white') ? '1px solid var(--rc-border-subtle-01)' : undefined,
                 }}
               />
               <div className={styles.rampStepName}>{step.split('/')[1]}</div>
@@ -144,8 +144,8 @@ const typeScale = [
   { cls: 'rc-body-sm', name: 'Body/SM', spec: '14 / 20 · Regular' },
   { cls: 'rc-body-xs', name: 'Body/XS', spec: '12 / 18 · Regular' },
   { cls: 'rc-label-lg', name: 'Label/LG', spec: '16 / 24 · Bold' },
-  { cls: 'rc-label-md', name: 'Label/MD', spec: '14 / 18 · Medium' },
-  { cls: 'rc-label-sm', name: 'Label/SM', spec: '12 / 16 · Medium' },
+  { cls: 'rc-label-md', name: 'Label/MD', spec: '14 / 18 · Bold' },
+  { cls: 'rc-label-sm', name: 'Label/SM', spec: '12 / 16 · Bold' },
   { cls: 'rc-helper-sm', name: 'Helper/SM', spec: '12 / 16 · Regular' },
 ];
 

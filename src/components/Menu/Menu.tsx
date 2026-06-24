@@ -20,26 +20,55 @@ export interface MenuProps {
   id?: string;
   className?: string;
   entries: MenuEntry[];
-  /** Optional section title. Omit or pass `""` to hide. */
+  /** Section title copy when `showGroupLabel` is true. */
   groupLabel?: string;
+  showGroupLabel?: boolean;
+  showDivider?: boolean;
+  showDelete?: boolean;
   onSelect?: (id: string) => void;
 }
 
-function resolveEntries(entries: MenuEntry[], groupLabel?: string): MenuEntry[] {
-  if (groupLabel === undefined) {
-    return entries;
-  }
-
+function resolveEntries(
+  entries: MenuEntry[],
+  groupLabel?: string,
+  showGroupLabel = true,
+): MenuEntry[] {
   const withoutGroups = entries.filter((entry) => entry.kind !== 'group');
-  if (!groupLabel) {
+
+  if (!showGroupLabel || !groupLabel) {
     return withoutGroups;
   }
 
   return [{ kind: 'group', id: 'menu-group', label: groupLabel }, ...withoutGroups];
 }
 
-export function Menu({ id, className, entries, groupLabel, onSelect }: MenuProps) {
-  const resolvedEntries = resolveEntries(entries, groupLabel);
+function applyVisibility(
+  entries: MenuEntry[],
+  showDivider = true,
+  showDelete = true,
+): MenuEntry[] {
+  return entries.filter((entry) => {
+    if (entry.kind === 'separator' && !showDivider) return false;
+    if (entry.kind === 'item' && entry.destructive && !showDelete) return false;
+    return true;
+  });
+}
+
+export function Menu({
+  id,
+  className,
+  entries,
+  groupLabel = 'Actions',
+  showGroupLabel = true,
+  showDivider = true,
+  showDelete = true,
+  onSelect,
+}: MenuProps) {
+  const resolvedEntries = applyVisibility(
+    resolveEntries(entries, groupLabel, showGroupLabel),
+    showDivider,
+    showDelete,
+  );
 
   return (
     <ul id={id} className={cn(styles.menu, className)} role="menu">

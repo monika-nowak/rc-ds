@@ -21,37 +21,24 @@ export interface SplitButtonProps
   variant?: SplitButtonStyle;
   size?: SplitButtonSize;
   menuItems: MenuEntry[];
-  /** Optional section title above menu items. Omit or pass `""` to hide. */
   menuGroupLabel?: string;
+  showMenuGroupLabel?: boolean;
+  showMenuDivider?: boolean;
+  showMenuDelete?: boolean;
   menuIcon?: ReactNode;
   onMainClick?: () => void;
   children: ReactNode;
 }
 
-function resolveMenuEntries(
-  menuItems: MenuEntry[],
-  menuGroupLabel?: string,
-): MenuEntry[] {
-  if (menuGroupLabel === undefined) {
-    return menuItems;
-  }
-
-  const withoutGroups = menuItems.filter((entry) => entry.kind !== 'group');
-  if (!menuGroupLabel) {
-    return withoutGroups;
-  }
-
-  return [
-    { kind: 'group', id: 'menu-group', label: menuGroupLabel },
-    ...withoutGroups,
-  ];
-}
 
 export function SplitButton({
   variant = 'primary',
   size = 'md',
   menuItems,
-  menuGroupLabel,
+  menuGroupLabel = 'Actions',
+  showMenuGroupLabel = true,
+  showMenuDivider = true,
+  showMenuDelete = true,
   menuIcon,
   onMainClick,
   className,
@@ -123,7 +110,11 @@ export function SplitButton({
         <Menu
           id={menuId}
           className={styles.menu}
-          entries={resolveMenuEntries(menuItems, menuGroupLabel)}
+          entries={menuItems}
+          groupLabel={menuGroupLabel}
+          showGroupLabel={showMenuGroupLabel}
+          showDivider={showMenuDivider}
+          showDelete={showMenuDelete}
           onSelect={() => setOpen(false)}
         />
       ) : null}

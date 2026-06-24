@@ -1,0 +1,38 @@
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-background-brand);
+  color: var(--rc-text-on-color);
+  font-family: var(--rc-font-sans);
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.sm {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+}
+
+.lg {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+}

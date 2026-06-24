@@ -9,10 +9,10 @@
 .label {
   font-family: var(--rc-font-sans);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: var(--rc-text-secondary);
+  color: var(--rc-text-primary);
 }
 
 .input {

@@ -1,0 +1,227 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.label {
+  font-family: var(--rc-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: var(--rc-text-primary);
+}
+
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--rc-spacing-3);
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-field-02);
+  color: var(--rc-text-primary);
+  font-family: var(--rc-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.14px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.sm .trigger {
+  min-height: 36px;
+  padding: var(--rc-spacing-2) var(--rc-spacing-3);
+}
+
+.value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--rc-text-placeholder);
+}
+
+.caret {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--rc-icon-secondary);
+}
+
+.trigger:hover:not(:disabled):not(.error) {
+  background: var(--rc-field-hover-02);
+}
+
+.trigger:focus-visible:not(:disabled):not(.error),
+.focus:not(.error),
+.open:not(.error) {
+  padding: 11.5px;
+  border-width: 1.5px;
+  border-color: var(--rc-border-interactive);
+}
+
+.sm .trigger:focus-visible:not(:disabled):not(.error),
+.sm .focus:not(.error),
+.sm .open:not(.error) {
+  padding: 7.5px 11.5px;
+}
+
+.error {
+  padding: 11.5px;
+  border-width: 1.5px;
+  border-color: var(--rc-support-error);
+}
+
+.sm .error {
+  padding: 7.5px 11.5px;
+}
+
+.error:focus-visible,
+.error.open {
+  border-color: var(--rc-support-error);
+}
+
+.trigger:disabled {
+  background: var(--rc-field-01);
+  border-color: var(--rc-border-disabled);
+  color: var(--rc-text-disabled);
+  cursor: not-allowed;
+}
+
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.disabled .label,
+.disabled .helper {
+  color: var(--rc-text-disabled);
+}
+
+.list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  box-shadow: var(--rc-shadow-lg);
+  overflow: hidden;
+}
+
+.groupLabel {
+  padding: var(--rc-spacing-2) var(--rc-spacing-3) var(--rc-spacing-1);
+  font-family: var(--rc-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+  color: var(--rc-text-secondary);
+}
+
+.separator {
+  padding: var(--rc-spacing-1) var(--rc-spacing-3);
+}
+
+.separatorLine {
+  height: 1px;
+  background: var(--rc-border-subtle-01);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+  height: 36px;
+  padding: var(--rc-spacing-2) var(--rc-spacing-3);
+  border: none;
+  background: transparent;
+  color: var(--rc-text-primary);
+  font-family: var(--rc-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:hover:not(:disabled):not(.selected) {
+  background: var(--rc-layer-02);
+}
+
+.option.selected,
+.option.selected:hover {
+  background: var(--rc-background-selected-hover);
+}
+
+.option:disabled {
+  color: var(--rc-text-disabled);
+  cursor: not-allowed;
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.check {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  color: var(--rc-icon-primary);
+}
+
+.option.selected .check {
+  visibility: visible;
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: -2px;
+}
+
+.helper {
+  font-family: var(--rc-font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+  color: var(--rc-text-helper);
+}
+
+.helperError {
+  color: var(--rc-text-error);
+}

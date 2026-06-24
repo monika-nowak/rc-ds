@@ -34,7 +34,7 @@ export function Swatch({
         className={styles.swatchColor}
         style={{
           background: `var(${cssVar})`,
-          border: showBorder ? '1px solid var(--rc-border-subtle-02)' : undefined,
+          border: showBorder ? '1px solid var(--rc-border-subtle-01)' : undefined,
         }}
       />
       <div className={styles.swatchName}>{name}</div>
@@ -56,7 +56,7 @@ export function PrimitiveRamp({ family, steps }: { family: string; steps: string
                 className={styles.rampColor}
                 style={{
                   background: `var(${cssVar})`,
-                  border: isLight ? '1px solid var(--rc-border-subtle-02)' : undefined,
+                  border: isLight ? '1px solid var(--rc-border-subtle-01)' : undefined,
                 }}
               />
               <div className={styles.rampStepName}>{step.split('/')[1]}</div>

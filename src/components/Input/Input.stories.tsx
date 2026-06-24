@@ -9,6 +9,12 @@ const meta = {
     label: 'Label',
     placeholder: 'Placeholder',
     helperText: 'Helper text',
+    showLabel: true,
+    showHelperText: true,
+  },
+  argTypes: {
+    showLabel: { control: 'boolean' },
+    showHelperText: { control: 'boolean' },
   },
 } satisfies Meta<typeof Input>;
 
@@ -40,6 +46,28 @@ export const Error: Story = {
 export const Disabled: Story = {
   args: {
     state: 'disabled',
+  },
+};
+
+export const WithoutLabel: Story = {
+  args: {
+    showLabel: false,
+    defaultValue: 'Value text',
+  },
+};
+
+export const WithoutHelper: Story = {
+  args: {
+    showHelperText: false,
+    defaultValue: 'Value text',
+  },
+};
+
+export const FieldOnly: Story = {
+  args: {
+    showLabel: false,
+    showHelperText: false,
+    placeholder: 'Placeholder',
   },
 };
 

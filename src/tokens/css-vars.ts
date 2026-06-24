@@ -4,7 +4,7 @@ function toVarName(token: string) {
   return `--rc-${token.replace(/\//g, '-')}`;
 }
 
-export function semanticCssBlock(mode: 'semanticLight' | 'semanticDark' = 'semanticLight') {
+export function semanticCssBlock(mode: 'semanticLight' = 'semanticLight') {
   return Object.entries(tokens[mode])
     .map(([name, value]) => `  ${toVarName(name)}: ${value};`)
     .join('\n');
@@ -26,10 +26,10 @@ export const radiusVars = Object.fromEntries(
 
 export const semanticGroups: Record<string, string[]> = {
   Background: [
-    'background/default', 'background/canvas', 'background/blank', 'background/hover',
+    'background/canvas', 'background/blank', 'background/hover',
     'background/active', 'background/selected', 'background/selected-hover', 'background/inverse', 'background/brand',
   ],
-  Layer: ['layer/01', 'layer/02', 'layer/03', 'layer/hover-01', 'layer/active-01', 'layer/selected-01', 'layer/selected'],
+  Layer: ['layer/01', 'layer/02', 'layer/03', 'layer/hover-01', 'layer/active-01', 'layer/selected-01'],
   Field: ['field/01', 'field/02', 'field/03', 'field/hover-01', 'field/hover-02', 'field/hover-03'],
   Border: [
     'border/subtle-00', 'border/subtle-01', 'border/subtle-02', 'border/subtle-03',
@@ -37,7 +37,7 @@ export const semanticGroups: Record<string, string[]> = {
     'border/strong-01', 'border/interactive', 'border/inverse', 'border/disabled',
   ],
   Text: [
-    'text/primary', 'text/secondary', 'text/placeholder', 'text/helper', 'text/error',
+    'text/primary', 'text/secondary', 'text/tertiary', 'text/placeholder', 'text/helper', 'text/error',
     'text/on-color', 'text/on-color-disabled', 'text/inverse', 'text/disabled',
   ],
   Link: ['link/primary', 'link/primary-hover', 'link/inverse', 'link/visited'],

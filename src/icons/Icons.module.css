@@ -20,7 +20,7 @@
 .callout {
   margin: 0 0 32px;
   padding: 16px 20px;
-  border: 1px solid var(--rc-border-subtle-02);
+  border: 1px solid var(--rc-border-subtle-01);
   border-left: 3px solid var(--rc-background-brand);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-layer-02);
@@ -55,7 +55,7 @@
   height: var(--rc-height-md);
   margin-bottom: 24px;
   padding: 0 var(--rc-spacing-3);
-  border: 1px solid var(--rc-border-subtle-02);
+  border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-field-02);
   font: 400 14px/20px var(--rc-font-sans);
@@ -79,7 +79,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 8px;
-  border: 1px solid var(--rc-border-subtle-02);
+  border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-layer-01);
 }
@@ -123,7 +123,7 @@
 .copyButton {
   height: 24px;
   padding: 0 8px;
-  border: 1px solid var(--rc-border-subtle-02);
+  border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-field-02);
   font: 500 10px/12px var(--rc-font-sans);

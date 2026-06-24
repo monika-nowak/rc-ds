@@ -33,12 +33,15 @@ const meta = {
   args: {
     entries: menuItems,
     groupLabel: 'Actions',
+    showGroupLabel: true,
+    showDivider: true,
+    showDelete: true,
   },
   argTypes: {
-    groupLabel: {
-      control: 'text',
-      description: 'Section title above menu items. Leave empty to hide.',
-    },
+    groupLabel: { control: 'text' },
+    showGroupLabel: { control: 'boolean' },
+    showDivider: { control: 'boolean' },
+    showDelete: { control: 'boolean' },
   },
 } satisfies Meta<typeof Menu>;
 
@@ -50,6 +53,20 @@ export const ActionsMenu: Story = {};
 export const WithoutGroupLabel: Story = {
   name: 'Without group label',
   args: {
-    groupLabel: '',
+    showGroupLabel: false,
+  },
+};
+
+export const WithoutDivider: Story = {
+  name: 'Without divider',
+  args: {
+    showDivider: false,
+  },
+};
+
+export const WithoutDelete: Story = {
+  name: 'Without delete',
+  args: {
+    showDelete: false,
   },
 };

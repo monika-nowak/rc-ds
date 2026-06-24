@@ -33,7 +33,6 @@
   --rc-white-1000: #ffffff; --rc-black-1000: #000000;
 
   /* Semantic — Light */
-  --rc-background-default: #fafafa;
   --rc-background-canvas: #fafafa;
   --rc-background-blank: #ffffff;
   --rc-background-hover: #eaeaeb;
@@ -45,11 +44,10 @@
 
   --rc-layer-01: #ffffff;
   --rc-layer-02: #fafafa;
-  --rc-layer-03: #fafafa;
+  --rc-layer-03: #eaeaeb;
   --rc-layer-hover-01: #fafafa;
   --rc-layer-active-01: #eaeaeb;
   --rc-layer-selected-01: #eaeaeb;
-  --rc-layer-selected: #eaeaeb;
 
   --rc-field-01: #fafafa;
   --rc-field-02: #ffffff;
@@ -59,12 +57,12 @@
   --rc-field-hover-03: #eaeaeb;
 
   --rc-border-subtle-00: #fafafa;
-  --rc-border-subtle-01: #bfbec0;
-  --rc-border-subtle-02: #eaeaeb;
-  --rc-border-subtle-03: #bfbec0;
+  --rc-border-subtle-01: #eaeaeb;
+  --rc-border-subtle-02: #bfbec0;
+  --rc-border-subtle-03: #a09ea2;
   --rc-border-subtle-selected-01: #bfbec0;
   --rc-border-subtle-selected-02: #eaeaeb;
-  --rc-border-subtle-selected-03: #eaeaeb;
+  --rc-border-subtle-selected-03: #a09ea2;
   --rc-border-strong-01: #151316;
   --rc-border-interactive: #151316;
   --rc-border-inverse: #151316;
@@ -72,6 +70,7 @@
 
   --rc-text-primary: #151316;
   --rc-text-secondary: #5a575d;
+  --rc-text-tertiary: #757277;
   --rc-text-placeholder: #757277;
   --rc-text-helper: #757277;
   --rc-text-error: #c43b01;

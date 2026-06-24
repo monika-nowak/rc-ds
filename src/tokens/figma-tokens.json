@@ -10,11 +10,11 @@
     "white/1000": "#ffffff", "black/1000": "#000000"
   },
   "semanticLight": {
-    "background/default": "#fafafa", "background/hover": "#eaeaeb", "background/active": "#bfbec0", "background/selected": "#eaeaeb", "background/selected-hover": "#eaeaeb", "background/inverse": "#151316", "background/brand": "#8752fa", "background/canvas": "#fafafa", "background/blank": "#ffffff",
-    "layer/01": "#ffffff", "layer/02": "#fafafa", "layer/03": "#fafafa", "layer/hover-01": "#fafafa", "layer/active-01": "#eaeaeb", "layer/selected-01": "#eaeaeb", "layer/selected": "#eaeaeb",
+    "background/hover": "#eaeaeb", "background/active": "#bfbec0", "background/selected": "#eaeaeb", "background/selected-hover": "#eaeaeb", "background/inverse": "#151316", "background/brand": "#8752fa", "background/canvas": "#fafafa", "background/blank": "#ffffff",
+    "layer/01": "#ffffff", "layer/02": "#fafafa", "layer/03": "#eaeaeb", "layer/hover-01": "#fafafa", "layer/active-01": "#eaeaeb", "layer/selected-01": "#eaeaeb",
     "field/01": "#fafafa", "field/02": "#ffffff", "field/03": "#fafafa", "field/hover-01": "#eaeaeb", "field/hover-02": "#fafafa", "field/hover-03": "#eaeaeb",
-    "border/subtle-00": "#fafafa", "border/subtle-01": "#bfbec0", "border/subtle-02": "#eaeaeb", "border/subtle-03": "#bfbec0", "border/subtle-selected-01": "#bfbec0", "border/subtle-selected-02": "#eaeaeb", "border/subtle-selected-03": "#eaeaeb", "border/strong-01": "#151316", "border/interactive": "#151316", "border/inverse": "#151316", "border/disabled": "#bfbec0",
-    "text/primary": "#151316", "text/secondary": "#5a575d", "text/placeholder": "#757277", "text/helper": "#757277", "text/error": "#c43b01", "text/on-color": "#ffffff", "text/on-color-disabled": "#a09ea2", "text/inverse": "#fafafa", "text/disabled": "#bfbec0",
+    "border/subtle-00": "#fafafa", "border/subtle-01": "#eaeaeb", "border/subtle-02": "#bfbec0", "border/subtle-03": "#a09ea2", "border/subtle-selected-01": "#bfbec0", "border/subtle-selected-02": "#eaeaeb", "border/subtle-selected-03": "#a09ea2", "border/strong-01": "#151316", "border/interactive": "#151316", "border/inverse": "#151316", "border/disabled": "#bfbec0",
+    "text/primary": "#151316", "text/secondary": "#5a575d", "text/tertiary": "#757277", "text/placeholder": "#757277", "text/helper": "#757277", "text/error": "#c43b01", "text/on-color": "#ffffff", "text/on-color-disabled": "#a09ea2", "text/inverse": "#fafafa", "text/disabled": "#bfbec0",
     "link/primary": "#151316", "link/primary-hover": "#2d292f", "link/inverse": "#fafafa", "link/visited": "#312d34",
     "icon/primary": "#151316", "icon/secondary": "#757277", "icon/on-color": "#ffffff", "icon/disabled": "#bfbec0", "icon/inverse": "#fafafa",
     "support/error": "#ff5001", "support/success": "#15803d", "support/warning": "#f59e0b", "support/info": "#4500f9",

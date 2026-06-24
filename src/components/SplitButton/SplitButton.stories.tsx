@@ -34,13 +34,16 @@ const meta = {
     children: 'Create & Send',
     menuItems,
     menuGroupLabel: 'Actions',
+    showMenuGroupLabel: true,
+    showMenuDivider: true,
+    showMenuDelete: true,
     onMainClick: () => undefined,
   },
   argTypes: {
-    menuGroupLabel: {
-      control: 'text',
-      description: 'Section title above menu items. Leave empty to hide.',
-    },
+    menuGroupLabel: { control: 'text' },
+    showMenuGroupLabel: { control: 'boolean' },
+    showMenuDivider: { control: 'boolean' },
+    showMenuDelete: { control: 'boolean' },
   },
 } satisfies Meta<typeof SplitButton>;
 
@@ -81,7 +84,7 @@ export const WithMenu: Story = {
 export const WithoutGroupLabel: Story = {
   name: 'Without group label',
   args: {
-    menuGroupLabel: '',
+    showMenuGroupLabel: false,
   },
   render: (args) => (
     <div style={{ padding: 24, minHeight: 280 }}>

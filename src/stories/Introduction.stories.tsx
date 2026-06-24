@@ -25,7 +25,7 @@ const principles = [
   },
   {
     title: 'Borders + elevation',
-    body: 'Everyday UI stays flat with borders (`border/subtle-01`). Shadows (`elevation/sm`–`xl`) are reserved for overlays — dropdowns, popovers, modals.',
+    body: 'Everyday UI stays flat with borders (`border/subtle-02`). Shadows (`elevation/sm`–`xl`) are reserved for overlays — dropdowns, popovers, modals.',
   },
   {
     title: 'Typography',

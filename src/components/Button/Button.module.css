@@ -5,7 +5,7 @@
   gap: var(--rc-space-2);
   border: 1px solid transparent;
   border-radius: var(--rc-radius-sm);
-  font-weight: 500;
+  font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;

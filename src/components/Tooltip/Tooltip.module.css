@@ -1,0 +1,128 @@
+.bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 208px;
+  padding: 2px var(--rc-spacing-3);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-inverse);
+  color: var(--rc-text-inverse);
+  font-family: var(--rc-font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0.32px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.multiline {
+  max-width: 288px;
+  padding: var(--rc-spacing-3);
+  white-space: normal;
+}
+
+.surface {
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 4%)) drop-shadow(0 8px 24px rgb(0 0 0 / 10%));
+}
+
+.surfaceTop {
+  flex-direction: column;
+}
+
+.surfaceBottom {
+  flex-direction: column;
+}
+
+.surfaceLeft {
+  flex-direction: row;
+}
+
+.surfaceRight {
+  flex-direction: row;
+}
+
+.caret {
+  flex-shrink: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.caretTop {
+  border-width: 6px 6px 0;
+  border-color: var(--rc-background-inverse) transparent transparent;
+}
+
+.caretBottom {
+  border-width: 0 6px 6px;
+  border-color: transparent transparent var(--rc-background-inverse);
+}
+
+.caretLeft {
+  border-width: 6px 0 6px 6px;
+  border-color: transparent transparent transparent var(--rc-background-inverse);
+}
+
+.caretRight {
+  border-width: 6px 6px 6px 0;
+  border-color: transparent var(--rc-background-inverse) transparent transparent;
+}
+
+.surfaceTop .caretTop {
+  margin-top: -1px;
+}
+
+.surfaceBottom .caretBottom {
+  margin-bottom: -1px;
+}
+
+.surfaceLeft .caretLeft {
+  margin-left: -1px;
+}
+
+.surfaceRight .caretRight {
+  margin-right: -1px;
+}
+
+.root {
+  display: inline-flex;
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+}
+
+.popup {
+  position: absolute;
+  z-index: 60;
+  display: inline-flex;
+  pointer-events: none;
+}
+
+.placementTop {
+  bottom: calc(100% + var(--rc-spacing-1));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.placementBottom {
+  top: calc(100% + var(--rc-spacing-1));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.placementLeft {
+  right: calc(100% + var(--rc-spacing-1));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.placementRight {
+  left: calc(100% + var(--rc-spacing-1));
+  top: 50%;
+  transform: translateY(-50%);
+}
