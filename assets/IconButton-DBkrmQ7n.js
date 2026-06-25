@@ -1,0 +1,9 @@
+import{j as e}from"./jsx-runtime-D_zvdyIk.js";import{c as u}from"./cn-2dOUpm6k.js";const m="_button_62ux2_1",c="_icon_62ux2_15",_="_badge_62ux2_25",d="_sm_62ux2_35",y="_xs_62ux2_40",p="_md_62ux2_55",x="_lg_62ux2_65",g="_primary_62ux2_75",v="_secondary_62ux2_88",b="_tertiary_62ux2_97",h="_ghost_62ux2_107",f="_danger_62ux2_116",T="_ai_62ux2_125",G="_aiSecondary_62ux2_138",S="_aiTertiary_62ux2_147",j="_aiGhost_62ux2_157",a={button:m,icon:c,badge:_,sm:d,xs:y,md:p,lg:x,primary:g,secondary:v,tertiary:b,ghost:h,danger:f,ai:T,aiSecondary:G,aiTertiary:S,aiGhost:j};function q({variant:t="primary",size:n="md",label:r,children:i,className:s,disabled:o,...l}){return e.jsx("button",{type:"button","aria-label":r,disabled:o,className:u(a.button,a[t],a[n],s),...l,children:e.jsx("span",{className:a.icon,children:i})})}q.__docgenInfo={description:"",methods:[],displayName:"IconButton",props:{variant:{required:!1,tsType:{name:"union",raw:`| 'primary'
+| 'secondary'
+| 'tertiary'
+| 'ghost'
+| 'danger'
+| 'ai'
+| 'aiSecondary'
+| 'aiTertiary'
+| 'aiGhost'`,elements:[{name:"literal",value:"'primary'"},{name:"literal",value:"'secondary'"},{name:"literal",value:"'tertiary'"},{name:"literal",value:"'ghost'"},{name:"literal",value:"'danger'"},{name:"literal",value:"'ai'"},{name:"literal",value:"'aiSecondary'"},{name:"literal",value:"'aiTertiary'"},{name:"literal",value:"'aiGhost'"}]},description:"",defaultValue:{value:"'primary'",computed:!1}},size:{required:!1,tsType:{name:"union",raw:"'badge' | 'xs' | 'sm' | 'md' | 'lg'",elements:[{name:"literal",value:"'badge'"},{name:"literal",value:"'xs'"},{name:"literal",value:"'sm'"},{name:"literal",value:"'md'"},{name:"literal",value:"'lg'"}]},description:"",defaultValue:{value:"'md'",computed:!1}},label:{required:!0,tsType:{name:"string"},description:""},children:{required:!0,tsType:{name:"ReactNode"},description:""}},composes:["ButtonHTMLAttributes"]};export{q as I};
