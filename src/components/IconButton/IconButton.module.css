@@ -22,9 +22,29 @@
   display: block;
 }
 
+.badge {
+  width: var(--rc-height-badge);
+  height: var(--rc-height-badge);
+}
+
+.badge .icon :global(svg) {
+  width: 12px;
+  height: 12px;
+}
+
 .sm {
   width: var(--rc-height-sm);
   height: var(--rc-height-sm);
+}
+
+.xs {
+  width: 24px;
+  height: 24px;
+}
+
+.xs .icon :global(svg) {
+  width: 14px;
+  height: 14px;
 }
 
 .sm .icon :global(svg) {
@@ -102,11 +122,60 @@
   background: var(--rc-button-danger-hover);
 }
 
+.ai {
+  background: var(--rc-button-ai);
+  color: var(--rc-text-on-color);
+}
+
+.ai:hover:not(:disabled) {
+  background: var(--rc-button-ai-hover);
+}
+
+.ai:active:not(:disabled) {
+  background: var(--rc-button-ai-active);
+}
+
+.aiSecondary {
+  background: var(--rc-button-ai-secondary);
+  color: var(--rc-icon-ai);
+}
+
+.aiSecondary:hover:not(:disabled) {
+  background: var(--rc-button-ai-secondary-hover);
+}
+
+.aiTertiary {
+  background: var(--rc-field-02);
+  border-color: var(--rc-border-ai);
+  color: var(--rc-icon-ai);
+}
+
+.aiTertiary:hover:not(:disabled) {
+  background: var(--rc-button-ai-tertiary-hover);
+}
+
+.aiGhost {
+  background: var(--rc-button-ai-ghost);
+  color: var(--rc-icon-ai);
+}
+
+.aiGhost:hover:not(:disabled) {
+  background: var(--rc-button-ai-ghost-hover);
+}
+
+.aiGhost :global(svg) {
+  color: var(--rc-icon-ai);
+}
+
 .primary:disabled,
 .secondary:disabled,
 .tertiary:disabled,
 .ghost:disabled,
-.danger:disabled {
+.danger:disabled,
+.ai:disabled,
+.aiSecondary:disabled,
+.aiTertiary:disabled,
+.aiGhost:disabled {
   background: var(--rc-button-disabled);
   border-color: transparent;
   color: var(--rc-button-disabled-text);

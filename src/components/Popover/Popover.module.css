@@ -1,0 +1,191 @@
+.panel {
+  display: block;
+  box-sizing: border-box;
+  min-width: 120px;
+  max-width: 352px;
+  padding: var(--rc-spacing-4);
+  border-radius: var(--rc-radius-sm);
+  font-family: var(--rc-font-sans);
+  text-align: left;
+}
+
+.default {
+  background: var(--rc-layer-01);
+  color: var(--rc-text-primary);
+  border: 1px solid var(--rc-border-subtle-01);
+}
+
+.inverse {
+  background: var(--rc-background-inverse);
+  color: var(--rc-text-inverse);
+  border: 1px solid var(--rc-background-inverse);
+}
+
+.surface {
+  display: inline-flex;
+  align-items: center;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 10%)) drop-shadow(0 12px 32px rgb(0 0 0 / 16%));
+}
+
+.surfaceNoCaret {
+  filter: drop-shadow(var(--rc-shadow-md));
+}
+
+.surfaceTop,
+.surfaceBottom {
+  flex-direction: column;
+}
+
+.surfaceLeft,
+.surfaceRight {
+  flex-direction: row;
+}
+
+.caret {
+  flex-shrink: 0;
+  width: 0;
+  height: 0;
+  background: transparent;
+  border-style: solid;
+}
+
+.caretTop {
+  border-width: 8px 8px 0;
+}
+
+.caretBottom {
+  border-width: 0 8px 8px;
+}
+
+.caretLeft {
+  border-width: 8px 0 8px 8px;
+}
+
+.caretRight {
+  border-width: 8px 8px 8px 0;
+}
+
+.caretDefault.caretTop {
+  border-color: var(--rc-layer-01) transparent transparent;
+}
+
+.caretDefault.caretBottom {
+  border-color: transparent transparent var(--rc-layer-01);
+}
+
+.caretDefault.caretLeft {
+  border-color: transparent transparent transparent var(--rc-layer-01);
+}
+
+.caretDefault.caretRight {
+  border-color: transparent var(--rc-layer-01) transparent transparent;
+}
+
+.caretInverse.caretTop {
+  border-color: var(--rc-background-inverse) transparent transparent;
+}
+
+.caretInverse.caretBottom {
+  border-color: transparent transparent var(--rc-background-inverse);
+}
+
+.caretInverse.caretLeft {
+  border-color: transparent transparent transparent var(--rc-background-inverse);
+}
+
+.caretInverse.caretRight {
+  border-color: transparent var(--rc-background-inverse) transparent transparent;
+}
+
+.caretAlignStart {
+  align-self: flex-start;
+  margin-inline: var(--rc-spacing-4);
+}
+
+.caretAlignCenter {
+  align-self: center;
+}
+
+.caretAlignEnd {
+  align-self: flex-end;
+  margin-inline: var(--rc-spacing-4);
+}
+
+.surfaceTop .caretTop {
+  margin-top: -1px;
+}
+
+.surfaceBottom .caretBottom {
+  margin-bottom: -1px;
+}
+
+.surfaceLeft .caretLeft {
+  margin-left: -1px;
+}
+
+.surfaceRight .caretRight {
+  margin-right: -1px;
+}
+
+.root {
+  display: inline-flex;
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+}
+
+.popup {
+  position: absolute;
+  z-index: 60;
+  display: inline-flex;
+}
+
+.placementTop {
+  bottom: calc(100% + var(--rc-spacing-1));
+}
+
+.placementBottom {
+  top: calc(100% + var(--rc-spacing-1));
+}
+
+.placementLeft {
+  right: calc(100% + var(--rc-spacing-1));
+}
+
+.placementRight {
+  left: calc(100% + var(--rc-spacing-1));
+}
+
+.alignCenter.placementTop,
+.alignCenter.placementBottom {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.alignStart.placementTop,
+.alignStart.placementBottom {
+  left: 0;
+}
+
+.alignEnd.placementTop,
+.alignEnd.placementBottom {
+  right: 0;
+}
+
+.alignCenter.placementLeft,
+.alignCenter.placementRight {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.alignStart.placementLeft,
+.alignStart.placementRight {
+  top: 0;
+}
+
+.alignEnd.placementLeft,
+.alignEnd.placementRight {
+  bottom: 0;
+}

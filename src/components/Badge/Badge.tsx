@@ -2,30 +2,36 @@ import type { HTMLAttributes } from 'react';
 import { cn } from '../../lib/cn';
 import styles from './Badge.module.css';
 
-export type BadgeStyle = 'primary' | 'subtle';
-export type BadgeType =
+/** Visual weight — emphasis (strong tint) or subtle (light tint). */
+export type BadgeAppearance = 'emphasis' | 'subtle';
+
+/** Semantic color role aligned with RC token groups. */
+export type BadgeColor =
   | 'neutral'
   | 'success'
   | 'warning'
   | 'error'
   | 'info'
   | 'purple'
-  | 'blue';
+  | 'lightPurple';
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: BadgeStyle;
-  type?: BadgeType;
+  appearance?: BadgeAppearance;
+  color?: BadgeColor;
 }
 
 export function Badge({
-  variant = 'primary',
-  type = 'neutral',
+  appearance = 'emphasis',
+  color = 'neutral',
   className,
   children,
   ...props
 }: BadgeProps) {
   return (
-    <span className={cn(styles.badge, styles[variant], styles[type], className)} {...props}>
+    <span
+      className={cn(styles.badge, styles[appearance], styles[color], className)}
+      {...props}
+    >
       {children}
     </span>
   );

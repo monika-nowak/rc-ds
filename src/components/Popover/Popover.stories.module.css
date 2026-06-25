@@ -1,0 +1,64 @@
+.metricList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+  min-width: 220px;
+}
+
+.metricRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--rc-spacing-4);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.metricRow strong {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.richContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-3);
+  max-width: 280px;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.body {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--rc-text-secondary);
+}
+
+.inverse .body {
+  color: rgb(255 255 255 / 72%);
+}
+
+.actions {
+  display: flex;
+  gap: var(--rc-spacing-2);
+}
+
+.placementGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-8);
+  align-items: center;
+  justify-content: center;
+}
+
+.placementLabel {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}

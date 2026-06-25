@@ -60,11 +60,11 @@
 }
 
 .item.destructive {
-  color: var(--rc-support-error);
+  color: var(--rc-text-error);
 }
 
 .item.destructive :global(svg) {
-  color: var(--rc-support-error);
+  color: var(--rc-icon-error);
 }
 
 .item:focus-visible {

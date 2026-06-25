@@ -30,6 +30,7 @@
   --rc-green-800: #166534; --rc-green-900: #14532d; --rc-green-950: #0a2e18;
   --rc-amber-50: #fffbeb; --rc-amber-100: #fff6d1; --rc-amber-200: #fee68a; --rc-amber-300: #fcd34d;
   --rc-amber-400: #fbbf24; --rc-amber-500: #f59e0b; --rc-amber-600: #d97706;
+  --rc-amber-700: #b45309; --rc-amber-800: #92400e; --rc-amber-900: #78350f; --rc-amber-950: #451a03;
   --rc-white-1000: #ffffff; --rc-black-1000: #000000;
 
   /* Semantic — Light */
@@ -89,6 +90,27 @@
   --rc-icon-on-color: #ffffff;
   --rc-icon-disabled: #bfbec0;
   --rc-icon-inverse: #fafafa;
+  --rc-icon-error: #c43b01;
+  --rc-icon-warning: #b45309;
+  --rc-icon-success: #15803d;
+  --rc-icon-info: #4500f9;
+  --rc-icon-ai: #8752fa;
+
+  --rc-text-warning: #92400e;
+  --rc-text-success: #166534;
+  --rc-text-info: #150061;
+  --rc-text-ai: #4b2b8f;
+
+  --rc-background-support-error: #fff6f4;
+  --rc-background-support-warning: #fffbeb;
+  --rc-background-support-success: #f0fdf4;
+  --rc-background-support-info: #f1f4ff;
+
+  --rc-border-support-error: #ffb49d;
+  --rc-border-support-warning: #fcd34d;
+  --rc-border-support-success: #86efac;
+  --rc-border-support-info: #92a0ff;
+  --rc-border-ai: #8752fa;
 
   --rc-support-error: #ff5001;
   --rc-support-success: #15803d;
@@ -108,6 +130,14 @@
   --rc-button-ghost-hover: #eaeaeb;
   --rc-button-danger: #ff5001;
   --rc-button-danger-hover: #c43b01;
+  --rc-button-ai: #8752fa;
+  --rc-button-ai-hover: #663dc0;
+  --rc-button-ai-active: #4b2b8f;
+  --rc-button-ai-secondary: #ece9ff;
+  --rc-button-ai-secondary-hover: #d7d0ff;
+  --rc-button-ai-tertiary-hover: #f7f6ff;
+  --rc-button-ai-ghost: #f7f6ff;
+  --rc-button-ai-ghost-hover: #ece9ff;
   --rc-button-disabled: #eaeaeb;
   --rc-button-disabled-text: #a09ea2;
 
@@ -131,16 +161,17 @@
   --rc-radius-lg: 12px;
   --rc-radius-full: 9999px;
 
-  /* Elevation */
-  --rc-shadow-sm: 0 1px 2px rgb(0 0 0 / 5%), 0 2px 8px rgb(0 0 0 / 6%);
-  --rc-shadow-md: 0 2px 4px rgb(0 0 0 / 4%), 0 4px 16px rgb(0 0 0 / 8%);
-  --rc-shadow-lg: 0 4px 8px rgb(0 0 0 / 4%), 0 8px 24px rgb(0 0 0 / 10%);
-  --rc-shadow-xl: 0 8px 16px rgb(0 0 0 / 6%), 0 16px 48px rgb(0 0 0 / 12%);
+  /* Elevation — layered shadows; each step is visibly stronger than the previous */
+  --rc-shadow-sm: 0 1px 2px rgb(0 0 0 / 8%), 0 2px 6px rgb(0 0 0 / 6%);
+  --rc-shadow-md: 0 2px 4px rgb(0 0 0 / 8%), 0 6px 20px rgb(0 0 0 / 12%);
+  --rc-shadow-lg: 0 4px 8px rgb(0 0 0 / 10%), 0 12px 32px rgb(0 0 0 / 16%);
+  --rc-shadow-xl: 0 8px 16px rgb(0 0 0 / 12%), 0 24px 64px rgb(0 0 0 / 22%);
 
   /* Component sizes */
+  --rc-height-badge: 22px;
   --rc-height-sm: 32px;
   --rc-height-md: 40px;
-  --rc-height-lg: 48px;
+  --rc-height-lg: 46px;
 }
 
 *,

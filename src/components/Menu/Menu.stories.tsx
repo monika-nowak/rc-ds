@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { Flag, PencilSimple, Trash } from '@phosphor-icons/react';
 import { Menu } from './Menu';
 
 const menuItems = [
@@ -49,6 +49,29 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const ActionsMenu: Story = {};
+
+export const FlagIssueMenu: Story = {
+  name: 'Flag issue menu',
+  args: {
+    showGroupLabel: false,
+    showDivider: false,
+    entries: [
+      {
+        kind: 'item',
+        id: 'edit',
+        label: 'Edit',
+        icon: <PencilSimple size={16} weight="regular" />,
+      },
+      {
+        kind: 'item',
+        id: 'flag',
+        label: 'Flag an issue',
+        icon: <Flag size={16} weight="regular" />,
+        destructive: true,
+      },
+    ],
+  },
+};
 
 export const WithoutGroupLabel: Story = {
   name: 'Without group label',

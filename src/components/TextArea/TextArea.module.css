@@ -15,27 +15,10 @@
   color: var(--rc-text-primary);
 }
 
-.labelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--rc-spacing-3);
-}
-
-.labelGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--rc-spacing-2);
-  min-width: 0;
-}
-
-.aiAction {
-  flex-shrink: 0;
-}
-
-.input {
+.textarea {
   width: 100%;
-  padding: calc((var(--rc-height-md) - 20px - 2px) / 2) var(--rc-spacing-3);
+  min-height: 120px;
+  padding: var(--rc-spacing-3);
   border: 1px solid var(--rc-border-subtle-02);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-field-02);
@@ -46,31 +29,23 @@
   line-height: 20px;
   letter-spacing: 0.14px;
   outline: none;
+  resize: vertical;
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
-.input::placeholder {
+.textarea::placeholder {
   color: var(--rc-text-placeholder);
 }
 
-.ai {
-  border-color: var(--rc-border-ai);
-}
-
-.input:focus:not(:disabled):not(.error),
+.textarea:focus:not(:disabled):not(.error),
 .focus:not(.error) {
-  padding: calc((var(--rc-height-md) - 20px - 3px) / 2) calc(var(--rc-spacing-3) - 0.5px);
+  padding: 11.5px;
   border-width: 1.5px;
   border-color: var(--rc-border-interactive);
 }
 
-.ai:focus:not(:disabled):not(.error),
-.focus.ai:not(.error) {
-  border-color: var(--rc-border-ai);
-}
-
 .error {
-  padding: calc((var(--rc-height-md) - 20px - 3px) / 2) calc(var(--rc-spacing-3) - 0.5px);
+  padding: 11.5px;
   border-width: 1.5px;
   border-color: var(--rc-support-error);
 }
@@ -97,25 +72,14 @@
   color: var(--rc-text-disabled);
 }
 
-.input:disabled {
+.textarea:disabled {
   background: var(--rc-field-01);
   border-color: var(--rc-border-disabled);
   color: var(--rc-text-disabled);
   cursor: not-allowed;
+  resize: none;
 }
 
-.input:disabled::placeholder {
+.textarea:disabled::placeholder {
   color: var(--rc-text-disabled);
-}
-
-.inputRow {
-  display: flex;
-  align-items: stretch;
-  gap: var(--rc-spacing-1);
-  width: 100%;
-}
-
-.inputInRow {
-  flex: 1;
-  min-width: 0;
 }

@@ -17,7 +17,7 @@ const principles = [
   },
   {
     title: 'Neutral-first',
-    body: 'Primary actions use `button/primary` (neutral-900). Brand purple (`background/brand`) is reserved for brand moments. Destructive and error states use orange (`support/error`).',
+    body: 'Primary actions use `button/primary` (neutral-900). Purple AI buttons (`ai`, `aiSecondary`, `aiTertiary`, `aiGhost`) are reserved exclusively for AI interactions. Use `aiGhost` + `badge` IconButton with `<Icon name="sparkle" />` for compact field actions like “Ask AI to redraft”. Destructive states use orange (`support/error`).',
   },
   {
     title: 'Radius scale',

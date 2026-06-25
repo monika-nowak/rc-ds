@@ -1,0 +1,70 @@
+.alert {
+  display: flex;
+  gap: var(--rc-spacing-3);
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  border: 1px solid transparent;
+  border-radius: var(--rc-radius-md);
+  font-family: var(--rc-font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.14px;
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.icon :global(svg) {
+  width: 20px;
+  height: 20px;
+}
+
+.content {
+  min-width: 0;
+}
+
+.error {
+  background: var(--rc-background-support-error);
+  border-color: var(--rc-border-support-error);
+  color: var(--rc-text-error);
+}
+
+.error .icon :global(svg) {
+  color: var(--rc-icon-error);
+}
+
+.warning {
+  background: var(--rc-background-support-warning);
+  border-color: var(--rc-border-support-warning);
+  color: var(--rc-text-warning);
+}
+
+.warning .icon :global(svg) {
+  color: var(--rc-icon-warning);
+}
+
+.success {
+  background: var(--rc-background-support-success);
+  border-color: var(--rc-border-support-success);
+  color: var(--rc-text-success);
+}
+
+.success .icon :global(svg) {
+  color: var(--rc-icon-success);
+}
+
+.info {
+  background: var(--rc-background-support-info);
+  border-color: var(--rc-border-support-info);
+  color: var(--rc-text-info);
+}
+
+.info .icon :global(svg) {
+  color: var(--rc-icon-info);
+}

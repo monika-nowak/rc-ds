@@ -6,7 +6,7 @@
     "blue/50": "#f1f4ff", "blue/100": "#dfe5ff", "blue/200": "#bcc7ff", "blue/300": "#92a0ff", "blue/400": "#656cff", "blue/500": "#4500f9", "blue/600": "#3300bf", "blue/700": "#23008e", "blue/800": "#150061", "blue/900": "#09003b", "blue/950": "#090132",
     "neutral/25": "#fafafa", "neutral/50": "#eaeaeb", "neutral/100": "#bfbec0", "neutral/200": "#a09ea2", "neutral/300": "#757277", "neutral/400": "#5a575d", "neutral/500": "#312d34", "neutral/600": "#2d292f", "neutral/700": "#232025", "neutral/800": "#1b191d", "neutral/900": "#151316",
     "green/50": "#f0fdf4", "green/100": "#dcfce7", "green/200": "#bbf7d0", "green/300": "#86efac", "green/400": "#4ade80", "green/500": "#22c55e", "green/600": "#16a34a", "green/700": "#15803d", "green/800": "#166534", "green/900": "#14532d", "green/950": "#0a2e18",
-    "amber/50": "#fffbeb", "amber/100": "#fff6d1", "amber/200": "#fee68a", "amber/300": "#fcd34d", "amber/400": "#fbbf24", "amber/500": "#f59e0b", "amber/600": "#d97706",
+    "amber/50": "#fffbeb", "amber/100": "#fff6d1", "amber/200": "#fee68a", "amber/300": "#fcd34d", "amber/400": "#fbbf24", "amber/500": "#f59e0b", "amber/600": "#d97706", "amber/700": "#b45309", "amber/800": "#92400e", "amber/900": "#78350f", "amber/950": "#451a03",
     "white/1000": "#ffffff", "black/1000": "#000000"
   },
   "semanticLight": {
@@ -17,9 +17,13 @@
     "text/primary": "#151316", "text/secondary": "#5a575d", "text/tertiary": "#757277", "text/placeholder": "#757277", "text/helper": "#757277", "text/error": "#c43b01", "text/on-color": "#ffffff", "text/on-color-disabled": "#a09ea2", "text/inverse": "#fafafa", "text/disabled": "#bfbec0",
     "link/primary": "#151316", "link/primary-hover": "#2d292f", "link/inverse": "#fafafa", "link/visited": "#312d34",
     "icon/primary": "#151316", "icon/secondary": "#757277", "icon/on-color": "#ffffff", "icon/disabled": "#bfbec0", "icon/inverse": "#fafafa",
+    "icon/error": "#c43b01", "icon/warning": "#b45309", "icon/success": "#15803d", "icon/info": "#4500f9", "icon/ai": "#8752fa",
+    "text/warning": "#92400e", "text/success": "#166534", "text/info": "#150061", "text/ai": "#4b2b8f",
+    "background/support/error": "#fff6f4", "background/support/warning": "#fffbeb", "background/support/success": "#f0fdf4", "background/support/info": "#f1f4ff",
+    "border/support/error": "#ffb49d", "border/support/warning": "#fcd34d", "border/support/success": "#86efac", "border/support/info": "#92a0ff", "border/ai": "#8752fa",
     "support/error": "#ff5001", "support/success": "#15803d", "support/warning": "#f59e0b", "support/info": "#4500f9",
     "focus/default": "#151316", "focus/inverse": "#ffffff",
-    "button/primary": "#151316", "button/primary-hover": "#2d292f", "button/primary-active": "#232025", "button/secondary": "#eaeaeb", "button/secondary-hover": "#bfbec0", "button/tertiary": "#bfbec0", "button/tertiary-hover": "#fafafa", "button/ghost-hover": "#eaeaeb", "button/danger": "#ff5001", "button/danger-hover": "#c43b01", "button/disabled": "#eaeaeb", "button/disabled-text": "#a09ea2"
+    "button/primary": "#151316", "button/primary-hover": "#2d292f", "button/primary-active": "#232025", "button/secondary": "#eaeaeb", "button/secondary-hover": "#bfbec0", "button/tertiary": "#bfbec0", "button/tertiary-hover": "#fafafa", "button/ghost-hover": "#eaeaeb", "button/danger": "#ff5001", "button/danger-hover": "#c43b01", "button/ai": "#8752fa", "button/ai-hover": "#663dc0", "button/ai-active": "#4b2b8f", "button/ai-secondary": "#ece9ff", "button/ai-secondary-hover": "#d7d0ff", "button/ai-tertiary-hover": "#f7f6ff", "button/ai-ghost": "#f7f6ff", "button/ai-ghost-hover": "#ece9ff", "button/disabled": "#eaeaeb", "button/disabled-text": "#a09ea2"
   },
   "spacing": { "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64 },
   "radius": { "none": 0, "sm": 4, "md": 8, "lg": 12, "full": 9999 }

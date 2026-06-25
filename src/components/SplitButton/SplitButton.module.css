@@ -53,7 +53,11 @@
   flex-shrink: 0;
 }
 
-/* Sizes — match Figma Label/MD and Label/SM */
+/* Sizes — match Figma Label/MD, Label/SM, and XSmall */
+.xs {
+  height: 24px;
+}
+
 .md {
   height: var(--rc-height-md);
 }
@@ -88,6 +92,26 @@
 
 .sm .caret {
   padding: var(--rc-spacing-2);
+}
+
+.xs .main {
+  padding: 0 8px;
+}
+
+.xs .label {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+}
+
+.xs .caret {
+  width: 24px;
+  padding: 4px;
+}
+
+.xs .caret :global(svg) {
+  width: 14px;
+  height: 14px;
 }
 
 /* Variants */

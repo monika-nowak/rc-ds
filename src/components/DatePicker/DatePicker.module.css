@@ -29,8 +29,7 @@
   justify-content: space-between;
   gap: var(--rc-spacing-2);
   width: 100%;
-  min-height: 40px;
-  padding: 10px var(--rc-spacing-3);
+  padding: calc((var(--rc-height-md) - 20px - 2px) / 2) var(--rc-spacing-3);
   border: 1px solid var(--rc-border-subtle-02);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-field-02);
@@ -47,8 +46,7 @@
 }
 
 .sm .trigger {
-  min-height: 32px;
-  padding: var(--rc-spacing-2) var(--rc-spacing-3);
+  padding: calc((var(--rc-height-sm) - 20px - 2px) / 2) var(--rc-spacing-3);
 }
 
 .value {
@@ -78,7 +76,7 @@
 .trigger:focus-visible:not(:disabled):not(.error),
 .focus:not(.error),
 .open:not(.error) {
-  padding: 9.5px 11.5px;
+  padding: calc((var(--rc-height-md) - 20px - 3px) / 2) calc(var(--rc-spacing-3) - 0.5px);
   border-width: 1.5px;
   border-color: var(--rc-border-interactive);
 }
@@ -86,17 +84,17 @@
 .sm .trigger:focus-visible:not(:disabled):not(.error),
 .sm .focus:not(.error),
 .sm .open:not(.error) {
-  padding: 7.5px 11.5px;
+  padding: calc((var(--rc-height-sm) - 20px - 3px) / 2) calc(var(--rc-spacing-3) - 0.5px);
 }
 
 .error {
-  padding: 9.5px 11.5px;
+  padding: calc((var(--rc-height-md) - 20px - 3px) / 2) calc(var(--rc-spacing-3) - 0.5px);
   border-width: 1.5px;
   border-color: var(--rc-support-error);
 }
 
 .sm .error {
-  padding: 7.5px 11.5px;
+  padding: calc((var(--rc-height-sm) - 20px - 3px) / 2) calc(var(--rc-spacing-3) - 0.5px);
 }
 
 .error:focus-visible,

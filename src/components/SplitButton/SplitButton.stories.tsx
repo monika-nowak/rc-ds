@@ -40,6 +40,14 @@ const meta = {
     onMainClick: () => undefined,
   },
   argTypes: {
+    variant: {
+      control: 'select',
+      options: ['primary', 'secondary'],
+    },
+    size: {
+      control: 'select',
+      options: ['xs', 'sm', 'md'],
+    },
     menuGroupLabel: { control: 'text' },
     showMenuGroupLabel: { control: 'boolean' },
     showMenuDivider: { control: 'boolean' },
@@ -56,6 +64,11 @@ export const Primary: Story = {
 
 export const Secondary: Story = {
   args: { variant: 'secondary' },
+};
+
+export const ExtraSmall: Story = {
+  name: 'Extra small',
+  args: { variant: 'primary', size: 'xs' },
 };
 
 export const Small: Story = {
@@ -100,6 +113,12 @@ export const AllVariants: Story = {
         Create & Send
       </SplitButton>
       <SplitButton variant="secondary" menuItems={menuItems} menuGroupLabel="Actions">
+        Create & Send
+      </SplitButton>
+      <SplitButton variant="primary" size="xs" menuItems={menuItems} menuGroupLabel="Actions">
+        Create & Send
+      </SplitButton>
+      <SplitButton variant="secondary" size="xs" menuItems={menuItems} menuGroupLabel="Actions">
         Create & Send
       </SplitButton>
       <SplitButton variant="primary" size="sm" menuItems={menuItems} menuGroupLabel="Actions">

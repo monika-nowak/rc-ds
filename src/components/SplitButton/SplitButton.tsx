@@ -12,7 +12,7 @@ import { Menu, type MenuEntry } from '../Menu';
 import styles from './SplitButton.module.css';
 
 export type SplitButtonStyle = 'primary' | 'secondary';
-export type SplitButtonSize = 'sm' | 'md';
+export type SplitButtonSize = 'xs' | 'sm' | 'md';
 
 export type SplitButtonMenuItem = MenuEntry;
 

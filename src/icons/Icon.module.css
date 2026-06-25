@@ -4,6 +4,46 @@
   color: var(--rc-icon-primary);
 }
 
+.primary {
+  color: var(--rc-icon-primary);
+}
+
+.secondary {
+  color: var(--rc-icon-secondary);
+}
+
+.error {
+  color: var(--rc-icon-error);
+}
+
+.warning {
+  color: var(--rc-icon-warning);
+}
+
+.success {
+  color: var(--rc-icon-success);
+}
+
+.info {
+  color: var(--rc-icon-info);
+}
+
+.ai {
+  color: var(--rc-icon-ai);
+}
+
+.inverse {
+  color: var(--rc-icon-inverse);
+}
+
+.disabled {
+  color: var(--rc-icon-disabled);
+}
+
+.on-color {
+  color: var(--rc-icon-on-color);
+}
+
 .icon :global(svg) {
   display: block;
 }

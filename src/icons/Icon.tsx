@@ -3,6 +3,18 @@ import { cn } from '../lib/cn';
 import { getPhosphorIcon } from './phosphor';
 import styles from './Icon.module.css';
 
+export type IconTone =
+  | 'primary'
+  | 'secondary'
+  | 'error'
+  | 'warning'
+  | 'success'
+  | 'info'
+  | 'ai'
+  | 'inverse'
+  | 'disabled'
+  | 'on-color';
+
 export interface IconProps {
   /**
    * Icon name in kebab-case (Phosphor Regular).
@@ -12,6 +24,7 @@ export interface IconProps {
   name: string;
   size?: number;
   weight?: PhosphorIconProps['weight'];
+  tone?: IconTone;
   className?: string;
   color?: string;
   'aria-label'?: string;
@@ -21,6 +34,7 @@ export function Icon({
   name,
   size = 24,
   weight = 'regular',
+  tone = 'primary',
   className,
   color,
   'aria-label': ariaLabel,
@@ -29,7 +43,10 @@ export function Icon({
   if (!Component) return null;
 
   return (
-    <span className={cn(styles.icon, className)} style={color ? { color } : undefined}>
+    <span
+      className={cn(styles.icon, styles[tone], className)}
+      style={color ? { color } : undefined}
+    >
       <Component
         size={size}
         weight={weight}

@@ -73,6 +73,7 @@ export const CURATED_ICON_NAMES = [
   'funnel-simple',
   'sort-ascending',
   'sort-descending',
+  'sparkle',
   'user',
   'user-circle',
   'users',
