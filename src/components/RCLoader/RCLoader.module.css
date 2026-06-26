@@ -1,0 +1,103 @@
+/* RC Loader — shared soft "pop" when a cell refreshes or a tile reappears. */
+@keyframes rc-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.root {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stageSizer {
+  position: relative;
+  font-family: var(--rc-font-sans);
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 152px;
+  height: 152px;
+  transform-origin: top left;
+}
+
+.cell {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popIn {
+  display: flex;
+  animation-name: rc-pop-in;
+  animation-duration: var(--rc-loader-motion-duration, 240ms);
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+.digit {
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: 0.24px;
+  font-weight: 500;
+}
+
+.tile {
+  border-width: 2px;
+  border-style: solid;
+  font-size: 24px;
+  line-height: 24px;
+  font-weight: 700;
+  z-index: 10;
+}
+
+.accent {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.label {
+  margin: var(--rc-spacing-4) 0 0;
+  text-align: center;
+  font-family: var(--rc-font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.16px;
+  color: var(--rc-text-secondary);
+}
+
+.labelDark {
+  color: var(--rc-text-on-color);
+}
+
+.fullscreen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popIn {
+    animation: none;
+  }
+}

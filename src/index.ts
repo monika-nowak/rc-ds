@@ -22,4 +22,5 @@ export * from './components/AppShell';
 export * from './components/Tooltip';
 export * from './components/Popover';
 export * from './components/ChoiceTag';
+export * from './components/RCLoader';
 export * from './icons';
