@@ -21,10 +21,66 @@
   border: 1px solid var(--rc-background-inverse);
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.contentTitle {
+  display: block;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--rc-text-primary);
+}
+
+.contentDescription {
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--rc-text-secondary);
+}
+
+.contentDescription p {
+  margin: 0;
+}
+
+.contentDescription p + p {
+  margin-top: var(--rc-spacing-2);
+}
+
+.inverse .contentTitle {
+  color: var(--rc-text-inverse);
+}
+
+.inverse .contentDescription {
+  color: rgb(255 255 255 / 72%);
+}
+
 .surface {
   display: inline-flex;
   align-items: center;
+  line-height: 0;
   filter: drop-shadow(0 4px 8px rgb(0 0 0 / 10%)) drop-shadow(0 12px 32px rgb(0 0 0 / 16%));
+}
+
+.panelConnectTop {
+  border-top-width: 0;
+}
+
+.panelConnectBottom {
+  border-bottom-width: 0;
+}
+
+.panelConnectLeft {
+  border-left-width: 0;
+}
+
+.panelConnectRight {
+  border-right-width: 0;
 }
 
 .surfaceNoCaret {
@@ -112,19 +168,19 @@
 }
 
 .surfaceTop .caretTop {
-  margin-top: -1px;
+  margin-top: 0;
 }
 
 .surfaceBottom .caretBottom {
-  margin-bottom: -1px;
+  margin-bottom: 0;
 }
 
 .surfaceLeft .caretLeft {
-  margin-left: -1px;
+  margin-left: 0;
 }
 
 .surfaceRight .caretRight {
-  margin-right: -1px;
+  margin-right: 0;
 }
 
 .root {

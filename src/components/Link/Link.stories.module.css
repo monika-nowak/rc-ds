@@ -1,0 +1,25 @@
+.popoverContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+  max-width: 280px;
+}
+
+.body {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--rc-text-secondary);
+}
+
+.body strong {
+  font-weight: 700;
+  color: var(--rc-text-primary);
+}
+
+.sizeStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rc-spacing-4);
+}

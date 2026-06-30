@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Badge } from './Badge';
+import { Icon } from '../../icons';
+import { Badge, type BadgeProps } from './Badge';
+
+type BadgeStoryArgs = BadgeProps & { showIcon?: boolean };
 
 const meta = {
   title: 'Components/Badge',
@@ -11,14 +14,49 @@ const meta = {
       control: 'select',
       options: ['neutral', 'success', 'warning', 'error', 'info', 'purple', 'lightPurple'],
     },
+    showIcon: { control: 'boolean', name: 'Icon' },
+    loading: { control: 'boolean', name: 'Loading' },
+    iconLeft: { control: false },
   },
-} satisfies Meta<typeof Badge>;
+} satisfies Meta<BadgeStoryArgs>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<BadgeStoryArgs>;
 
 export const EmphasisNeutral: Story = {
-  args: { children: 'Badge', appearance: 'emphasis', color: 'neutral' },
+  args: { children: 'Badge', appearance: 'emphasis', color: 'neutral', showIcon: false },
+};
+
+export const WithIcon: Story = {
+  name: 'With icon',
+  args: {
+    children: 'AI generated',
+    appearance: 'subtle',
+    color: 'purple',
+    showIcon: true,
+    loading: false,
+  },
+  render: ({ showIcon, loading, iconLeft: _iconLeft, ...args }) => (
+    <Badge
+      {...args}
+      loading={loading}
+      iconLeft={
+        showIcon && !loading ? (
+          <Icon name="sparkle" size={12} tone="ai" aria-hidden />
+        ) : undefined
+      }
+    />
+  ),
+};
+
+export const Loading: Story = {
+  name: 'Loading · generating',
+  args: {
+    children: 'Generating…',
+    appearance: 'subtle',
+    color: 'purple',
+    loading: true,
+  },
 };
 
 const BADGE_COLORS = [
@@ -42,6 +80,7 @@ const COLOR_LABELS: Record<(typeof BADGE_COLORS)[number], string> = {
 };
 
 export const AllColors: Story = {
+  args: { children: 'Badge', showIcon: false },
   render: () => (
     <div style={{ display: 'grid', gap: 16 }}>
       <div>

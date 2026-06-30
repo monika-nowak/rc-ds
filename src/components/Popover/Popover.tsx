@@ -16,8 +16,44 @@ export type PopoverAlign = 'start' | 'center' | 'end';
 export type PopoverAppearance = 'default' | 'inverse';
 export type PopoverOpenOn = 'click' | 'hover';
 
+export interface PopoverContentProps {
+  title?: ReactNode;
+  description?: ReactNode;
+  showTitle?: boolean;
+  showDescription?: boolean;
+  children?: ReactNode;
+  className?: string;
+}
+
+export function PopoverContent({
+  title,
+  description,
+  showTitle = true,
+  showDescription = true,
+  children,
+  className,
+}: PopoverContentProps) {
+  const hasTitle = showTitle && title != null && title !== '';
+  const hasDescription =
+    showDescription && description != null && description !== '';
+
+  return (
+    <span className={cn(styles.content, className)}>
+      {hasTitle ? <span className={styles.contentTitle}>{title}</span> : null}
+      {hasDescription ? (
+        <span className={styles.contentDescription}>{description}</span>
+      ) : null}
+      {children}
+    </span>
+  );
+}
+
 export interface PopoverBubbleProps {
-  children: ReactNode;
+  children?: ReactNode;
+  title?: ReactNode;
+  description?: ReactNode;
+  showTitle?: boolean;
+  showDescription?: boolean;
   placement?: PopoverPlacement;
   align?: PopoverAlign;
   caret?: boolean;
@@ -52,16 +88,71 @@ const caretFirst: Record<PopoverPlacement, boolean> = {
   right: true,
 };
 
+const panelConnectClass: Record<PopoverPlacement, string> = {
+  top: styles.panelConnectBottom,
+  bottom: styles.panelConnectTop,
+  left: styles.panelConnectRight,
+  right: styles.panelConnectLeft,
+};
+
+function resolvePopoverPanelContent({
+  children,
+  title,
+  description,
+  showTitle,
+  showDescription,
+}: Pick<
+  PopoverBubbleProps,
+  'children' | 'title' | 'description' | 'showTitle' | 'showDescription'
+>) {
+  const hasStructuredContent = title != null || description != null;
+
+  if (hasStructuredContent) {
+    return (
+      <PopoverContent
+        title={title}
+        description={description}
+        showTitle={showTitle}
+        showDescription={showDescription}
+      >
+        {children}
+      </PopoverContent>
+    );
+  }
+
+  return children;
+}
+
 export function PopoverBubble({
   children,
+  title,
+  description,
+  showTitle,
+  showDescription,
   placement = 'top',
   align = 'center',
   caret = true,
   appearance = 'default',
   className,
 }: PopoverBubbleProps) {
+  const panelContent = resolvePopoverPanelContent({
+    children,
+    title,
+    description,
+    showTitle,
+    showDescription,
+  });
+
   const panel = (
-    <span className={cn(styles.panel, styles[appearance])}>{children}</span>
+    <span
+      className={cn(
+        styles.panel,
+        styles[appearance],
+        caret && panelConnectClass[placement],
+      )}
+    >
+      {panelContent}
+    </span>
   );
   const caretNode = caret ? (
     <span
@@ -101,7 +192,11 @@ export function PopoverBubble({
 
 export interface PopoverProps {
   children: ReactElement;
-  content: ReactNode;
+  content?: ReactNode;
+  title?: ReactNode;
+  description?: ReactNode;
+  showTitle?: boolean;
+  showDescription?: boolean;
   placement?: PopoverPlacement;
   align?: PopoverAlign;
   caret?: boolean;
@@ -116,6 +211,10 @@ export interface PopoverProps {
 export function Popover({
   children,
   content,
+  title,
+  description,
+  showTitle,
+  showDescription,
   placement = 'top',
   align = 'center',
   caret = true,
@@ -204,6 +303,10 @@ export function Popover({
             align={align}
             caret={caret}
             appearance={appearance}
+            title={title}
+            description={description}
+            showTitle={showTitle}
+            showDescription={showDescription}
           >
             {content}
           </PopoverBubble>

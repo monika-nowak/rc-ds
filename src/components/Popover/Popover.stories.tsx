@@ -5,6 +5,18 @@ import { IconButton } from '../IconButton';
 import { Popover, PopoverBubble } from './Popover';
 import styles from './Popover.stories.module.css';
 
+const combinedScoreDescription = (
+  <>
+    <p>
+      Reflects record volume, HCP tier and institution breadth, and AI assessment.
+    </p>
+    <p>
+      Detailed logic of combined score is evolving over time based on model training. Once a
+      report is generated, combined scores do not change.
+    </p>
+  </>
+);
+
 const meta = {
   title: 'Components/Popover',
   component: PopoverBubble,
@@ -14,8 +26,16 @@ const meta = {
     docs: {
       description: {
         component:
-          'Carbon-style popover shell: 16px padding, 352px max width, 4px offset, optional 8px caret. Pass any ReactNode as content — text, rows, links, or controls.',
+          'Light-surface popover (default appearance) for richer helper content — optional title and description with independent show/hide toggles. Tooltip stays compact and inverse (dark).',
       },
+    },
+  },
+  argTypes: {
+    showTitle: { control: 'boolean' },
+    showDescription: { control: 'boolean' },
+    appearance: {
+      control: 'radio',
+      options: ['default', 'inverse'],
     },
   },
 } satisfies Meta<typeof PopoverBubble>;
@@ -29,6 +49,45 @@ export const DefaultShell: Story = {
     appearance: 'default',
     caret: true,
     placement: 'top',
+  },
+};
+
+export const TitleAndDescription: Story = {
+  name: 'Default · title + description',
+  args: {
+    appearance: 'default',
+    caret: true,
+    placement: 'top',
+    title: 'Combined score',
+    description: combinedScoreDescription,
+    showTitle: true,
+    showDescription: true,
+  },
+};
+
+export const TitleOnly: Story = {
+  name: 'Default · title only',
+  args: {
+    appearance: 'default',
+    caret: true,
+    placement: 'top',
+    title: 'Combined score',
+    description: combinedScoreDescription,
+    showTitle: true,
+    showDescription: false,
+  },
+};
+
+export const DescriptionOnly: Story = {
+  name: 'Default · description only',
+  args: {
+    appearance: 'default',
+    caret: true,
+    placement: 'top',
+    title: 'Combined score',
+    description: combinedScoreDescription,
+    showTitle: false,
+    showDescription: true,
   },
 };
 
@@ -117,29 +176,25 @@ export const ClickTrigger: Story = {
   name: 'Popover · click',
   args: {
     children: null,
-    appearance: 'inverse',
+    appearance: 'default',
     caret: true,
     placement: 'top',
+    title: 'Combined score',
+    description: combinedScoreDescription,
+    showTitle: true,
+    showDescription: true,
   },
-  render: () => (
+  render: (args) => (
     <Popover
       openOn="click"
-      appearance="inverse"
-      placement="top"
-      content={
-        <div className={styles.metricList}>
-          <div className={styles.metricRow}>
-            <span>Deterministic score (DET)</span>
-            <strong>0.47/1</strong>
-          </div>
-          <div className={styles.metricRow}>
-            <span>AI Read (AI)</span>
-            <strong>0.86/1</strong>
-          </div>
-        </div>
-      }
+      appearance={args.appearance}
+      placement={args.placement}
+      title={args.title}
+      description={args.description}
+      showTitle={args.showTitle}
+      showDescription={args.showDescription}
     >
-      <IconButton label="Score details" variant="ghost" size="sm">
+      <IconButton label="Combined score details" variant="ghost" size="sm">
         <Icon name="info" size={16} />
       </IconButton>
     </Popover>

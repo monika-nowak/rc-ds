@@ -1,6 +1,7 @@
 import './styles/tokens.css';
 
 export * from './components/Button';
+export * from './components/Link';
 export * from './components/IconButton';
 export * from './components/SplitButton';
 export * from './components/Menu';
@@ -22,5 +23,6 @@ export * from './components/AppShell';
 export * from './components/Tooltip';
 export * from './components/Popover';
 export * from './components/ChoiceTag';
+export * from './components/Spinner';
 export * from './components/RCLoader';
 export * from './icons';
