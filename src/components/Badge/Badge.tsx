@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '../../lib/cn';
+import { Icon, type CuratedIconName, type IconTone } from '../../icons';
 import { Spinner } from '../Spinner';
 import styles from './Badge.module.css';
 
@@ -16,10 +17,27 @@ export type BadgeColor =
   | 'purple'
   | 'lightPurple';
 
+function defaultIconTone(appearance: BadgeAppearance, color: BadgeColor): IconTone {
+  const darkTextEmphasis: BadgeColor[] = ['success', 'warning', 'error', 'lightPurple'];
+  if (appearance === 'emphasis' && !darkTextEmphasis.includes(color)) {
+    return 'on-color';
+  }
+  if (color === 'purple' || color === 'lightPurple') return 'ai';
+  if (color === 'success') return 'success';
+  if (color === 'warning') return 'warning';
+  if (color === 'error') return 'error';
+  if (color === 'info') return 'info';
+  return 'primary';
+}
+
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   appearance?: BadgeAppearance;
   color?: BadgeColor;
-  /** Optional leading icon — omit or leave unset to hide. */
+  /** Curated icon on the left — swap via icon name when not loading. */
+  icon?: CuratedIconName;
+  /** Icon tone; defaults from badge appearance and color. */
+  iconTone?: IconTone;
+  /** Custom leading icon — overrides `icon` when provided. */
   iconLeft?: ReactNode;
   /** Show a compact dot-grid spinner on the left (e.g. generating state). */
   loading?: boolean;
@@ -28,16 +46,29 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 export function Badge({
   appearance = 'emphasis',
   color = 'neutral',
+  icon,
+  iconTone,
   iconLeft,
   loading = false,
   className,
   children,
   ...props
 }: BadgeProps) {
+  const resolvedIconLeft =
+    iconLeft ??
+    (icon ? (
+      <Icon
+        name={icon}
+        size={12}
+        tone={iconTone ?? defaultIconTone(appearance, color)}
+        aria-hidden
+      />
+    ) : undefined);
+
   const leading = loading ? (
     <Spinner size="xs" label="Loading" />
   ) : (
-    iconLeft
+    resolvedIconLeft
   );
   const hasLeading = leading != null;
 

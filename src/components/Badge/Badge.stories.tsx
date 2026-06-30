@@ -1,8 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Icon } from '../../icons';
 import { Badge, type BadgeProps } from './Badge';
 
-type BadgeStoryArgs = BadgeProps & { showIcon?: boolean };
+const BADGE_ICON_OPTIONS = [
+  'sparkle',
+  'info',
+  'check',
+  'warning',
+  'x',
+  'clock',
+  'star',
+] as const;
+
+type BadgeStoryArgs = BadgeProps & {
+  showIcon?: boolean;
+};
 
 const meta = {
   title: 'Components/Badge',
@@ -15,8 +26,14 @@ const meta = {
       options: ['neutral', 'success', 'warning', 'error', 'info', 'purple', 'lightPurple'],
     },
     showIcon: { control: 'boolean', name: 'Icon' },
+    icon: {
+      control: 'select',
+      options: [...BADGE_ICON_OPTIONS],
+      if: { arg: 'showIcon', truthy: true },
+    },
     loading: { control: 'boolean', name: 'Loading' },
     iconLeft: { control: false },
+    iconTone: { control: false },
   },
 } satisfies Meta<BadgeStoryArgs>;
 
@@ -34,18 +51,36 @@ export const WithIcon: Story = {
     appearance: 'subtle',
     color: 'purple',
     showIcon: true,
+    icon: 'sparkle',
     loading: false,
   },
-  render: ({ showIcon, loading, iconLeft: _iconLeft, ...args }) => (
-    <Badge
-      {...args}
-      loading={loading}
-      iconLeft={
-        showIcon && !loading ? (
-          <Icon name="sparkle" size={12} tone="ai" aria-hidden />
-        ) : undefined
-      }
-    />
+  render: ({ showIcon, loading, icon, iconLeft: _iconLeft, ...args }) => (
+    <Badge {...args} loading={loading} icon={showIcon && !loading ? icon : undefined} />
+  ),
+};
+
+export const IconSwap: Story = {
+  name: 'Icon swap',
+  args: {
+    children: 'Verified',
+    appearance: 'subtle',
+    color: 'success',
+    showIcon: true,
+    icon: 'check',
+    loading: false,
+  },
+  render: ({ showIcon, loading, icon, ...args }) => (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      {BADGE_ICON_OPTIONS.map((iconName) => (
+        <Badge
+          key={iconName}
+          {...args}
+          icon={showIcon && !loading ? iconName : undefined}
+        >
+          {iconName}
+        </Badge>
+      ))}
+    </div>
   ),
 };
 
