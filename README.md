@@ -1,91 +1,151 @@
-# Real Chemistry Design System (`rc-ds`)
+# RC / Aquinas Design System (`rc-ds`)
 
-React component library and design tokens for Real Chemistry products. Built to match the [Figma Design System](https://www.figma.com/design/bAfW17PaIBzJodq0a6DXXQ/Design-System).
+React component library and design tokens for Real Chemistry (Aquinas) products. Built to mirror the [Figma Design System](https://www.figma.com/design/bAfW17PaIBzJodq0a6DXXQ/Design-System) — components, foundations, and tokens are kept in sync with the Figma source of truth.
 
-## Stack
+## Tech stack
 
 - **React 19** + **TypeScript**
-- **CSS Modules** + design tokens (`src/styles/tokens.css`)
+- **Vite 6** build tooling
 - **Storybook 9** for documentation and visual testing
+- **CSS Modules** + CSS custom properties for design tokens (`src/styles/tokens.css`)
 - **Phosphor Icons** (`@phosphor-icons/react`)
+- **ESLint** (flat config with `typescript-eslint` and Storybook plugin)
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev        # Storybook at http://localhost:6006
-npm run build-storybook
+npm run dev              # Storybook at http://localhost:6006
+npm run build            # type-check (tsc -b) + Vite library build
+npm run build-storybook  # static Storybook (regenerates icon lists first)
+npm run lint             # ESLint
 ```
 
-Storybook is deployed to GitHub Pages on push to `main`: https://monika-nowak.github.io/rc-ds/
+Everything is consumed through the public entry point `src/index.ts`, which loads the token and typography stylesheets and re-exports every component and the icon utilities.
 
-> **One-time setup:** In repo **Settings → Pages**, set **Source** to **Deploy from a branch**, branch `gh-pages` / `/ (root)`.
+## Components
 
-## Icons
+All components live under `src/components/*` (one directory per component) and are exported from `src/index.ts`.
 
-Phosphor Icons (Regular) — **all 1512 icons** are available. See **Icons** in Storybook.
+### Actions & buttons
 
-| Set | Count | How to use |
-|-----|-------|------------|
-| **Full library** | 1512 | `import { Horse } from '@phosphor-icons/react'` |
-| **DS curated** | 116 | `import { Icon } from '@real-chemistry/ds'` |
+- `Button`
+- `IconButton`
+- `SplitButton`
+- `Menu`
+- `Link`
 
-Curated icons match Figma `Icon/*` components and cover common UI patterns (navigation, files, actions, status). For any other icon, import directly from `@phosphor-icons/react` — Storybook **All icons** provides copy-ready snippets.
+### Inputs & forms
+
+- `Input`
+- `TextArea`
+- `Select`
+- `DatePicker`
+- `Checkbox`
+- `Radio`
+- `ChoiceTag`
+- `FileUpload`
+
+### Data display
+
+- `Avatar`
+- `Badge`
+- `Card`
+- `ListItem`
+- `MappingRow`
+- `MappingTable`
+- `StatusIndicator`
+
+### Feedback & overlays
+
+- `Alert`
+- `Tooltip`
+- `Popover`
+- `Spinner`
+- `RCLoader` (brand loading animation)
+
+### Navigation
+
+- `Breadcrumb`
+- `SideNav`
+- `Steps`
+
+### Layout & app shell
+
+- `AppShell`
+- `AppHeader`
+- `Divider`
+- `Logo`
+
+### AI
+
+- `ChatWithAI`
+
+### Icons
+
+- `Icon` — a curated wrapper over Phosphor Icons. Curated names (`CURATED_ICON_NAMES`) match the Figma `Icon/*` set; the full library (`ALL_ICON_NAMES`) is also available.
 
 ```tsx
-// Curated — via DS component
+// Curated icon via the DS component
 import { Icon } from '@real-chemistry/ds';
-<Icon name="pencil-simple" size={16} />
+<Icon name="pencil-simple" size={16} />;
 
 // Any Phosphor icon — direct import
 import { Horse } from '@phosphor-icons/react';
-<Horse size={24} weight="regular" />
+<Horse size={24} weight="regular" />;
 ```
 
-## Components (v0.1)
+## Design foundations
 
-| Component | Status |
-|-----------|--------|
-| Button | ✅ |
-| Icon Button | ✅ |
-| Split Button | ✅ |
-| Menu | ✅ |
-| Icon (`<Icon />`) | ✅ |
-| Badge | ✅ |
-| Input | ✅ |
-| Checkbox | ✅ |
-| Select | 🔜 |
-| Dialog | 🔜 |
+Tokens are exported from the Figma Foundations page (Light mode) and defined as CSS custom properties in `src/styles/tokens.css`. A Figma token export and TypeScript helpers live in `src/tokens/` (`figma-tokens.json`, `css-vars.ts`).
 
-## Design principles
+### Color
 
-- **Semantic color** — primitives map to roles (background, layer, field, border, text, support). Canvas ≠ surface: layouts use `background/canvas` or `background/blank`, UI chrome uses `layer/01`.
-- **Neutral-first** — primary actions use `button/primary` (neutral-900). Brand purple (`background/brand`) for brand accents. Error/destructive uses orange (`support/error`).
-- **Radius scale** — `radius/sm` (4px) for controls · `radius/md` (8px) for menus · `radius/full` for pills.
-- **Borders + elevation** — flat UI with borders day-to-day; shadows (`elevation/sm`–`xl`) for overlays (dropdowns, modals).
-- **Typography** — Helvetica Now Display (Heading H1–H9, Body, Label, Helper). 24px is always H6.
-- **Tokens** — synced with Figma Foundations (Light): `Color`, `Typography`, `Spacing`, `Radius`, `Elevation`
+- **Primitives** — full ramps for `purple`, `light-purple`, `orange`, `blue`, `neutral`, `green`, `amber`, plus `white`/`black`.
+- **Semantic roles** — `background/*`, `layer/*`, `field/*`, `border/*` (subtle, strong, interactive, disabled), `text/*`, `link/*`, `icon/*`.
+- **Support** — status colors for error, warning, success, and info (`support/*`, `background-support-*`, `border-support-*`), plus AI accents (`icon-ai`, `text-ai`, `border-ai`).
+- **Button** — dedicated `button/*` tokens for primary, secondary, tertiary, ghost, danger, AI (primary/secondary/tertiary/ghost), and disabled states.
+- **Focus** — `focus/default` and `focus/inverse`.
+
+### Typography
+
+Helvetica Now Display, exposed as `.rc-*` utility classes in `src/styles/typography.css`:
+
+- Headings: `.rc-heading-h1` … `.rc-heading-h9`
+- Body: `.rc-body-lg`, `.rc-body-rg`, `.rc-body-md`, `.rc-body-sm`, `.rc-body-xs`
+- Labels: `.rc-label-lg`, `.rc-label-md`, `.rc-label-sm`
+- Helper: `.rc-helper-sm`
+
+### Spacing, radius & elevation
+
+- **Spacing** — 4px base scale (`--rc-spacing-0` through `--rc-spacing-16`).
+- **Radius** — `none`, `sm` (4px), `md` (8px), `lg` (12px), `full` (pill).
+- **Elevation** — layered shadows `--rc-shadow-sm` → `--rc-shadow-xl` for overlays.
+- **Component sizing** — shared control heights (`sm`/`md`/`lg`, badge) and step-indicator tokens.
 
 ## Repo structure
 
 ```
 src/
-  components/     # React components + stories
-  styles/         # CSS design tokens
-  tokens/         # Figma token export + helpers
-  foundations/    # Storybook foundation UI
-  lib/            # Utilities
+  components/     # React components + CSS Modules + stories
+  stories/        # Storybook stories & foundation docs
+  styles/         # tokens.css + typography.css
+  tokens/         # Figma token export (figma-tokens.json) + css-vars.ts
+  icons/          # Icon component + curated/full Phosphor maps
+  index.ts        # public entry point
 .storybook/       # Storybook config
+scripts/          # icon-list generation
 ```
 
-## Figma ↔ Code
+## Figma ↔ code
 
 | Figma | Code |
 |-------|------|
-| `Heading/H1–H9` | `src/styles/typography.css` |
-| `Label/*`, `Body/*`, `Helper/*` | Component + foundation styles |
-| `button/*` tokens | `--rc-button-*` CSS vars |
-| Components on DS pages | `src/components/*` |
+| Color / Spacing / Radius / Elevation foundations | `src/styles/tokens.css`, `src/tokens/*` |
+| `Heading/*`, `Body/*`, `Label/*`, `Helper/*` | `src/styles/typography.css` |
+| `button/*` tokens | `--rc-button-*` CSS variables |
+| `Icon/*` components | `src/icons` curated set |
+| DS components | `src/components/*` |
 
 ## License
 
