@@ -18,6 +18,12 @@ const maxInitials: Record<AvatarSize, number> = {
   lg: 2,
 };
 
+const typeClass: Record<AvatarSize, string> = {
+  sm: 'rc-label-sm',
+  md: 'rc-label-sm',
+  lg: 'rc-label-md',
+};
+
 function getInitials(name: string, max: number) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '';
@@ -47,7 +53,7 @@ export function Avatar({
     <span
       role="img"
       aria-label={ariaLabel}
-      className={cn(styles.avatar, styles[size], className)}
+      className={cn(styles.avatar, styles[size], typeClass[size], className)}
       {...props}
     >
       {label}

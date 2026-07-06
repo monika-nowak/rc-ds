@@ -12,6 +12,10 @@
   color: var(--rc-icon-secondary);
 }
 
+.tertiary {
+  color: var(--rc-icon-tertiary);
+}
+
 .error {
   color: var(--rc-icon-error);
 }

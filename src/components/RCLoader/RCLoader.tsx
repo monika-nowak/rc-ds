@@ -212,7 +212,7 @@ export function RCLoader({
             return (
               <div key={i} aria-hidden="true" className={styles.cell} style={cellBox(i)}>
                 <span key={versions[i]} className={reduce ? undefined : styles.popIn}>
-                  <span className={styles.digit} style={{ color: fg }}>
+                  <span className="rc-heading-h6" style={{ color: fg }}>
                     {digits[i]}
                   </span>
                 </span>
@@ -230,17 +230,17 @@ export function RCLoader({
             />
           </div>
 
-          <div aria-hidden="true" className={cn(styles.cell, styles.tile)} style={tileStyle(r)}>
+          <div aria-hidden="true" className={cn('rc-heading-h6', styles.cell, styles.tile)} style={tileStyle(r)}>
             R
           </div>
-          <div aria-hidden="true" className={cn(styles.cell, styles.tile)} style={tileStyle(c)}>
+          <div aria-hidden="true" className={cn('rc-heading-h6', styles.cell, styles.tile)} style={tileStyle(c)}>
             C
           </div>
         </div>
       </div>
 
       {showLabel ? (
-        <p className={cn(styles.label, dark && styles.labelDark)}>{label}</p>
+        <p className={cn('rc-body-md', styles.label, dark && styles.labelDark)}>{label}</p>
       ) : null}
     </div>
   );

@@ -9,11 +9,14 @@ import {
 import { cn } from '../../lib/cn';
 import styles from './ChoiceTag.module.css';
 
+type ChoiceTagSize = 'sm' | 'md';
+
 interface ChoiceTagGroupContextValue {
   name: string;
   value?: string;
   onSelect: (value: string) => void;
   disabled?: boolean;
+  size: ChoiceTagSize;
 }
 
 const ChoiceTagGroupContext = createContext<ChoiceTagGroupContextValue | null>(null);
@@ -23,6 +26,7 @@ export interface ChoiceTagGroupProps {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
+  size?: ChoiceTagSize;
   className?: string;
   children: ReactNode;
   'aria-label'?: string;
@@ -33,6 +37,7 @@ export function ChoiceTagGroup({
   defaultValue,
   onValueChange,
   disabled,
+  size = 'sm',
   className,
   children,
   'aria-label': ariaLabel,
@@ -56,6 +61,7 @@ export function ChoiceTagGroup({
         value: selectedValue,
         onSelect,
         disabled,
+        size,
       }}
     >
       <div
@@ -93,7 +99,13 @@ export function ChoiceTag({
       name={context?.name}
       aria-checked={selected}
       disabled={isDisabled}
-      className={cn(styles.tag, selected && styles.selected, className)}
+      className={cn(
+        'rc-body-xs',
+        styles.tag,
+        context?.size === 'md' && styles.md,
+        selected && styles.selected,
+        className,
+      )}
       onClick={(event) => {
         onClick?.(event);
         if (!event.defaultPrevented && !isDisabled) {

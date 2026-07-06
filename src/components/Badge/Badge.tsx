@@ -7,6 +7,9 @@ import styles from './Badge.module.css';
 /** Visual weight — emphasis (strong tint) or subtle (light tint). */
 export type BadgeAppearance = 'emphasis' | 'subtle';
 
+/** Layout density — default label badge or fixed-width shorthand code. */
+export type BadgeSize = 'default' | 'compact';
+
 /** Semantic color role aligned with RC token groups. */
 export type BadgeColor =
   | 'neutral'
@@ -33,6 +36,7 @@ function defaultIconTone(appearance: BadgeAppearance, color: BadgeColor): IconTo
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   appearance?: BadgeAppearance;
   color?: BadgeColor;
+  size?: BadgeSize;
   /** Curated icon on the left — swap via icon name when not loading. */
   icon?: CuratedIconName;
   /** Icon tone; defaults from badge appearance and color. */
@@ -46,6 +50,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 export function Badge({
   appearance = 'emphasis',
   color = 'neutral',
+  size = 'default',
   icon,
   iconTone,
   iconLeft,
@@ -75,9 +80,11 @@ export function Badge({
   return (
     <span
       className={cn(
+        'rc-label-sm',
         styles.badge,
         styles[appearance],
         styles[color],
+        size === 'compact' && styles.compact,
         hasLeading && styles.withIcon,
         className,
       )}
@@ -85,7 +92,7 @@ export function Badge({
       {...props}
     >
       {hasLeading ? <span className={styles.icon}>{leading}</span> : null}
-      <span className={styles.label}>{children}</span>
+      <span>{children}</span>
     </span>
   );
 }

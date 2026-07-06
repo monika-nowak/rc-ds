@@ -24,11 +24,14 @@ export const radiusVars = Object.fromEntries(
   Object.entries(tokens.radius).map(([k, v]) => [`--rc-radius-${k}`, `${v}px`]),
 );
 
+export const shadowVars = Object.fromEntries(
+  Object.entries(tokens.shadow).map(([k, v]) => [`--rc-shadow-${k}`, v]),
+);
+
 export const semanticGroups: Record<string, string[]> = {
   Background: [
     'background/canvas', 'background/blank', 'background/hover',
     'background/active', 'background/selected', 'background/selected-hover', 'background/inverse', 'background/brand',
-    'background/support/error', 'background/support/warning', 'background/support/success', 'background/support/info',
   ],
   Layer: ['layer/01', 'layer/02', 'layer/03', 'layer/hover-01', 'layer/active-01', 'layer/selected-01'],
   Field: ['field/01', 'field/02', 'field/03', 'field/hover-01', 'field/hover-02', 'field/hover-03'],
@@ -36,7 +39,6 @@ export const semanticGroups: Record<string, string[]> = {
     'border/subtle-00', 'border/subtle-01', 'border/subtle-02', 'border/subtle-03',
     'border/subtle-selected-01', 'border/subtle-selected-02', 'border/subtle-selected-03',
     'border/strong-01', 'border/interactive', 'border/inverse', 'border/disabled', 'border/ai',
-    'border/support/error', 'border/support/warning', 'border/support/success', 'border/support/info',
   ],
   Text: [
     'text/primary', 'text/secondary', 'text/tertiary', 'text/placeholder', 'text/helper', 'text/error',
@@ -45,8 +47,12 @@ export const semanticGroups: Record<string, string[]> = {
   ],
   Link: ['link/primary', 'link/primary-hover', 'link/inverse', 'link/visited'],
   Icon: [
-    'icon/primary', 'icon/secondary', 'icon/on-color', 'icon/disabled', 'icon/inverse',
+    'icon/primary', 'icon/secondary', 'icon/tertiary', 'icon/on-color', 'icon/disabled', 'icon/inverse',
     'icon/error', 'icon/warning', 'icon/success', 'icon/info', 'icon/ai',
+  ],
+  'Support surfaces': [
+    'background/support/error', 'background/support/warning', 'background/support/success', 'background/support/info',
+    'border/support/error', 'border/support/warning', 'border/support/success', 'border/support/info',
   ],
   Support: ['support/error', 'support/success', 'support/warning', 'support/info'],
   Focus: ['focus/default', 'focus/inverse'],
@@ -57,6 +63,10 @@ export const semanticGroups: Record<string, string[]> = {
     'button/ai-secondary', 'button/ai-secondary-hover', 'button/ai-tertiary-hover',
     'button/ai-ghost', 'button/ai-ghost-hover',
     'button/disabled', 'button/disabled-text',
+  ],
+  Steps: [
+    'step/indicator/current-bg', 'step/indicator/upcoming-bg', 'step/indicator/fg',
+    'step/label/current', 'step/label/upcoming',
   ],
 };
 

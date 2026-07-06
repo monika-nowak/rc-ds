@@ -27,7 +27,7 @@ export function Link({
   href,
   ...props
 }: LinkProps) {
-  const classes = cn(styles.link, styles[size], className);
+  const classes = cn(styles.link, size === 'sm' ? 'rc-label-sm' : 'rc-label-md', className);
 
   const content = (
     <>

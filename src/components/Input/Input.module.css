@@ -7,11 +7,6 @@
 }
 
 .label {
-  font-family: var(--rc-font-sans);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 18px;
-  letter-spacing: 0.16px;
   color: var(--rc-text-primary);
 }
 
@@ -40,11 +35,6 @@
   border-radius: var(--rc-radius-sm);
   background: var(--rc-field-02);
   color: var(--rc-text-primary);
-  font-family: var(--rc-font-sans);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0.14px;
   outline: none;
   transition: border-color 120ms ease, background-color 120ms ease;
 }
@@ -80,11 +70,6 @@
 }
 
 .helper {
-  font-family: var(--rc-font-sans);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0.32px;
   color: var(--rc-text-helper);
 }
 

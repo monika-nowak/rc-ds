@@ -1,6 +1,6 @@
 /** Generated — curated Phosphor icon map */
 import type { PhosphorIconComponent } from './phosphor';
-import { ArrowClockwise, ArrowCounterClockwise, ArrowDown, ArrowDownLeft, ArrowDownRight, ArrowLeft, ArrowLineDown, ArrowLineLeft, ArrowLineRight, ArrowLineUp, ArrowRight, ArrowSquareOut, ArrowUp, ArrowUpLeft, ArrowUpRight, ArrowsClockwise, ArrowsDownUp, ArrowsLeftRight, Bell, BellRinging, BookmarkSimple, Calendar, CalendarBlank, CardsThree, CaretCircleDown, CaretDoubleDown, CaretDoubleLeft, CaretDoubleRight, CaretDoubleUp, CaretDown, CaretLeft, CaretRight, CaretUp, CaretUpDown, ChatCircle, ChatCircleText, Check, CheckCircle, Circle, ClipboardText, Clock, Cloud, CloudArrowDown, CloudArrowUp, Copy, Database, DotsNine, DotsSix, DotsThree, DotsThreeVertical, DownloadSimple, Envelope, Export, Eye, EyeSlash, File, FileArrowDown, FileArrowUp, FileCsv, FileDoc, FileImage, FilePdf, FilePlus, FileText, FileXls, FileZip, Files, Folder, FolderOpen, FolderPlus, FolderSimple, Funnel, FunnelSimple, Gear, GearSix, HardDrives, Heart, House, Info, Link, LinkSimple, List, ListChecks, ListDashes, Lock, LockOpen, MagnifyingGlass, MagnifyingGlassPlus, Minus, Paperclip, PencilSimple, Plus, PlusCircle, PlusSquare, Printer, Question, ShareNetwork, Sidebar, SidebarSimple, SignIn, SignOut, SlidersHorizontal, SortAscending, SortDescending, Sparkle, Square, Stack, Star, Table, Trash, UploadSimple, User, UserCircle, Users, Warning, WarningCircle, X, XCircle } from '@phosphor-icons/react';
+import { ArrowClockwise, ArrowCounterClockwise, ArrowDown, ArrowDownLeft, ArrowDownRight, ArrowElbowDownRight, ArrowLeft, ArrowLineDown, ArrowLineLeft, ArrowLineRight, ArrowLineUp, ArrowRight, ArrowSquareOut, ArrowUp, ArrowUpLeft, ArrowUpRight, ArrowsClockwise, ArrowsDownUp, ArrowsLeftRight, Bell, BellRinging, BookmarkSimple, Calendar, CalendarBlank, CardsThree, CaretCircleDown, CaretDoubleDown, CaretDoubleLeft, CaretDoubleRight, CaretDoubleUp, CaretDown, CaretLeft, CaretRight, CaretUp, CaretUpDown, CellSignalFull, ChatCircle, ChatCircleText, Check, CheckCircle, Circle, ClipboardText, Clock, Cloud, CloudArrowDown, CloudArrowUp, Copy, Database, DotsNine, DotsSix, DotsThree, DotsThreeVertical, DownloadSimple, Envelope, Export, Eye, EyeSlash, File, FileArrowDown, FileArrowUp, FileCsv, FileDoc, FileImage, FilePdf, FilePlus, FileText, FileXls, FileZip, Files, Flag, Folder, FolderOpen, FolderPlus, FolderSimple, Funnel, FunnelSimple, Gear, GearSix, HardDrives, Heart, House, Info, Link, LinkSimple, List, ListChecks, ListDashes, Lock, LockOpen, MagnifyingGlass, MagnifyingGlassPlus, Minus, Paperclip, PencilSimple, Plus, PlusCircle, PlusSquare, Printer, Question, ShareNetwork, Sidebar, SidebarSimple, SignIn, SignOut, SlidersHorizontal, SortAscending, SortDescending, Sparkle, Square, Stack, Star, Table, Trash, UploadSimple, User, UserCircle, Users, Warning, WarningCircle, X, XCircle } from '@phosphor-icons/react';
 
 export const CURATED_ICON_MAP: Record<string, PhosphorIconComponent> = {
   'arrow-up': ArrowUp,
@@ -11,6 +11,7 @@ export const CURATED_ICON_MAP: Record<string, PhosphorIconComponent> = {
   'arrow-up-left': ArrowUpLeft,
   'arrow-down-right': ArrowDownRight,
   'arrow-down-left': ArrowDownLeft,
+  'arrow-elbow-down-right': ArrowElbowDownRight,
   'arrow-clockwise': ArrowClockwise,
   'arrow-counter-clockwise': ArrowCounterClockwise,
   'arrow-line-up': ArrowLineUp,
@@ -104,6 +105,8 @@ export const CURATED_ICON_MAP: Record<string, PhosphorIconComponent> = {
   'calendar': Calendar,
   'calendar-blank': CalendarBlank,
   'cards-three': CardsThree,
+  'cell-signal-full': CellSignalFull,
+  'flag': Flag,
   'clock': Clock,
   'chat-circle': ChatCircle,
   'chat-circle-text': ChatCircleText,

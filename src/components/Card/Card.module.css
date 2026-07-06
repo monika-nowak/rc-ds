@@ -1,0 +1,263 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-layer-01);
+  overflow: hidden;
+}
+
+.elevated {
+  box-shadow: var(--rc-shadow-sm);
+}
+
+/* Layout modes */
+.layoutProject {
+  justify-content: space-between;
+  align-items: flex-end;
+  min-height: 216px;
+}
+
+.layoutStacked {
+  justify-content: flex-start;
+  align-items: flex-start;
+  min-height: auto;
+}
+
+.layoutStackedWithFooter {
+  justify-content: space-between;
+}
+
+/* Density / padding — Figma uses 32px shell padding on all presets */
+.densityCompact {
+  padding: var(--rc-spacing-8);
+}
+
+.densityDefault {
+  padding: var(--rc-spacing-8);
+  gap: var(--rc-spacing-4);
+}
+
+.densityRoomy {
+  padding: var(--rc-spacing-8);
+  gap: var(--rc-spacing-6);
+}
+
+.projectWithHeaderStart {
+  align-items: stretch;
+}
+
+.stackedContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.stackedHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+}
+
+.signalBadges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+}
+
+.description {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.descriptionBase {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.descriptionMd {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.descriptionLg {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--rc-spacing-6);
+}
+
+.stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--rc-spacing-2);
+}
+
+.statValue {
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+}
+
+.statLabel {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
+.statsCompact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.statCompact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--rc-spacing-1);
+}
+
+.considerations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.considerationsLabel {
+  margin: 0;
+  color: var(--rc-text-secondary);
+}
+
+.considerationsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.considerationsItem {
+  display: flex;
+  gap: var(--rc-spacing-4);
+  align-items: flex-start;
+  width: 100%;
+}
+
+.considerationsIcon {
+  flex-shrink: 0;
+}
+
+.considerationsText {
+  flex: 1 1 auto;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--rc-spacing-4);
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.headerBetween {
+  justify-content: space-between;
+}
+
+.headerStartOnly {
+  justify-content: flex-start;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  align-items: flex-start;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.title,
+.titleH6 {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.titleH5 {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.titleH7 {
+  margin: 0;
+  width: 100%;
+  color: var(--rc-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.badgeSlot {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.authorName {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
+.footer {
+  width: 100%;
+}

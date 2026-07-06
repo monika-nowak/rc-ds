@@ -13,21 +13,11 @@
 
 .groupLabel {
   padding: var(--rc-spacing-2) var(--rc-spacing-3) var(--rc-spacing-1);
-  font-family: var(--rc-font-sans);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 16px;
-  letter-spacing: 0.32px;
   color: var(--rc-text-secondary);
 }
 
 .separator {
   padding: var(--rc-spacing-1) var(--rc-spacing-3);
-}
-
-.separatorLine {
-  height: 1px;
-  background: var(--rc-border-subtle-01);
 }
 
 .item {
@@ -40,18 +30,13 @@
   border: none;
   background: transparent;
   color: var(--rc-text-primary);
-  font-family: var(--rc-font-sans);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0.14px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
 }
 
 .item:hover:not(:disabled) {
-  background: var(--rc-layer-02);
+  background: var(--rc-layer-hover-01);
 }
 
 .item:disabled {
@@ -99,9 +84,5 @@
 
 .shortcut {
   flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0.32px;
   color: var(--rc-text-secondary);
 }

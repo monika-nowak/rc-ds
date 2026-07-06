@@ -14,6 +14,14 @@ export type ButtonStyle =
   | 'aiGhost';
 export type ButtonSize = 'badge' | 'xs' | 'sm' | 'md' | 'lg';
 
+const labelTypeClass: Record<ButtonSize, string> = {
+  badge: 'rc-label-sm',
+  xs: 'rc-label-sm',
+  sm: 'rc-label-sm',
+  md: 'rc-label-md',
+  lg: 'rc-label-lg',
+};
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonStyle;
   size?: ButtonSize;
@@ -39,7 +47,7 @@ export function Button({
       {...props}
     >
       {iconLeft ? <span className={styles.icon}>{iconLeft}</span> : null}
-      <span className={styles.label}>{children}</span>
+      <span className={labelTypeClass[size]}>{children}</span>
       {iconRight ? <span className={styles.icon}>{iconRight}</span> : null}
     </button>
   );

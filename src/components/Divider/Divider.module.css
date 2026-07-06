@@ -1,0 +1,17 @@
+.horizontal {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--rc-border-subtle-01);
+}
+
+.vertical {
+  align-self: stretch;
+  flex-shrink: 0;
+  width: 1px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: var(--rc-border-subtle-01);
+}

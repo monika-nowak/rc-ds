@@ -95,13 +95,13 @@
 }
 
 .tertiary {
-  background: var(--rc-field-01);
+  background: var(--rc-field-02);
   border-color: var(--rc-border-subtle-02);
   color: var(--rc-text-primary);
 }
 
 .tertiary:hover:not(:disabled) {
-  background: var(--rc-field-hover-01);
+  background: var(--rc-layer-hover-01);
 }
 
 .ghost {
@@ -129,6 +129,11 @@
 
 .ai:hover:not(:disabled) {
   background: var(--rc-button-ai-hover);
+}
+
+.ai .icon {
+  /* non-standard: line-height: 0 resets icon box, not a text style (icon-only) */
+  line-height: 0;
 }
 
 .ai:active:not(:disabled) {

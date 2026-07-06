@@ -22,22 +22,34 @@ export function FoundationSection({
 export function Swatch({
   name,
   cssVar,
+  hex,
   showBorder,
+  borderOnly,
 }: {
   name: string;
   cssVar: string;
+  hex?: string;
   showBorder?: boolean;
+  borderOnly?: boolean;
 }) {
   return (
     <div className={styles.swatch}>
       <div
         className={styles.swatchColor}
-        style={{
-          background: `var(${cssVar})`,
-          border: showBorder ? '1px solid var(--rc-border-subtle-01)' : undefined,
-        }}
+        style={
+          borderOnly
+            ? {
+                background: 'var(--rc-layer-01)',
+                border: `2px solid var(${cssVar})`,
+              }
+            : {
+                background: `var(${cssVar})`,
+                border: showBorder ? '1px solid var(--rc-border-subtle-01)' : undefined,
+              }
+        }
       />
       <div className={styles.swatchName}>{name}</div>
+      {hex ? <div className={styles.swatchHex}>{hex}</div> : null}
     </div>
   );
 }

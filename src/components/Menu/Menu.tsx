@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../lib/cn';
+import { Divider } from '../Divider';
 import styles from './Menu.module.css';
 
 export type MenuEntry =
@@ -75,7 +76,7 @@ export function Menu({
       {resolvedEntries.map((entry) => {
         if (entry.kind === 'group') {
           return (
-            <li key={entry.id} role="presentation" className={styles.groupLabel}>
+            <li key={entry.id} role="presentation" className={cn('rc-label-sm', styles.groupLabel)}>
               {entry.label}
             </li>
           );
@@ -83,8 +84,8 @@ export function Menu({
 
         if (entry.kind === 'separator') {
           return (
-            <li key={entry.id} role="separator" className={styles.separator}>
-              <div className={styles.separatorLine} />
+            <li key={entry.id} role="presentation" className={styles.separator}>
+              <Divider />
             </li>
           );
         }
@@ -95,7 +96,7 @@ export function Menu({
               type="button"
               role="menuitem"
               disabled={entry.disabled}
-              className={cn(styles.item, entry.destructive && styles.destructive)}
+              className={cn('rc-body-sm', styles.item, entry.destructive && styles.destructive)}
               onClick={() => {
                 if (entry.disabled) return;
                 entry.onSelect?.();
@@ -109,7 +110,7 @@ export function Menu({
               )}
               <span className={styles.label}>{entry.label}</span>
               {entry.shortcut ? (
-                <span className={styles.shortcut}>{entry.shortcut}</span>
+                <span className={cn('rc-body-xs', styles.shortcut)}>{entry.shortcut}</span>
               ) : null}
             </button>
           </li>

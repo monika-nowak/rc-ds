@@ -4,8 +4,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import { CaretDown } from '@phosphor-icons/react';
+import type { ReactNode } from 'react';
 import { cn } from '../../lib/cn';
+import { Icon } from '../../icons';
 import { Menu, type MenuEntry } from '../Menu';
 import styles from './Breadcrumb.module.css';
 
@@ -19,31 +20,73 @@ export interface BreadcrumbSelectorProps {
   className?: string;
   label: string;
   prefix: string;
+  leadingContent?: ReactNode;
+  showLeading?: boolean;
+  showDropdown?: boolean;
+  dropdownIcon?: ReactNode;
   options?: BreadcrumbSelectorOption[];
   value?: string;
   onValueChange?: (value: string) => void;
   menuGroupLabel?: string;
   onClick?: () => void;
+  href?: string;
+  isCurrent?: boolean;
 }
 
 function MenuPrefix({ letter }: { letter: string }) {
-  return <span className={styles.menuPrefix}>{letter}</span>;
+  return <span className={cn('rc-label-sm', styles.menuPrefix)}>{letter}</span>;
+}
+
+function LeadingSlot({
+  prefix,
+  content,
+}: {
+  prefix: string;
+  content?: ReactNode;
+}) {
+  if (content) {
+    return <span className={cn('rc-label-md', styles.selectorPrefix)}>{content}</span>;
+  }
+
+  if (!prefix) return null;
+
+  return <span className={cn('rc-label-md', styles.selectorPrefix)}>{prefix}</span>;
+}
+
+function DefaultDropdownIcon({ open }: { open: boolean }) {
+  return (
+    <Icon
+      name="caret-down"
+      size={16}
+      tone="tertiary"
+      className={cn(styles.selectorIcon, open && styles.selectorIconOpen)}
+      aria-hidden
+    />
+  );
 }
 
 export function BreadcrumbSelector({
   className,
   label,
   prefix,
+  leadingContent,
+  showLeading = true,
+  showDropdown = true,
+  dropdownIcon,
   options,
   value,
   onValueChange,
   menuGroupLabel = 'Clients',
   onClick,
+  href,
+  isCurrent = false,
 }: BreadcrumbSelectorProps) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const hasMenu = Boolean(options?.length);
+  const hasLeading = showLeading && Boolean(leadingContent || prefix);
+  const showCaret = showDropdown && (hasMenu || onClick || dropdownIcon);
 
   useEffect(() => {
     if (!open) return;
@@ -84,19 +127,41 @@ export function BreadcrumbSelector({
     onClick?.();
   };
 
+  const labelClassName = cn(
+    'rc-label-md',
+    styles.selectorLabel,
+    isCurrent && styles.selectorLabelCurrent,
+  );
+
+  const content = (
+    <>
+      {hasLeading ? <LeadingSlot prefix={prefix} content={leadingContent} /> : null}
+      <span className={labelClassName}>{label}</span>
+      {showCaret ? (dropdownIcon ?? <DefaultDropdownIcon open={open} />) : null}
+    </>
+  );
+
+  if (href && !hasMenu) {
+    return (
+      <a href={href} className={cn(styles.selector, styles.selectorLink, className)}>
+        {content}
+      </a>
+    );
+  }
+
   return (
     <div ref={wrapperRef} className={cn(styles.selectorWrapper, className)}>
       <button
         type="button"
-        className={cn(styles.selector, open && styles.selectorOpen)}
+        className={cn(styles.selector, open && styles.selectorOpen, isCurrent && styles.selectorCurrent)}
         onClick={handleTriggerClick}
-        aria-haspopup={hasMenu ? 'menu' : 'listbox'}
+        aria-haspopup={hasMenu ? 'menu' : showDropdown ? 'listbox' : undefined}
         aria-expanded={hasMenu ? open : undefined}
         aria-controls={hasMenu && open ? menuId : undefined}
+        aria-current={isCurrent ? 'page' : undefined}
+        disabled={!hasMenu && !onClick && !href}
       >
-        <span className={styles.selectorPrefix}>{prefix}</span>
-        <span className={styles.selectorLabel}>{label}</span>
-        <CaretDown size={16} weight="regular" className={styles.selectorIcon} aria-hidden />
+        {content}
       </button>
 
       {open && hasMenu ? (

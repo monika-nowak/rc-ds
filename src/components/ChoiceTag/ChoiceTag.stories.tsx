@@ -49,3 +49,24 @@ export const Disabled: Story = {
     </ChoiceTagGroup>
   ),
 };
+
+export const MediumSize: Story = {
+  args: { children: null, 'aria-label': 'Suggested prompts' },
+  render: () => {
+    const [value, setValue] = useState('Break down by specialty');
+
+    return (
+      <ChoiceTagGroup
+        value={value}
+        onValueChange={setValue}
+        size="md"
+        aria-label="Suggested prompts"
+      >
+        <ChoiceTag value="Break down by specialty">Break down by specialty</ChoiceTag>
+        <ChoiceTag value="Academic vs community">Academic vs community</ChoiceTag>
+        <ChoiceTag value="Why are HCPs deviating?">Why are HCPs deviating?</ChoiceTag>
+        <ChoiceTag value="Is this growing MoM?">Is this growing MoM?</ChoiceTag>
+      </ChoiceTagGroup>
+    );
+  },
+};

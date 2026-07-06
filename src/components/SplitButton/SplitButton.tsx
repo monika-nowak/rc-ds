@@ -16,6 +16,12 @@ export type SplitButtonSize = 'xs' | 'sm' | 'md';
 
 export type SplitButtonMenuItem = MenuEntry;
 
+const labelTypeClass: Record<SplitButtonSize, string> = {
+  xs: 'rc-label-sm',
+  sm: 'rc-label-sm',
+  md: 'rc-label-md',
+};
+
 export interface SplitButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: SplitButtonStyle;
@@ -89,7 +95,7 @@ export function SplitButton({
           onClick={onMainClick}
           {...mainProps}
         >
-          <span className={styles.label}>{children}</span>
+          <span className={cn(labelTypeClass[size], styles.label)}>{children}</span>
         </button>
         <span className={styles.divider} aria-hidden />
         <button

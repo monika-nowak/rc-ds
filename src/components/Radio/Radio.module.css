@@ -1,0 +1,84 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.iconOnly {
+  gap: 0;
+}
+
+.input {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.circle {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--rc-border-interactive);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rc-field-02);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.dot {
+  display: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rc-button-primary);
+}
+
+.input:checked + .circle {
+  border-color: var(--rc-button-primary);
+}
+
+.input:checked + .circle .dot {
+  display: block;
+}
+
+.label {
+  color: var(--rc-text-primary);
+}
+
+.root:has(.input:focus-visible) .circle {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+.disabled {
+  cursor: not-allowed;
+}
+
+.disabled .input {
+  cursor: not-allowed;
+}
+
+.input:disabled + .circle {
+  background: var(--rc-field-01);
+  border-color: var(--rc-border-disabled);
+}
+
+.input:disabled:checked + .circle .dot {
+  background: var(--rc-button-disabled);
+}
+
+.disabled .label {
+  color: var(--rc-text-disabled);
+}

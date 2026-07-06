@@ -6,7 +6,7 @@
   width: 100%;
   height: 56px;
   padding: var(--rc-spacing-2) var(--rc-spacing-6);
-  border-bottom: 1px solid var(--rc-border-subtle-02);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
   background: var(--rc-layer-01);
 }
 

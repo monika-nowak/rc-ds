@@ -1,0 +1,31 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-3);
+  width: 100%;
+}
+
+.columnLabel {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--rc-text-tertiary);
+}
+
+.connectorSpacer {
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}

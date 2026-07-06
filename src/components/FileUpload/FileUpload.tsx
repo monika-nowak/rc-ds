@@ -36,9 +36,9 @@ function MetadataStat({
         <span className={styles.statIcon} aria-hidden>
           <Icon size={16} weight="regular" />
         </span>
-        <span className={styles.statLabel}>{label}</span>
+        <span className={cn('rc-body-sm', styles.statLabel)}>{label}</span>
       </div>
-      <span className={styles.statValue}>{formatCount(value)}</span>
+      <span className={cn('rc-label-md', styles.statValue)}>{formatCount(value)}</span>
     </div>
   );
 }
@@ -64,13 +64,13 @@ export function FileUpload({
         </div>
 
         <div className={styles.content}>
-          <span className={styles.fileName}>{fileName}</span>
-          <span className={styles.fileSize}>{fileSize}</span>
+          <span className={cn('rc-label-lg', styles.fileName)}>{fileName}</span>
+          <span className={cn('rc-body-md', styles.fileSize)}>{fileSize}</span>
         </div>
 
         {onReplace ? (
           <div className={styles.actions}>
-            <Button variant="ghost" size="md" className={styles.replaceButton} onClick={onReplace}>
+            <Button variant="ghost" size="md" className={cn('rc-label-md', styles.replaceButton)} onClick={onReplace}>
               {replaceLabel}
             </Button>
           </div>

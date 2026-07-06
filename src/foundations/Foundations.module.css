@@ -40,6 +40,12 @@
   word-break: break-word;
 }
 
+.swatchHex {
+  font: 400 10px/12px var(--rc-font-sans);
+  color: var(--rc-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
 .groupTitle {
   margin: 32px 0 12px;
   font: 500 14px/18px var(--rc-font-sans);

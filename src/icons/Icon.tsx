@@ -6,6 +6,7 @@ import styles from './Icon.module.css';
 export type IconTone =
   | 'primary'
   | 'secondary'
+  | 'tertiary'
   | 'error'
   | 'warning'
   | 'success'

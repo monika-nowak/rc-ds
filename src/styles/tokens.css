@@ -87,16 +87,17 @@
 
   --rc-icon-primary: #151316;
   --rc-icon-secondary: #757277;
+  --rc-icon-tertiary: #bfbec0;
   --rc-icon-on-color: #ffffff;
   --rc-icon-disabled: #bfbec0;
   --rc-icon-inverse: #fafafa;
-  --rc-icon-error: #c43b01;
-  --rc-icon-warning: #b45309;
+  --rc-icon-error: #ff5001;
+  --rc-icon-warning: #d97706;
   --rc-icon-success: #15803d;
   --rc-icon-info: #4500f9;
   --rc-icon-ai: #8752fa;
 
-  --rc-text-warning: #92400e;
+  --rc-text-warning: #b45309;
   --rc-text-success: #166534;
   --rc-text-info: #150061;
   --rc-text-ai: #4b2b8f;
@@ -121,8 +122,8 @@
   --rc-focus-inverse: #ffffff;
 
   --rc-button-primary: #151316;
-  --rc-button-primary-hover: #2d292f;
-  --rc-button-primary-active: #232025;
+  --rc-button-primary-hover: #5a575d;
+  --rc-button-primary-active: #312d34;
   --rc-button-secondary: #eaeaeb;
   --rc-button-secondary-hover: #bfbec0;
   --rc-button-tertiary: #bfbec0;
@@ -164,14 +165,24 @@
   /* Elevation — layered shadows; each step is visibly stronger than the previous */
   --rc-shadow-sm: 0 1px 2px rgb(0 0 0 / 8%), 0 2px 6px rgb(0 0 0 / 6%);
   --rc-shadow-md: 0 2px 4px rgb(0 0 0 / 8%), 0 6px 20px rgb(0 0 0 / 12%);
-  --rc-shadow-lg: 0 4px 8px rgb(0 0 0 / 10%), 0 12px 32px rgb(0 0 0 / 16%);
-  --rc-shadow-xl: 0 8px 16px rgb(0 0 0 / 12%), 0 24px 64px rgb(0 0 0 / 22%);
+  --rc-shadow-lg: 0 4px 8px rgb(0 0 0 / 10%), 0 12px 32px -2px rgb(0 0 0 / 16%);
+  --rc-shadow-xl: 0 8px 16px rgb(0 0 0 / 12%), 0 24px 64px -4px rgb(0 0 0 / 22%);
 
   /* Component sizes */
   --rc-height-badge: 22px;
   --rc-height-sm: 32px;
   --rc-height-md: 40px;
   --rc-height-lg: 46px;
+
+  /* Steps */
+  --rc-step-indicator-size: 24px;
+  --rc-step-indicator-current-bg: var(--rc-background-inverse);
+  --rc-step-indicator-upcoming-bg: var(--rc-neutral-100);
+  --rc-step-indicator-complete-bg: var(--rc-neutral-100);
+  --rc-step-indicator-fg: var(--rc-text-on-color);
+  --rc-step-label-current: var(--rc-text-primary);
+  --rc-step-label-upcoming: var(--rc-text-tertiary);
+  --rc-step-label-complete: var(--rc-text-tertiary);
 }
 
 *,

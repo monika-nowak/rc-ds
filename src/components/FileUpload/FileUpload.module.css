@@ -43,21 +43,11 @@
 
 .fileName {
   flex-shrink: 0;
-  font-family: var(--rc-font-sans);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  letter-spacing: 0.16px;
   color: var(--rc-text-primary);
 }
 
 .fileSize {
   flex-shrink: 0;
-  font-family: var(--rc-font-sans);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: 0.16px;
   color: var(--rc-text-tertiary);
 }
 
@@ -73,7 +63,6 @@
 .replaceButton {
   height: 32px;
   padding: 0 var(--rc-spacing-3);
-  font-weight: 600;
 }
 
 .stats {
@@ -115,17 +104,5 @@
 
 .statLabel,
 .statValue {
-  font-family: var(--rc-font-sans);
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0.14px;
   color: var(--rc-text-secondary);
-}
-
-.statLabel {
-  font-weight: 400;
-}
-
-.statValue {
-  font-weight: 700;
 }

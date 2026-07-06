@@ -44,7 +44,7 @@ export function Checkbox({
         <Check className={styles.checkIcon} weight="bold" />
         <Minus className={styles.minusIcon} weight="bold" />
       </span>
-      {showLabel ? <span className={styles.label}>{label}</span> : null}
+      {showLabel ? <span className={cn('rc-body-sm', styles.label)}>{label}</span> : null}
     </label>
   );
 }

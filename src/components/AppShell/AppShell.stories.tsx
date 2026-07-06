@@ -68,7 +68,7 @@ export const ProjectsPage: Story = {
       }
     >
       <div style={{ padding: 'var(--rc-spacing-6)' }}>
-        <h1 className="rc-heading-lg" style={{ margin: 0 }}>
+        <h1 className="rc-heading-h5" style={{ margin: 0 }}>
           Projects
         </h1>
       </div>
@@ -125,7 +125,7 @@ export const ProjectDetailPage: Story = {
         }
       >
         <div style={{ padding: 'var(--rc-spacing-6)' }}>
-          <h1 className="rc-heading-lg" style={{ margin: 0 }}>
+          <h1 className="rc-heading-h5" style={{ margin: 0 }}>
             MSL Insights – May 2026
           </h1>
         </div>

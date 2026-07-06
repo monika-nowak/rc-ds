@@ -13,7 +13,7 @@ export interface AlertProps {
 
 export function Alert({ type = 'info', children, className, icon }: AlertProps) {
   return (
-    <div className={cn(styles.alert, styles[type], className)} role="status">
+    <div className={cn('rc-body-sm', styles.alert, styles[type], className)} role="status">
       {icon ? <span className={styles.icon}>{icon}</span> : null}
       <div className={styles.content}>{children}</div>
     </div>

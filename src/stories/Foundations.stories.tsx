@@ -25,13 +25,31 @@ function toVar(token: string) {
   return `--rc-${token.replace(/\//g, '-')}`;
 }
 
+const semanticLight = tokens.semanticLight as Record<string, string>;
+
+function tokenHex(name: string) {
+  return semanticLight[name];
+}
+
+function isLightSwatch(name: string) {
+  return (
+    name.includes('blank') ||
+    name.includes('layer/01') ||
+    name.includes('field/02') ||
+    name.includes('on-color') ||
+    (name.includes('inverse') && name.startsWith('text/')) ||
+    name === 'step/indicator/fg' ||
+    name.startsWith('background/support/')
+  );
+}
+
 export const Colors: Story = {
   name: 'Colors',
   render: () => (
   <>
     <FoundationSection
       title="Colors"
-      description="Primitive palette and semantic tokens (Light). Canvas: background/canvas or background/blank. Surfaces: layer/01–03 with hover, active, and selected-01 states."
+      description="Primitive palette and semantic tokens (Light). Canvas: background/canvas or background/blank. Surfaces: layer/01–03 with hover, active, and selected-01 states. Support surfaces: pale feedback backgrounds (background/support/*) and matching borders (border/support/*) for alerts and mapping status."
     >
       <h3 className={styles.groupTitle}>Primitives</h3>
       {primitiveFamilies.map((family) => (
@@ -60,22 +78,16 @@ export const Colors: Story = {
         <div key={group}>
           <h3 className={styles.groupTitle}>{group}</h3>
           <div className={styles.swatchGrid}>
-            {tokenList.map((name) => {
-              const isLight =
-                name.includes('blank') ||
-                name.includes('layer/01') ||
-                name.includes('field/02') ||
-                name.includes('on-color') ||
-                name.includes('inverse') && name.startsWith('text/');
-              return (
+            {tokenList.map((name) => (
                 <Swatch
                   key={name}
                   name={name}
                   cssVar={toVar(name)}
-                  showBorder={isLight}
+                  hex={tokenHex(name)}
+                  showBorder={isLightSwatch(name)}
+                  borderOnly={name.startsWith('border/')}
                 />
-              );
-            })}
+              ))}
           </div>
         </div>
       ))}
@@ -140,6 +152,7 @@ const typeScale = [
   { cls: 'rc-heading-h8', name: 'Heading/H8', spec: '16 / 22 · Bold' },
   { cls: 'rc-heading-h9', name: 'Heading/H9', spec: '14 / 18 · Bold' },
   { cls: 'rc-body-lg', name: 'Body/LG', spec: '20 / 32 · Regular' },
+  { cls: 'rc-body-rg', name: 'Body/RG', spec: '18 / 24 · Regular' },
   { cls: 'rc-body-md', name: 'Body/MD', spec: '16 / 24 · Regular' },
   { cls: 'rc-body-sm', name: 'Body/SM', spec: '14 / 20 · Regular' },
   { cls: 'rc-body-xs', name: 'Body/XS', spec: '12 / 16 · Regular' },

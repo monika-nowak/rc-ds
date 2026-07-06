@@ -45,7 +45,7 @@ export function TooltipBubble({
   multiline = false,
 }: TooltipBubbleProps) {
   const bubble = (
-    <span className={cn(styles.bubble, multiline && styles.multiline)}>{content}</span>
+    <span className={cn('rc-body-xs', styles.bubble, multiline && styles.multiline)}>{content}</span>
   );
   const caret = <span className={cn(styles.caret, placementCaretClass[placement])} aria-hidden />;
 

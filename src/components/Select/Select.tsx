@@ -9,9 +9,11 @@ import {
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 import { Icon } from '../../icons';
 import { cn } from '../../lib/cn';
+import { Divider } from '../Divider';
 import styles from './Select.module.css';
 
-export type SelectState = 'default' | 'focus' | 'error' | 'disabled';
+export type SelectState = 'default' | 'focus' | 'error' | 'warning' | 'disabled';
+export type SelectCaretTone = 'secondary' | 'tertiary';
 export type SelectSize = 'md' | 'sm';
 
 export type SelectEntry =
@@ -39,6 +41,8 @@ export interface SelectProps {
   size?: SelectSize;
   /** Static visual state for docs; interactive focus/open still apply when enabled. */
   state?: SelectState;
+  /** Caret color — tertiary for placeholder / subtle contexts (e.g. unmapped mapping rows). */
+  caretTone?: SelectCaretTone;
   disabled?: boolean;
   className?: string;
   id?: string;
@@ -67,6 +71,7 @@ export function Select({
   onValueChange,
   size = 'md',
   state = 'default',
+  caretTone = 'secondary',
   disabled,
   className,
   id,
@@ -90,6 +95,7 @@ export function Select({
   const selectedLabel = getOptionLabel(options, value);
   const isDisabled = disabled || state === 'disabled';
   const isError = state === 'error';
+  const isWarning = state === 'warning';
 
   const setValue = useCallback(
     (next: string) => {
@@ -230,7 +236,7 @@ export function Select({
       className={cn(styles.field, isDisabled && styles.disabled, size === 'sm' && styles.sm, className)}
     >
       {visibleLabel ? (
-        <label id={labelId} className={styles.label} htmlFor={fieldId}>
+        <label id={labelId} className={cn('rc-label-md', styles.label)} htmlFor={fieldId}>
           {label}
         </label>
       ) : null}
@@ -240,10 +246,12 @@ export function Select({
           id={fieldId}
           type="button"
           className={cn(
+            'rc-body-sm',
             styles.trigger,
             open && styles.open,
             state === 'focus' && styles.focus,
             isError && styles.error,
+            isWarning && styles.warning,
           )}
           disabled={isDisabled}
           aria-haspopup="listbox"
@@ -264,7 +272,10 @@ export function Select({
           <span className={cn(styles.value, !selectedLabel && styles.placeholder)}>
             {selectedLabel ?? placeholder}
           </span>
-          <span className={styles.caret} aria-hidden>
+          <span
+            className={cn(styles.caret, caretTone === 'tertiary' && styles.caretTertiary)}
+            aria-hidden
+          >
             {open ? <CaretUp size={16} weight="bold" /> : <CaretDown size={16} weight="bold" />}
           </span>
         </button>
@@ -281,7 +292,7 @@ export function Select({
             {options.map((entry) => {
               if (entry.kind === 'group') {
                 return (
-                  <li key={entry.id} role="presentation" className={styles.groupLabel}>
+                  <li key={entry.id} role="presentation" className={cn('rc-label-sm', styles.groupLabel)}>
                     {entry.label}
                   </li>
                 );
@@ -289,8 +300,8 @@ export function Select({
 
               if (entry.kind === 'separator') {
                 return (
-                  <li key={entry.id} role="separator" className={styles.separator}>
-                    <div className={styles.separatorLine} />
+                  <li key={entry.id} role="presentation" className={styles.separator}>
+                    <Divider />
                   </li>
                 );
               }
@@ -307,7 +318,7 @@ export function Select({
                     data-option-id={entry.id}
                     disabled={entry.disabled}
                     aria-selected={selected}
-                    className={cn(styles.option, selected && styles.selected)}
+                    className={cn('rc-body-sm', styles.option, selected && styles.selected)}
                     onMouseEnter={() => {
                       const index = optionEntries.findIndex((option) => option.id === entry.id);
                       if (index >= 0) setActiveIndex(index);
@@ -331,7 +342,7 @@ export function Select({
       </div>
 
       {visibleHelper ? (
-        <span id={helperId} className={cn(styles.helper, isError && styles.helperError)}>
+        <span id={helperId} className={cn('rc-body-xs', styles.helper, isError && styles.helperError)}>
           {helperText}
         </span>
       ) : null}

@@ -15,8 +15,6 @@
   border: none;
   background: transparent;
   color: inherit;
-  font-family: var(--rc-font-sans);
-  font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -70,12 +68,6 @@
   padding: 0 var(--rc-spacing-4);
 }
 
-.md .label {
-  font-size: 14px;
-  line-height: 18px;
-  letter-spacing: 0.16px;
-}
-
 .md .caret {
   padding: var(--rc-spacing-3);
 }
@@ -84,24 +76,12 @@
   padding: 0 var(--rc-spacing-3);
 }
 
-.sm .label {
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.32px;
-}
-
 .sm .caret {
   padding: var(--rc-spacing-2);
 }
 
 .xs .main {
   padding: 0 8px;
-}
-
-.xs .label {
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.32px;
 }
 
 .xs .caret {

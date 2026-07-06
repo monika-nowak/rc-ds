@@ -35,7 +35,7 @@ export function TextArea({
   return (
     <div className={cn(styles.field, isDisabled && styles.disabled, className)}>
       {visibleLabel ? (
-        <label className={styles.label} htmlFor={inputId}>
+        <label className={cn('rc-label-md', styles.label)} htmlFor={inputId}>
           {label}
         </label>
       ) : null}
@@ -44,6 +44,7 @@ export function TextArea({
         rows={rows}
         disabled={isDisabled}
         className={cn(
+          'rc-body-sm',
           styles.textarea,
           state === 'focus' && styles.focus,
           isError && styles.error,
@@ -51,7 +52,7 @@ export function TextArea({
         {...props}
       />
       {visibleHelper ? (
-        <span className={cn(styles.helper, isError && styles.helperError)}>{helperText}</span>
+        <span className={cn('rc-helper-sm', styles.helper, isError && styles.helperError)}>{helperText}</span>
       ) : null}
     </div>
   );

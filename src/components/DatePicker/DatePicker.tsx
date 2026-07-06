@@ -231,7 +231,7 @@ export function DatePicker({
       )}
     >
       {visibleLabel ? (
-        <label id={labelId} className={styles.label} htmlFor={fieldId}>
+        <label id={labelId} className={cn('rc-label-md', styles.label)} htmlFor={fieldId}>
           {label}
         </label>
       ) : null}
@@ -241,6 +241,7 @@ export function DatePicker({
           id={fieldId}
           type="button"
           className={cn(
+            'rc-body-sm',
             styles.trigger,
             open && styles.open,
             (state === 'focus' || state === 'open') && styles.focus,
@@ -282,7 +283,7 @@ export function DatePicker({
               >
                 <CaretLeft size={16} weight="bold" />
               </button>
-              <span className={styles.monthLabel}>{formatMonthYear(viewDate)}</span>
+              <span className={cn('rc-label-md', styles.monthLabel)}>{formatMonthYear(viewDate)}</span>
               <button
                 type="button"
                 className={styles.navButton}
@@ -295,7 +296,7 @@ export function DatePicker({
 
             <div className={styles.weekdays}>
               {WEEKDAYS.map((weekday) => (
-                <span key={weekday} className={styles.weekday}>
+                <span key={weekday} className={cn('rc-label-sm', styles.weekday)}>
                   {weekday}
                 </span>
               ))}
@@ -313,6 +314,7 @@ export function DatePicker({
                         key={date.toISOString()}
                         type="button"
                         className={cn(
+                          'rc-body-sm',
                           styles.day,
                           outside && styles.outside,
                           isToday && styles.today,
@@ -338,7 +340,7 @@ export function DatePicker({
       </div>
 
       {visibleHelper ? (
-        <span id={helperId} className={cn(styles.helper, isError && styles.helperError)}>
+        <span id={helperId} className={cn('rc-body-xs', styles.helper, isError && styles.helperError)}>
           {helperText}
         </span>
       ) : null}

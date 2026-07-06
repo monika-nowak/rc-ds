@@ -39,9 +39,9 @@ export function PopoverContent({
 
   return (
     <span className={cn(styles.content, className)}>
-      {hasTitle ? <span className={styles.contentTitle}>{title}</span> : null}
+      {hasTitle ? <span className={cn('rc-label-md', styles.contentTitle)}>{title}</span> : null}
       {hasDescription ? (
-        <span className={styles.contentDescription}>{description}</span>
+        <span className={cn('rc-body-xs', styles.contentDescription)}>{description}</span>
       ) : null}
       {children}
     </span>

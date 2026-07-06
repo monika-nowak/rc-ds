@@ -62,6 +62,7 @@ export function Input({
       id={inputId}
       disabled={isDisabled}
       className={cn(
+        'rc-body-sm',
         styles.input,
         showTrailing && styles.inputInRow,
         isAi && styles.ai,
@@ -77,7 +78,7 @@ export function Input({
       {showAiChrome ? (
         <div className={styles.labelRow}>
           <div className={styles.labelGroup}>
-            <label className={styles.label} htmlFor={inputId}>
+            <label className={cn('rc-label-md', styles.label)} htmlFor={inputId}>
               {label}
             </label>
             {showAiBadge ? (
@@ -101,7 +102,7 @@ export function Input({
           ) : null}
         </div>
       ) : visibleLabel ? (
-        <label className={styles.label} htmlFor={inputId}>
+        <label className={cn('rc-label-md', styles.label)} htmlFor={inputId}>
           {label}
         </label>
       ) : null}
@@ -114,7 +115,7 @@ export function Input({
         inputElement
       )}
       {visibleHelper ? (
-        <span className={cn(styles.helper, isError && styles.helperError)}>{helperText}</span>
+        <span className={cn('rc-helper-sm', styles.helper, isError && styles.helperError)}>{helperText}</span>
       ) : null}
     </div>
   );

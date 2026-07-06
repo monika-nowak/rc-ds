@@ -1,0 +1,227 @@
+.root {
+  width: 100%;
+  overflow: visible;
+}
+
+.inputWrapper {
+  position: relative;
+  overflow: visible;
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-01);
+  box-shadow: var(--rc-shadow-sm);
+}
+
+.frameDisabled {
+  background: var(--rc-field-01);
+  box-shadow: none;
+}
+
+.suggestionsSection {
+  padding: var(--rc-spacing-2);
+}
+
+.suggestions {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.suggestions::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.menuAnchor {
+  position: relative;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-2);
+}
+
+.barDisabled {
+  opacity: 1;
+}
+
+.aiIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--rc-height-sm);
+  height: var(--rc-height-sm);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-button-ai-secondary);
+}
+
+.inputArea {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+  min-width: 0;
+}
+
+.input {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 80px;
+  min-height: 20px;
+  max-height: 120px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--rc-text-primary);
+  resize: none;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--rc-text-placeholder);
+}
+
+.input:disabled {
+  color: var(--rc-text-disabled);
+  cursor: not-allowed;
+}
+
+.input:disabled::placeholder {
+  color: var(--rc-text-disabled);
+}
+
+.helperText {
+  margin: 0;
+  padding: 0 var(--rc-spacing-2) var(--rc-spacing-2);
+  color: var(--rc-text-tertiary);
+}
+
+.sendButton {
+  flex-shrink: 0;
+}
+
+.referenceTag {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  height: 24px;
+  padding: 4px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-button-ai-secondary);
+  color: var(--rc-text-ai);
+}
+
+.referenceTagLabel {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.referenceTag .referenceTagRemove {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.referenceTag .referenceTagRemove:hover:not(:disabled) {
+  background: transparent;
+}
+
+.referenceMenu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--rc-spacing-2));
+  left: 0;
+  z-index: 20;
+}
+
+.referenceMenuPortaled {
+  position: fixed;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  z-index: 1000;
+}
+
+.referenceList {
+  margin: 0;
+  padding: var(--rc-spacing-1) 0;
+  list-style: none;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  box-shadow: var(--rc-shadow-lg);
+}
+
+.referenceMenuHeader {
+  padding: var(--rc-spacing-2) var(--rc-spacing-3) var(--rc-spacing-1);
+  color: var(--rc-text-tertiary);
+  text-transform: uppercase;
+}
+
+.referenceMenuEmpty {
+  padding: var(--rc-spacing-2) var(--rc-spacing-3);
+  color: var(--rc-text-tertiary);
+}
+
+.referenceOption {
+  display: grid;
+  grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--rc-spacing-2);
+  width: 100%;
+  min-height: 40px;
+  padding: var(--rc-spacing-2) var(--rc-spacing-3);
+  border: none;
+  background: transparent;
+  color: var(--rc-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.referenceOption:hover,
+.referenceOptionActive {
+  background: var(--rc-layer-hover-01);
+}
+
+.referenceOption:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: -2px;
+}
+
+.referenceBadge {
+  flex-shrink: 0;
+}
+
+.referenceOptionLabel {
+  white-space: nowrap;
+}
+
+.referenceOptionMeta {
+  justify-self: end;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--rc-text-tertiary);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
