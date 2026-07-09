@@ -133,7 +133,7 @@ const VARIANT_VISIBILITY: Record<CardVariant, VisibilityDefaults> = {
     showActions: false,
     showCreatedDate: false,
     showAuthor: false,
-    showDivider: false,
+    showDivider: true,
     showStats: false,
     showStrengthBadge: false,
     showLeadBadge: false,
@@ -206,7 +206,10 @@ function resolveVisibility(
     showAuthor: Boolean(props.authorName),
     showDivider:
       Boolean(props.title || props.description || props.children) &&
-      Boolean(props.stats && props.stats.length > 0),
+      Boolean(
+        (props.stats && props.stats.length > 0) ||
+          (props.considerations && props.considerations.length > 0),
+      ),
     showStats: Boolean(props.stats && props.stats.length > 0),
     showStrengthBadge: Boolean(props.strengthLabel),
     showLeadBadge: Boolean(props.leadLabel),
@@ -583,9 +586,11 @@ export function Card({
   const showTitleBlock =
     visibility.showTitle || (visibility.showDescription && Boolean(description)) || Boolean(children);
   const visibleStats = visibility.showStats ? stats : [];
-  const showDividerLine =
-    visibility.showDivider && showTitleBlock && visibleStats.length > 0;
   const visibleConsiderations = visibility.showConsiderations ? considerations : [];
+  const showDividerLine =
+    visibility.showDivider &&
+    showTitleBlock &&
+    (visibleStats.length > 0 || visibleConsiderations.length > 0);
 
   const categoryFooter =
     footer ??
