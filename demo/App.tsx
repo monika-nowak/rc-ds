@@ -5,7 +5,8 @@ import { SignalDetail } from './SignalDetail';
 import { AskAiPanel } from './AskAiPanel';
 import { RecordDetailPanel } from './RecordDetailPanel';
 import { SelectionAsk } from './SelectionAsk';
-import { type RecordEntry, type Signal } from './data';
+import { findSignal, type RecordEntry, type Signal } from './data';
+import { loadSession, saveSession } from './history';
 import styles from './demo.module.css';
 
 const DEFAULT_SCOPE: ChatScope = { kind: 'whole', label: 'Whole report' };
@@ -16,13 +17,28 @@ export interface QuoteRequest {
 }
 
 export function App() {
-  const [chatOpen, setChatOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const [scope, setScope] = useState<ChatScope>(DEFAULT_SCOPE);
-  const [activeSignal, setActiveSignal] = useState<Signal | null>(null);
+  // Restore the last session once, so a refresh keeps the user on the same page
+  // and re-opens the chat panel they had open.
+  const [initialSession] = useState(() => loadSession());
+  const [chatOpen, setChatOpen] = useState(initialSession?.chatOpen ?? false);
+  const [expanded, setExpanded] = useState(initialSession?.expanded ?? false);
+  const [scope, setScope] = useState<ChatScope>(initialSession?.scope ?? DEFAULT_SCOPE);
+  const [activeSignal, setActiveSignal] = useState<Signal | null>(() =>
+    initialSession?.signalId ? findSignal(initialSession.signalId) ?? null : null,
+  );
   const [quote, setQuote] = useState<QuoteRequest | null>(null);
   const [activeRecord, setActiveRecord] = useState<RecordEntry | null>(null);
   const [recordFromChat, setRecordFromChat] = useState(false);
+
+  // Persist the current page/panel snapshot whenever it changes.
+  useEffect(() => {
+    saveSession({
+      signalId: activeSignal?.id ?? null,
+      chatOpen,
+      expanded,
+      scope,
+    });
+  }, [activeSignal, chatOpen, expanded, scope]);
 
   const openChat = (nextScope: ChatScope) => {
     setScope(nextScope);

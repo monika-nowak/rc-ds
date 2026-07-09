@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatWithAI, type Reference, type ReferenceOption } from '../src/components/ChatWithAI';
-import { Chats } from '@phosphor-icons/react';
+import { ArrowsOutSimple, ChartLine, Chats } from '@phosphor-icons/react';
 import { Badge } from '../src/components/Badge';
+import { StatusIndicator } from '../src/components/StatusIndicator';
 import { IconButton } from '../src/components/IconButton';
 import { Link } from '../src/components/Link';
 import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
 import type { ChatScope } from './Dashboard';
 import type { QuoteRequest } from './App';
-import { RECORDS, TRENDS, type RecordEntry } from './data';
+import { RECORDS, SIGNALS, TRENDS, type RecordEntry } from './data';
 import {
   buildAnswer,
   countTokens,
@@ -19,9 +20,13 @@ import {
   type DataRow,
   type DataView,
 } from './aiEngine';
+import { generateAnswer, llmConfigured, type ChatTurn } from './llm';
 import {
+  loadActiveConversationId,
   loadConversations,
+  saveActiveConversationId,
   saveConversation,
+  type ConversationTurn,
   type StoredConversation,
 } from './history';
 import styles from './demo.module.css';
@@ -33,8 +38,10 @@ interface UserMessage {
   id: number;
   role: 'user';
   text: string;
-  reference?: { shorthand: string; label: string };
+  references?: { shorthand: string; label: string }[];
   quote?: string;
+  /** True when `text` already reads naturally with reference labels inline. */
+  composed?: boolean;
 }
 
 interface AssistantMessage {
@@ -50,16 +57,49 @@ interface AssistantMessage {
 
 type Message = UserMessage | AssistantMessage;
 
+// Reference options are built from the real report data so the user can @-mention
+// (and stack) any signal or trend — e.g. compare Signal 1 with Signal 6.
 const REFERENCE_OPTIONS: ReferenceOption[] = [
-  { id: 'trend-1', kind: 'trend', shorthand: 'T1', label: 'Trend 1' },
-  { id: 'trend-2', kind: 'trend', shorthand: 'T2', label: 'Trend 2' },
-  { id: 'signal-1', kind: 'signal', shorthand: 'S1', label: 'Signal 1' },
-  { id: 'signal-2', kind: 'signal', shorthand: 'S2', label: 'Signal 2' },
-  { id: 'signal-3', kind: 'signal', shorthand: 'S3', label: 'Signal 3' },
+  ...TRENDS.map<ReferenceOption>((trend) => ({
+    id: trend.id,
+    kind: 'trend',
+    shorthand: trend.label.replace('Trend ', 'T'),
+    label: trend.label,
+  })),
+  ...SIGNALS.map<ReferenceOption>((signal) => ({
+    id: signal.id,
+    kind: 'signal',
+    shorthand: signal.shorthand,
+    label: `Signal ${signal.seq}`,
+  })),
 ];
+
 
 const TYPE_INTERVAL_MS = 22;
 const THINKING_MS = 650;
+
+const LLM_AVAILABLE = llmConfigured();
+
+/** Flatten an answer into plain text so it can be fed back as chat history. */
+function answerToText(answer: Answer): string {
+  return answer.blocks
+    .map((block) => {
+      const text = block.tokens.map((token) => token.text).join('').trim();
+      return block.type === 'li' ? `- ${text}` : text;
+    })
+    .join('\n');
+}
+
+/** A minimal answer shown when the live model call fails. */
+function errorAnswer(message: string): Answer {
+  return {
+    blocks: [
+      { type: 'p', tokens: [{ text: "Sorry — I couldn't reach the model. " }] },
+      { type: 'p', tokens: [{ text: message }] },
+    ],
+    followUps: [],
+  };
+}
 
 interface AskAiPanelProps {
   scope: ChatScope;
@@ -264,56 +304,69 @@ function AnswerView({
     }
   });
 
+  const hasRefs = Boolean(answer.refs && answer.refs.length > 0);
+  const showFooter = showRefs && (hasRefs || Boolean(answer.confidence));
+
   return (
     <div className={styles.answer} data-selectable-ask>
-      {groups.map((group, groupIndex) =>
-        group.kind === 'ul' ? (
-          <ul key={groupIndex} className="rc-body-sm">
-            {group.items.map((item) => (
-              <li key={item.index}>{renderContent(item.block, item.count, item.index)}</li>
-            ))}
-          </ul>
-        ) : (
-          <p key={groupIndex} className="rc-body-sm">
-            {renderContent(group.block, group.count, group.index)}
-          </p>
-        ),
-      )}
+      <div className={styles.answerContent}>
+        {groups.map((group, groupIndex) =>
+          group.kind === 'ul' ? (
+            <ul key={groupIndex} className="rc-body-sm">
+              {group.items.map((item) => (
+                <li key={item.index}>{renderContent(item.block, item.count, item.index)}</li>
+              ))}
+            </ul>
+          ) : (
+            <p key={groupIndex} className="rc-body-sm">
+              {renderContent(group.block, group.count, group.index)}
+            </p>
+          ),
+        )}
 
-      {showData && answer.dataView ? (
-        <DataViewCard data={answer.dataView} onOpenRecord={onOpenRecord} />
-      ) : null}
+        {showData && answer.dataView ? (
+          <DataViewCard data={answer.dataView} onOpenRecord={onOpenRecord} />
+        ) : null}
 
-      {showProof && answer.proof ? (
-        <div className={styles.proof}>
-          <span className={`rc-label-sm ${styles.proofLabel}`}>{answer.proof.label}</span>
-          <span className={`rc-body-sm ${styles.answerProofQuote}`}>{answer.proof.quote}</span>
-        </div>
-      ) : null}
+        {showProof && answer.proof ? (
+          <div className={styles.proof}>
+            <span className={`rc-label-sm ${styles.proofLabel}`}>{answer.proof.label}</span>
+            <span className={`rc-body-sm ${styles.answerProofQuote}`}>{answer.proof.quote}</span>
+          </div>
+        ) : null}
+      </div>
 
-      {showRefs && answer.refs ? (
-        <div className={styles.refChips}>
-          {answer.refs.map((ref) => {
-            const match = /^R(\d+)$/.exec(ref);
-            const id = match ? Number(match[1]) : Number.NaN;
-            const clickable = onOpenRecord && !Number.isNaN(id) && Boolean(RECORDS[id]);
-            return clickable ? (
-              <button
-                key={ref}
-                type="button"
-                className={styles.recordRefButton}
-                onClick={() => onOpenRecord(RECORDS[id])}
-              >
-                <Badge appearance="subtle" color="info">
+      {showFooter ? (
+        <div className={styles.answerFooter}>
+          <div className={styles.answerSources}>
+            {(answer.refs ?? []).map((ref) => {
+              const match = /^R(\d+)$/.exec(ref);
+              const id = match ? Number(match[1]) : Number.NaN;
+              const clickable = onOpenRecord && !Number.isNaN(id) && Boolean(RECORDS[id]);
+              return clickable ? (
+                <button
+                  key={ref}
+                  type="button"
+                  className={styles.recordRefButton}
+                  onClick={() => onOpenRecord(RECORDS[id])}
+                >
+                  <Badge appearance="subtle" color="info">
+                    {ref}
+                  </Badge>
+                </button>
+              ) : (
+                <Badge key={ref} appearance="subtle" color="info">
                   {ref}
                 </Badge>
-              </button>
-            ) : (
-              <Badge key={ref} appearance="subtle" color="info">
-                {ref}
-              </Badge>
-            );
-          })}
+              );
+            })}
+          </div>
+          {answer.confidence ? (
+            <div className={styles.answerConfidence}>
+              <span className={`rc-label-md ${styles.answerConfidenceLabel}`}>Confidence:</span>
+              <StatusIndicator variant={answer.confidence.tone} label={answer.confidence.label} />
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -332,6 +385,78 @@ function ThinkingBubble() {
   );
 }
 
+// Rebuild the full set of messages for a stored conversation by replaying each
+// user turn through the (deterministic) answer engine.
+function buildMessagesFromConversation(
+  conversation: StoredConversation,
+  nextId: () => number,
+): { messages: Message[]; suggestions: string[] } {
+  const turns: ConversationTurn[] =
+    conversation.turns && conversation.turns.length > 0
+      ? conversation.turns
+      : [{ text: conversation.title }];
+
+  const messages: Message[] = [];
+  let lastAnswer: Answer | null = null;
+  for (const turn of turns) {
+    const turnRefs = turn.references ?? (turn.reference ? [turn.reference] : undefined);
+    // Newer turns store `text` with reference labels already inline; older turns
+    // kept a bare text plus a separate reference list that we prefix on replay.
+    const isComposed = turn.composed === true;
+    const refLabels = turnRefs?.map((reference) => reference.label) ?? [];
+    const refPhrase =
+      !isComposed && refLabels.length > 0 ? `Regarding ${refLabels.join(' and ')}: ` : '';
+    const composedText = `${refPhrase}${turn.text}`;
+    const intent = turn.quote ? `${composedText} ${turn.quote}` : composedText;
+    const answer = buildAnswer(intent, conversation.scope);
+    lastAnswer = answer;
+    messages.push({
+      id: nextId(),
+      role: 'user',
+      text: turn.text,
+      references: turnRefs,
+      quote: turn.quote,
+      composed: isComposed,
+    });
+    messages.push({
+      id: nextId(),
+      role: 'assistant',
+      answer,
+      status: 'done',
+      revealed: countTokens(answer),
+      showData: true,
+      showProof: true,
+      showRefs: true,
+    });
+  }
+
+  return {
+    messages,
+    suggestions: lastAnswer ? lastAnswer.followUps : defaultSuggestions(conversation.scope),
+  };
+}
+
+// On mount, look up the conversation the user last had open and rebuild it so
+// closing/re-opening the panel (or refreshing) resumes the same conversation.
+function loadInitialConversation(): {
+  id: string;
+  scope: ChatScope;
+  messages: Message[];
+  suggestions: string[];
+  nextId: number;
+} | null {
+  const activeId = loadActiveConversationId();
+  if (!activeId) return null;
+  const conversation = loadConversations().find((c) => c.id === activeId);
+  if (!conversation || !conversation.turns || conversation.turns.length === 0) return null;
+  let counter = 0;
+  const { messages, suggestions } = buildMessagesFromConversation(
+    conversation,
+    () => (counter += 1),
+  );
+  return { id: conversation.id, scope: conversation.scope, messages, suggestions, nextId: counter };
+}
+
 export function AskAiPanel({
   scope,
   onScopeChange,
@@ -341,19 +466,29 @@ export function AskAiPanel({
   quote,
   onOpenRecord,
 }: AskAiPanelProps) {
+  const [initialConversation] = useState(() => loadInitialConversation());
   const [view, setView] = useState<View>('conversation');
   const [value, setValue] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(
+    () => initialConversation?.messages ?? [],
+  );
   const [generating, setGenerating] = useState(false);
   const [attachedQuote, setAttachedQuote] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<string[]>(() => defaultSuggestions(scope));
+  // The composer starts empty; the current scope is shown separately ("Conversation
+  // scoped to…" / header), matching Figma. Only @-mentions become reference tags.
+  const [references, setReferences] = useState<Reference[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>(
+    () => initialConversation?.suggestions ?? defaultSuggestions(scope),
+  );
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+  const [useLLM, setUseLLM] = useState(LLM_AVAILABLE);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
     loadConversations(),
   );
 
-  const idRef = useRef(0);
-  const conversationIdRef = useRef<string>(`c-${Date.now()}`);
+  const idRef = useRef(initialConversation?.nextId ?? 0);
+  const messagesRef = useRef<Message[]>(messages);
+  const conversationIdRef = useRef<string>(initialConversation?.id ?? `c-${Date.now()}`);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const bodyRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
@@ -369,7 +504,7 @@ export function AskAiPanel({
     setAttachedQuote(quote.text);
     setView('conversation');
     const timer = window.setTimeout(() => {
-      footerRef.current?.querySelector('textarea')?.focus();
+      footerRef.current?.querySelector<HTMLElement>('[data-chat-input]')?.focus();
     }, 60);
     return () => window.clearTimeout(timer);
   }, [quote]);
@@ -381,28 +516,54 @@ export function AskAiPanel({
 
   useEffect(() => () => clearTimers(), []);
 
+  // Align the parent scope with the restored conversation so follow-ups keep
+  // the same focus after a refresh / re-open.
+  useEffect(() => {
+    if (initialConversation) onScopeChange(initialConversation.scope);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Reset suggestions when scope changes and no conversation is in progress.
   useEffect(() => {
     if (messages.length === 0) setSuggestions(defaultSuggestions(scope));
   }, [scope, messages.length]);
 
-  // Auto-scroll to the newest content.
+  // The Suggested rail is expanded for a fresh/empty conversation and collapses
+  // once the conversation is underway. Manual toggles are preserved until the
+  // empty/started state flips again.
+  const conversationEmpty = messages.length === 0;
   useEffect(() => {
+    setSuggestionsOpen(conversationEmpty);
+  }, [conversationEmpty]);
+
+  // Entering the New chat (scope) or Conversations (history) views should start
+  // at the very top, not the middle of the scroll container.
+  useEffect(() => {
+    if (view === 'scope' || view === 'history') {
+      const el = bodyRef.current;
+      if (el) el.scrollTop = 0;
+    }
+  }, [view]);
+
+  // Auto-scroll to the newest content while a conversation is visible.
+  useEffect(() => {
+    if (view !== 'conversation') return;
     const el = bodyRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   });
 
-  const references: Reference[] =
-    scope.kind === 'whole'
-      ? []
-      : [
-          {
-            id: scope.kind === 'signal' ? 'signal-2' : 'trend-1',
-            kind: scope.kind === 'signal' ? 'signal' : 'trend',
-            shorthand: scope.shorthand ?? 'S2',
-            label: scope.label,
-          },
-        ];
+  // Keep a ref of the current messages so `send` can build chat history for the
+  // live model without re-creating the callback on every keystroke.
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  // Clear any composer reference tags when the scope changes (new page / new
+  // conversation). Within a conversation the scope is stable, so tags persist.
+  useEffect(() => {
+    setReferences([]);
+    setValue('');
+  }, [scope.kind, scope.label, scope.shorthand]);
 
   const updateLastAssistant = useCallback(
     (updater: (message: AssistantMessage) => AssistantMessage) => {
@@ -423,36 +584,54 @@ export function AskAiPanel({
 
   const persist = useCallback(
     (finalMessages: Message[]) => {
-      const firstUser = finalMessages.find((m): m is UserMessage => m.role === 'user');
-      if (!firstUser) return;
+      const users = finalMessages.filter((m): m is UserMessage => m.role === 'user');
+      if (users.length === 0) return;
       const conversation: StoredConversation = {
         id: conversationIdRef.current,
-        title: firstUser.text,
+        title: users[0].text,
         scope,
         ts: Date.now(),
+        turns: users.map((u) => ({
+          text: u.text,
+          quote: u.quote,
+          references: u.references,
+          composed: u.composed,
+        })),
       };
       const next = saveConversation(conversation);
       setConversations(next);
+      saveActiveConversationId(conversation.id);
     },
     [scope],
   );
 
+  // Persist as soon as a user turn is added (not on every streamed token) so an
+  // in-progress conversation survives closing the panel or refreshing. Skip the
+  // first run so re-opening a restored conversation doesn't rewrite it.
+  const userTurnCount = messages.filter((m) => m.role === 'user').length;
+  const didMountPersist = useRef(false);
+  useEffect(() => {
+    if (!didMountPersist.current) {
+      didMountPersist.current = true;
+      return;
+    }
+    if (userTurnCount > 0) persist(messages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userTurnCount]);
+
   const streamAnswer = useCallback(
-    (answer: Answer) => {
+    (answer: Answer, startDelay: number = THINKING_MS) => {
       const total = countTokens(answer);
 
       const thinkingTimer = setTimeout(() => {
-        updateLastAssistant((message) => ({ ...message, status: 'streaming' }));
+        updateLastAssistant((message) => ({ ...message, answer, status: 'streaming' }));
 
+        let revealedCount = 0;
         const step = () => {
-          let done = false;
-          updateLastAssistant((message) => {
-            const revealed = Math.min(message.revealed + 1, total);
-            if (revealed >= total) done = true;
-            return { ...message, revealed };
-          });
+          revealedCount = Math.min(revealedCount + 1, total);
+          updateLastAssistant((message) => ({ ...message, revealed: revealedCount }));
 
-          if (done) {
+          if (revealedCount >= total) {
             let delay = 0;
             if (answer.dataView) {
               delay += 240;
@@ -470,7 +649,7 @@ export function AskAiPanel({
               );
               timers.current.push(proofTimer);
             }
-            if (answer.refs) {
+            if (answer.refs || answer.confidence) {
               delay += 280;
               const refsTimer = setTimeout(
                 () => updateLastAssistant((message) => ({ ...message, showRefs: true })),
@@ -497,7 +676,7 @@ export function AskAiPanel({
 
         const first = setTimeout(step, TYPE_INTERVAL_MS);
         timers.current.push(first);
-      }, THINKING_MS);
+      }, startDelay);
 
       timers.current.push(thinkingTimer);
     },
@@ -509,26 +688,33 @@ export function AskAiPanel({
       const trimmed = text.trim();
       if (!trimmed || generating) return;
 
-      // Fold any attached highlight into intent detection so the simulated
-      // answer reflects what the user is asking about.
+      // The composer already interleaves reference labels inline (e.g. "compare
+      // Signal 1 to Signal 3"), so the question reads naturally as typed. Any
+      // highlighted text is folded in as extra context.
       const intentText = attachedQuote ? `${trimmed} ${attachedQuote}` : trimmed;
-      const answer = buildAnswer(intentText, scope);
       const userId = (idRef.current += 1);
       const assistantId = (idRef.current += 1);
+
+      const turnReferences =
+        references.length > 0
+          ? references.map((reference) => ({ shorthand: reference.shorthand, label: reference.label }))
+          : undefined;
 
       const userMessage: UserMessage = {
         id: userId,
         role: 'user',
         text: trimmed,
-        reference: isSignalScope
-          ? { shorthand: scope.shorthand ?? 'S2', label: scope.label }
-          : undefined,
+        references: turnReferences,
         quote: attachedQuote ?? undefined,
+        composed: true,
       };
+
+      // Placeholder answer; replaced with the real one before streaming.
+      const placeholder: Answer = { blocks: [], followUps: [] };
       const assistantMessage: AssistantMessage = {
         id: assistantId,
         role: 'assistant',
-        answer,
+        answer: placeholder,
         status: 'thinking',
         revealed: 0,
         showData: false,
@@ -539,10 +725,37 @@ export function AskAiPanel({
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
       setValue('');
       setAttachedQuote(null);
+      // Clear the composer tags; they were consumed by this turn.
+      setReferences([]);
       setGenerating(true);
-      streamAnswer(answer);
+
+      if (useLLM) {
+        // Build history from prior turns (before this one) for context.
+        const history: ChatTurn[] = messagesRef.current.map((message) => {
+          if (message.role !== 'user') {
+            return { role: 'assistant', content: answerToText(message.answer) };
+          }
+          const labels = message.references?.map((reference) => reference.label) ?? [];
+          const prefix =
+            !message.composed && labels.length > 0 ? `Regarding ${labels.join(' and ')}: ` : '';
+          const base = `${prefix}${message.text}`;
+          return { role: 'user', content: message.quote ? `${base}\n\n> ${message.quote}` : base };
+        });
+
+        generateAnswer({ question: intentText, scope, history })
+          .then((answer) => streamAnswer(answer, 0))
+          .catch((error: unknown) => {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            streamAnswer(errorAnswer(message), 0);
+          });
+      } else {
+        // Deterministic demo engine.
+        const answer = buildAnswer(intentText, scope);
+        updateLastAssistant((message) => ({ ...message, answer }));
+        streamAnswer(answer);
+      }
     },
-    [attachedQuote, generating, isSignalScope, scope, streamAnswer],
+    [attachedQuote, generating, references, scope, streamAnswer, updateLastAssistant, useLLM],
   );
 
   const startNewChat = () => {
@@ -550,7 +763,9 @@ export function AskAiPanel({
     setGenerating(false);
     setMessages([]);
     setValue('');
+    setReferences([]);
     conversationIdRef.current = `c-${Date.now()}`;
+    saveActiveConversationId(null);
     setSuggestions(defaultSuggestions(scope));
     setView('scope');
   };
@@ -560,39 +775,28 @@ export function AskAiPanel({
     setGenerating(false);
     onScopeChange(next);
     setMessages([]);
+    setReferences([]);
     conversationIdRef.current = `c-${Date.now()}`;
+    saveActiveConversationId(null);
     setSuggestions(defaultSuggestions(next));
     setView('conversation');
   };
+
+  // Clearing the scope pill resets the conversation back to the whole report.
+  const clearScope = () => chooseScope({ kind: 'whole', label: 'Whole report' });
 
   const openHistoryItem = (conversation: StoredConversation) => {
     clearTimers();
     setGenerating(false);
     onScopeChange(conversation.scope);
     conversationIdRef.current = conversation.id;
-    const answer = buildAnswer(conversation.title, conversation.scope);
-    setMessages([
-      {
-        id: (idRef.current += 1),
-        role: 'user',
-        text: conversation.title,
-        reference:
-          conversation.scope.kind === 'signal'
-            ? { shorthand: conversation.scope.shorthand ?? 'S2', label: conversation.scope.label }
-            : undefined,
-      },
-      {
-        id: (idRef.current += 1),
-        role: 'assistant',
-        answer,
-        status: 'done',
-        revealed: countTokens(answer),
-        showData: true,
-        showProof: true,
-        showRefs: true,
-      },
-    ]);
-    setSuggestions(answer.followUps);
+    saveActiveConversationId(conversation.id);
+    const { messages: restored, suggestions: restoredSuggestions } = buildMessagesFromConversation(
+      conversation,
+      () => (idRef.current += 1),
+    );
+    setMessages(restored);
+    setSuggestions(restoredSuggestions);
     setView('conversation');
   };
 
@@ -610,16 +814,22 @@ export function AskAiPanel({
   return (
     <aside className={`${styles.panel} ${expanded ? styles.panelExpanded : ''}`} aria-label="Ask AI">
       <header className={styles.panelHeader}>
-        <IconButton
-          variant="ghost"
-          size="sm"
-          label="Conversations"
-          onClick={() => setView('history')}
-        >
-          <Chats size={18} weight="regular" />
-        </IconButton>
+        {view !== 'history' ? (
+          <IconButton
+            variant="ghost"
+            size="sm"
+            label="Conversations"
+            onClick={() => setView('history')}
+          >
+            <Icon name="caret-left" size={18} tone="primary" />
+          </IconButton>
+        ) : null}
         <span className={styles.panelAiMark} aria-hidden>
-          <Icon name="sparkle" size={20} tone="on-color" />
+          {view === 'history' ? (
+            <Chats size={20} weight="regular" />
+          ) : (
+            <Icon name="sparkle" size={20} tone="on-color" />
+          )}
         </span>
         <div className={styles.panelTitleBlock}>
           <span className={`rc-heading-h9 ${styles.panelTitle}`}>{headerTitle}</span>
@@ -628,11 +838,25 @@ export function AskAiPanel({
           ) : null}
         </div>
         <div className={styles.panelHeaderActions}>
+          {LLM_AVAILABLE ? (
+            <button
+              type="button"
+              className={`rc-label-sm ${styles.modeToggle} ${useLLM ? styles.modeToggleLive : ''}`}
+              onClick={() => setUseLLM((value) => !value)}
+              title={
+                useLLM
+                  ? 'Live model answers — click to switch to demo answers'
+                  : 'Demo answers — click to switch to the live model'
+              }
+            >
+              {useLLM ? 'Live' : 'Demo'}
+            </button>
+          ) : null}
           <IconButton variant="ghost" size="sm" label="New chat" onClick={startNewChat}>
             <Icon name="plus" size={18} tone="primary" />
           </IconButton>
           <IconButton variant="ghost" size="sm" label="Expand" onClick={onToggleExpanded}>
-            <Icon name="arrow-square-out" size={18} tone="primary" />
+            <ArrowsOutSimple size={18} weight="regular" />
           </IconButton>
           <IconButton variant="ghost" size="sm" label="Close" onClick={onClose}>
             <Icon name="x" size={18} tone="primary" />
@@ -649,13 +873,30 @@ export function AskAiPanel({
           <div className={styles.emptyState}>
             <div className={styles.scopedTo}>
               <span className="rc-body-sm">Conversation scoped to:</span>
-              <span className={`rc-label-md ${styles.scopeChip}`}>
-                {isSignalScope ? (
-                  <span className="rc-label-sm">{scope.shorthand}</span>
-                ) : (
-                  <Icon name="arrow-up-right" size={12} tone="ai" />
-                )}
-                {scope.label}
+              <span className={styles.scopeChipGroup}>
+                <button
+                  type="button"
+                  className={`rc-label-md ${styles.scopeChip}`}
+                  onClick={() => setView('scope')}
+                  aria-label={`Change conversation context (currently ${scope.label})`}
+                >
+                  {isSignalScope ? (
+                    <span className="rc-label-sm">{scope.shorthand}</span>
+                  ) : (
+                    <ChartLine size={12} weight="regular" />
+                  )}
+                  {scope.label}
+                </button>
+                {scope.kind !== 'whole' ? (
+                  <IconButton
+                    variant="aiGhost"
+                    size="badge"
+                    label="Clear conversation context"
+                    onClick={clearScope}
+                  >
+                    <Icon name="x" size={12} tone="ai" />
+                  </IconButton>
+                ) : null}
               </span>
             </div>
             <p className={`rc-body-sm ${styles.emptyHelper}`}>
@@ -671,11 +912,16 @@ export function AskAiPanel({
                   {message.quote ? (
                     <span className={`rc-body-xs ${styles.userQuote}`}>{message.quote}</span>
                   ) : null}
-                  {message.reference ? (
-                    <>
-                      <span className={styles.refToken}>{message.reference.label}</span>{' '}
-                    </>
-                  ) : null}
+                  {!message.composed
+                    ? message.references?.map((reference) => (
+                        <span key={reference.label} className={styles.refToken}>
+                          {reference.label}
+                        </span>
+                      ))
+                    : null}
+                  {!message.composed && message.references && message.references.length > 0
+                    ? ' '
+                    : null}
                   {message.text}
                 </div>
               ) : message.status === 'thinking' ? (
@@ -736,6 +982,7 @@ export function AskAiPanel({
             onChange={setValue}
             onSubmit={send}
             references={references}
+            onReferencesChange={setReferences}
             referenceOptions={REFERENCE_OPTIONS}
             loading={generating}
             placeholder="Ask a follow-up. Type @ to reference or select any text to ask about"

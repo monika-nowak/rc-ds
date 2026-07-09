@@ -32,11 +32,21 @@ export interface DataView {
   source: string;
 }
 
+export type ConfidenceTone = 'success' | 'warning' | 'error' | 'info' | 'neutral';
+
+export interface Confidence {
+  /** Short label, e.g. "Strong" / "Moderate" / "Tentative". */
+  label: string;
+  tone: ConfidenceTone;
+}
+
 export interface Answer {
   blocks: AnswerBlock[];
   dataView?: DataView;
   proof?: { label: string; quote: string };
   refs?: string[];
+  /** Footer confidence chip (dot + label). */
+  confidence?: Confidence;
   followUps: string[];
 }
 
@@ -110,6 +120,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
           ],
           source: 'From cited records',
         },
+        confidence: { label: 'Moderate', tone: 'warning' },
         followUps: ['Why does the top group dominate?', 'Strongest verbatims', 'Compare Trend 1 vs. Trend 2'],
       };
 
@@ -131,6 +142,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
           source: 'From cited records',
         },
         refs: ['R71', 'R72', 'R80'],
+        confidence: { label: 'Strong', tone: 'success' },
         followUps: ['Why is this happening?', 'Strongest verbatims', 'Break down by specialty'],
       };
 
@@ -148,6 +160,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
             '"We know that it works in the ambulatory population, but we don\'t have the efficacy data to support the non-ambulatory population."',
         },
         refs: ['R21', 'R71', 'R62'],
+        confidence: { label: 'Strong', tone: 'success' },
         followUps: ['Which HCPs drive it?', 'Strongest verbatims', "What's the most important signal?"],
       };
 
@@ -160,6 +173,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
           li('**On awareness.** "Gene therapy and exon-skipping technologies have sucked all the air out of the room." (R3)'),
         ],
         refs: ['R21', 'R62', 'R3'],
+        confidence: { label: 'Strong', tone: 'success' },
         followUps: ['Why is this happening?', 'Which HCPs drive it?', 'Break down by specialty'],
       };
 
@@ -181,6 +195,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
           source: 'From this report',
         },
         refs: ['T1', 'T2'],
+        confidence: { label: 'Moderate', tone: 'warning' },
         followUps: ['Break Trend 1 down by specialty', 'Strongest verbatims', "What's the most important signal?"],
       };
 
@@ -198,6 +213,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
             '"Without data in these higher-risk groups, the true benefit-risk profile remains unclear."',
         },
         refs: ['S1', 'R21', 'R71'],
+        confidence: { label: 'Strong', tone: 'success' },
         followUps: ['Which HCPs drive it?', 'Break down by specialty', 'Compare Trend 1 vs. Trend 2'],
       };
 
@@ -215,6 +231,7 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
             '"PUL and cardiac data would be the missing link for their clinic to help drive clinical conviction across neuromuscular specialists."',
         },
         refs: ['S1', 'R87'],
+        confidence: { label: 'Moderate', tone: 'warning' },
         followUps: ['Why is this happening?', 'Which HCPs drive it?', 'Strongest verbatims'],
       };
   }
@@ -222,6 +239,83 @@ function buildIntentAnswer(intent: Intent, scope: ChatScope): Answer {
 
 export function buildAnswer(userText: string, scope: ChatScope): Answer {
   return buildIntentAnswer(detectIntent(userText), scope);
+}
+
+/** Loose shape returned by an LLM, before it's normalized into an `Answer`. */
+export interface RawAnswer {
+  blocks?: { type?: string; text?: string }[];
+  dataView?: {
+    filter?: string;
+    columns?: string[];
+    rows?: { label?: string; value?: string; share?: number }[];
+    source?: string;
+  } | null;
+  proof?: { label?: string; quote?: string } | null;
+  refs?: string[] | null;
+  confidence?: { label?: string; tone?: string } | null;
+  followUps?: string[] | null;
+}
+
+const CONFIDENCE_TONES: ConfidenceTone[] = ['success', 'warning', 'error', 'info', 'neutral'];
+
+function clampShare(value: unknown): number {
+  const num = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(num)) return 0;
+  return Math.max(0, Math.min(100, Math.round(num)));
+}
+
+/** Normalize a (possibly messy) LLM JSON payload into a render-ready `Answer`. */
+export function answerFromRaw(raw: RawAnswer, scope: ChatScope): Answer {
+  const blocks: AnswerBlock[] = (raw.blocks ?? [])
+    .filter((block) => typeof block?.text === 'string' && block.text.trim().length > 0)
+    .map((block) => (block.type === 'li' ? li(block.text as string) : p(block.text as string)));
+
+  let dataView: DataView | undefined;
+  if (raw.dataView && Array.isArray(raw.dataView.rows) && raw.dataView.rows.length > 0) {
+    const cols = raw.dataView.columns ?? [];
+    dataView = {
+      filter: raw.dataView.filter ?? '',
+      columns: [cols[0] ?? 'Category', cols[1] ?? 'Value', cols[2] ?? 'Share'],
+      rows: raw.dataView.rows
+        .filter((row) => typeof row?.label === 'string')
+        .map((row) => ({
+          label: row.label as string,
+          value: String(row.value ?? ''),
+          share: clampShare(row.share),
+        })),
+      source: raw.dataView.source ?? 'From this report',
+    };
+  }
+
+  const proof =
+    raw.proof && typeof raw.proof.quote === 'string' && raw.proof.quote.trim().length > 0
+      ? { label: raw.proof.label ?? 'Proof', quote: raw.proof.quote }
+      : undefined;
+
+  const refs = Array.isArray(raw.refs)
+    ? raw.refs.filter((ref): ref is string => typeof ref === 'string' && ref.trim().length > 0)
+    : undefined;
+
+  let confidence: Confidence | undefined;
+  if (raw.confidence && typeof raw.confidence.label === 'string' && raw.confidence.label.trim().length > 0) {
+    const tone = CONFIDENCE_TONES.includes(raw.confidence.tone as ConfidenceTone)
+      ? (raw.confidence.tone as ConfidenceTone)
+      : 'neutral';
+    confidence = { label: raw.confidence.label.trim(), tone };
+  }
+
+  const followUps = Array.isArray(raw.followUps)
+    ? raw.followUps.filter((f): f is string => typeof f === 'string' && f.trim().length > 0)
+    : [];
+
+  return {
+    blocks: blocks.length > 0 ? blocks : [p('I could not generate a response for that. Try rephrasing.')],
+    dataView,
+    proof,
+    refs: refs && refs.length > 0 ? refs : undefined,
+    confidence,
+    followUps: followUps.length > 0 ? followUps.slice(0, 4) : defaultSuggestions(scope),
+  };
 }
 
 interface VerbatimItem {

@@ -7,10 +7,11 @@ import {
   Tag,
   TrendUp,
 } from '@phosphor-icons/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ComponentType, ReactNode } from 'react';
 import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
 import { Badge } from '../src/components/Badge';
+import { Button } from '../src/components/Button';
 import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
 import {
@@ -238,8 +239,25 @@ export function SignalDetail({
     { icon: 'tag', value: signal.instTypes, emphasis: 'institution', label: 'types' },
   ];
 
-  const records = signal.recs.map((id) => RECORDS[id]).filter(Boolean);
-  const proof = records[0];
+  const RECORDS_PAGE = 8;
+  const signalRecords = signal.recs.map((id) => RECORDS[id]).filter(Boolean);
+  const proof = signalRecords[0];
+
+  // The signal's stated total can exceed the records we have tagged to it; pad
+  // the list with other real records from the pool so "Show more" can page
+  // through to the full count.
+  const recordTotal = Number.parseInt(signal.records, 10) || signalRecords.length;
+  const usedIds = new Set(signalRecords.map((record) => record.id));
+  const allRecords = [...signalRecords];
+  for (const record of Object.values(RECORDS)) {
+    if (allRecords.length >= recordTotal) break;
+    if (!usedIds.has(record.id)) allRecords.push(record);
+  }
+
+  const [visibleCount, setVisibleCount] = useState(RECORDS_PAGE);
+  useEffect(() => setVisibleCount(RECORDS_PAGE), [signal]);
+  const visibleRecords = allRecords.slice(0, visibleCount);
+  const hasMore = visibleCount < allRecords.length;
 
   return (
     <div className={styles.signalPage}>
@@ -336,7 +354,7 @@ export function SignalDetail({
               title="Records in this signal"
             />
             <span className={`rc-body-sm ${styles.recordsCount}`}>
-              Showing {records.length} of {signal.records} records
+              Showing {visibleRecords.length} of {recordTotal} records
             </span>
             <div className={styles.recordsTableWrap}>
               <div className={`${styles.recordsTableHead} ${styles.recordsTableColumns}`}>
@@ -346,7 +364,7 @@ export function SignalDetail({
                 <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Institution type</span>
                 <span className={`rc-body-sm ${styles.recordsHeadCell}`}>HCP Specialty</span>
               </div>
-              {records.map((record) => (
+              {visibleRecords.map((record) => (
                 <button
                   key={record.id}
                   type="button"
@@ -371,6 +389,18 @@ export function SignalDetail({
                 </button>
               ))}
             </div>
+            {hasMore ? (
+              <div className={styles.recordsMore}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className={styles.showAll}
+                  onClick={() => setVisibleCount((count) => count + RECORDS_PAGE)}
+                >
+                  Show more records
+                </Button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

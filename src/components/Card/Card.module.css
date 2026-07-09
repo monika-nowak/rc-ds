@@ -174,7 +174,8 @@
 
 .considerationsList {
   margin: 0;
-  padding: 0;
+  /* Indent the list 24px from the section header (matches Figma trend card). */
+  padding: 0 0 0 var(--rc-spacing-6);
   list-style: none;
   display: flex;
   flex-direction: column;

@@ -11,8 +11,8 @@ export type StatusIndicatorVariant =
 
 export interface StatusIndicatorProps extends HTMLAttributes<HTMLSpanElement> {
   variant: StatusIndicatorVariant;
-  /** Count prefix shown before the label (e.g. 7 in "7 Auto-mapped"). */
-  count: number;
+  /** Optional count prefix shown before the label (e.g. 7 in "7 Auto-mapped"). Omit for a label-only status. */
+  count?: number;
   label: string;
 }
 
@@ -30,9 +30,7 @@ export function StatusIndicator({
       {...props}
     >
       <span className={styles.dot} aria-hidden />
-      <span>
-        {count} {label}
-      </span>
+      <span>{count != null ? `${count} ${label}` : label}</span>
     </span>
   );
 }

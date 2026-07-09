@@ -3,6 +3,7 @@ import {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -33,38 +34,97 @@ export type Reference = ReferenceOption;
 const DEFAULT_PLACEHOLDER =
   'Ask a follow-up... Type @ to reference or select any text to ask about';
 
-function parseMention(value: string) {
-  const lastAt = value.lastIndexOf('@');
-  if (lastAt === -1) {
-    return { open: false, query: '', atIndex: -1 };
-  }
+// Reference chips are embedded inline in the composer text as atomic tokens.
+// The controlled `value` string carries each chip as `\uE100<id>\uE101` at the
+// exact position it appears, so the caret order of chips and text is preserved.
+const CHIP_OPEN = '\uE100';
+const CHIP_CLOSE = '\uE101';
+const CHIP_TOKEN_SOURCE = '\uE100([^\uE100\uE101]+)\uE101';
+const MENTION_PATTERN = /(?:^|\s)@([^\s@]*)$/;
 
-  const afterAt = value.slice(lastAt + 1);
-  if (/\s/.test(afterAt)) {
-    return { open: false, query: '', atIndex: -1 };
-  }
+const chipToken = (id: string) => `${CHIP_OPEN}${id}${CHIP_CLOSE}`;
+const chipTokenRegex = () => new RegExp(CHIP_TOKEN_SOURCE, 'g');
 
-  return { open: true, query: afterAt, atIndex: lastAt };
+type Segment = { type: 'text'; text: string } | { type: 'chip'; id: string };
+
+function parseSegments(value: string): Segment[] {
+  const segments: Segment[] = [];
+  const regex = chipTokenRegex();
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(value)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', text: value.slice(lastIndex, match.index) });
+    }
+    segments.push({ type: 'chip', id: match[1] });
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < value.length) {
+    segments.push({ type: 'text', text: value.slice(lastIndex) });
+  }
+  return segments;
 }
 
-function filterReferenceOptions(
-  options: ReferenceOption[],
-  references: Reference[],
-  query: string,
-) {
-  const selectedIds = new Set(references.map((reference) => reference.id));
-  const normalizedQuery = query.trim().toLowerCase();
+function chipIdsOf(value: string): string[] {
+  const ids: string[] = [];
+  const regex = chipTokenRegex();
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(value)) !== null) ids.push(match[1]);
+  return ids;
+}
 
-  return options.filter((option) => {
-    if (selectedIds.has(option.id)) return false;
-    if (!normalizedQuery) return true;
+function stripChips(value: string): string {
+  return value.replace(chipTokenRegex(), '');
+}
 
-    return (
-      option.label.toLowerCase().includes(normalizedQuery) ||
-      option.shorthand.toLowerCase().includes(normalizedQuery) ||
-      option.meta?.toLowerCase().includes(normalizedQuery)
-    );
-  });
+function trailingMentionQuery(value: string): string | null {
+  const lastClose = value.lastIndexOf(CHIP_CLOSE);
+  const lastNewline = value.lastIndexOf('\n');
+  const tail = value.slice(Math.max(lastClose + 1, lastNewline + 1));
+  if (tail.includes(CHIP_OPEN)) return null;
+  const match = MENTION_PATTERN.exec(tail);
+  return match ? match[1] : null;
+}
+
+function createChipHost(id: string): HTMLElement {
+  const host = document.createElement('span');
+  host.dataset.chip = id;
+  host.contentEditable = 'false';
+  host.className = styles.chip;
+  return host;
+}
+
+function serialize(root: HTMLElement): string {
+  let out = '';
+  const walk = (node: ChildNode) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      out += node.nodeValue ?? '';
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const el = node as HTMLElement;
+    if (el.dataset.chip) {
+      out += chipToken(el.dataset.chip);
+      return;
+    }
+    if (el.tagName === 'BR') {
+      out += '\n';
+      return;
+    }
+    el.childNodes.forEach(walk);
+    if (el.tagName === 'DIV' || el.tagName === 'P') out += '\n';
+  };
+  root.childNodes.forEach(walk);
+  return out;
+}
+
+function placeCaretAtEnd(el: HTMLElement) {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
 }
 
 export interface ChatWithAIProps {
@@ -110,86 +170,287 @@ export function ChatWithAI({
   className,
   suggestionsAriaLabel = 'Suggested prompts',
 }: ChatWithAIProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const menuAnchorRef = useRef<HTMLDivElement>(null);
   const referenceMenuRef = useRef<HTMLDivElement>(null);
   const generatedId = useId();
   const listId = `${generatedId}-reference-list`;
+
+  const lastValueRef = useRef<string | null>(null);
+  const lastRefsKeyRef = useRef<string>('');
+  const mentionAnchorRef = useRef<{ node: Text; start: number; end: number } | null>(null);
+  const composingRef = useRef(false);
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [menuStyle, setMenuStyle] = useState<CSSProperties | undefined>();
-  const [localReferences, setLocalReferences] = useState(references);
-  const isReferencesControlled = onReferencesChange != null;
-  const resolvedReferences = isReferencesControlled ? references : localReferences;
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [suppressMenu, setSuppressMenu] = useState(false);
+  const [chipHosts, setChipHosts] = useState<{ id: string; el: HTMLElement }[]>([]);
+  const [isEmpty, setIsEmpty] = useState(true);
 
-  useEffect(() => {
-    if (!isReferencesControlled) {
-      setLocalReferences(references);
-    }
-  }, [isReferencesControlled, references]);
-
-  const updateReferences = useCallback(
-    (nextReferences: Reference[]) => {
-      if (isReferencesControlled) {
-        onReferencesChange(nextReferences);
-      } else {
-        setLocalReferences(nextReferences);
-      }
-    },
-    [isReferencesControlled, onReferencesChange],
-  );
+  const referenceMap = useMemo(() => {
+    const map = new Map<string, Reference>();
+    for (const option of referenceOptions) map.set(option.id, option);
+    for (const reference of references) map.set(reference.id, reference);
+    return map;
+  }, [referenceOptions, references]);
 
   const hasSuggestions = suggestions != null && suggestions.length > 0;
-  const hasReferenceSupport = referenceOptions.length > 0 || resolvedReferences.length > 0;
-  const mention = parseMention(value);
-  const filteredOptions = filterReferenceOptions(referenceOptions, resolvedReferences, mention.query);
-  const referenceMenuOpen =
-    mention.open && referenceOptions.length > 0 && !disabled;
-  const canSubmit =
-    !disabled && !loading && (value.trim().length > 0 || resolvedReferences.length > 0);
 
-  const closeReferenceMenu = useCallback(() => {
-    if (!mention.open) return;
-    const nextValue = `${value.slice(0, mention.atIndex)}${value.slice(mention.atIndex + 1 + mention.query.length)}`;
-    onChange(nextValue);
-  }, [mention.atIndex, mention.open, mention.query, onChange, value]);
+  const filteredOptions = useMemo(() => {
+    if (mentionQuery == null) return [];
+    const activeIds = new Set(chipHosts.map((chip) => chip.id));
+    const query = mentionQuery.trim().toLowerCase();
+    return referenceOptions.filter((option) => {
+      if (activeIds.has(option.id)) return false;
+      if (!query) return true;
+      return (
+        option.label.toLowerCase().includes(query) ||
+        option.shorthand.toLowerCase().includes(query) ||
+        option.meta?.toLowerCase().includes(query)
+      );
+    });
+  }, [mentionQuery, referenceOptions, chipHosts]);
+
+  const referenceMenuOpen =
+    mentionQuery != null && !suppressMenu && referenceOptions.length > 0 && !disabled;
+
+  const canSubmit = !disabled && !loading && !isEmpty;
+
+  const valueToDisplay = useCallback(
+    (raw: string) =>
+      raw.replace(chipTokenRegex(), (_match, id: string) => referenceMap.get(id)?.label ?? ''),
+    [referenceMap],
+  );
+
+  const syncFromDom = useCallback(() => {
+    const root = editorRef.current;
+    if (!root) return;
+
+    const serialized = serialize(root);
+    lastValueRef.current = serialized;
+
+    const hosts = Array.from(root.querySelectorAll<HTMLElement>('[data-chip]')).map((el) => ({
+      id: el.dataset.chip as string,
+      el,
+    }));
+    setChipHosts((prev) => {
+      if (prev.length === hosts.length && prev.every((chip, index) => chip.el === hosts[index].el)) {
+        return prev;
+      }
+      return hosts;
+    });
+
+    const chips = chipIdsOf(serialized);
+    setIsEmpty(chips.length === 0 && stripChips(serialized).trim() === '');
+
+    onChange(serialized);
+
+    if (onReferencesChange) {
+      const key = chips.join('\u0001');
+      if (key !== lastRefsKeyRef.current) {
+        lastRefsKeyRef.current = key;
+        const refs = chips
+          .map((id) => referenceMap.get(id))
+          .filter((reference): reference is Reference => reference != null);
+        onReferencesChange(refs);
+      }
+    }
+  }, [onChange, onReferencesChange, referenceMap]);
+
+  useLayoutEffect(() => {
+    const root = editorRef.current;
+    if (!root) return;
+    if (value === lastValueRef.current) return;
+
+    const tokenIds = new Set(chipIdsOf(value));
+    const prepend = references.filter((reference) => !tokenIds.has(reference.id));
+    const effectiveValue =
+      prepend.length > 0 ? prepend.map((reference) => chipToken(reference.id)).join('') + value : value;
+
+    while (root.firstChild) root.removeChild(root.firstChild);
+    for (const segment of parseSegments(effectiveValue)) {
+      if (segment.type === 'text') {
+        const lines = segment.text.split('\n');
+        lines.forEach((line, index) => {
+          if (index > 0) root.appendChild(document.createElement('br'));
+          if (line) root.appendChild(document.createTextNode(line));
+        });
+      } else {
+        root.appendChild(createChipHost(segment.id));
+      }
+    }
+
+    lastValueRef.current = effectiveValue;
+    const hosts = Array.from(root.querySelectorAll<HTMLElement>('[data-chip]')).map((el) => ({
+      id: el.dataset.chip as string,
+      el,
+    }));
+    setChipHosts(hosts);
+
+    const chips = chipIdsOf(effectiveValue);
+    setIsEmpty(chips.length === 0 && stripChips(effectiveValue).trim() === '');
+    lastRefsKeyRef.current = chips.join('\u0001');
+
+    if (effectiveValue !== value) {
+      onChange(effectiveValue);
+      if (onReferencesChange) {
+        const refs = chips
+          .map((id) => referenceMap.get(id))
+          .filter((reference): reference is Reference => reference != null);
+        onReferencesChange(refs);
+      }
+    }
+
+    if (document.activeElement === root) placeCaretAtEnd(root);
+    setMentionQuery(trailingMentionQuery(effectiveValue));
+  }, [value, references, referenceMap, onChange, onReferencesChange]);
+
+  const updateMention = useCallback(() => {
+    const root = editorRef.current;
+    const selection = window.getSelection();
+    if (!root || !selection || selection.rangeCount === 0 || !selection.isCollapsed) return;
+
+    const range = selection.getRangeAt(0);
+    if (!root.contains(range.startContainer)) return;
+    if (range.startContainer.nodeType !== Node.TEXT_NODE) {
+      mentionAnchorRef.current = null;
+      setMentionQuery(null);
+      return;
+    }
+
+    const textNode = range.startContainer as Text;
+    const textBefore = (textNode.nodeValue ?? '').slice(0, range.startOffset);
+    const match = MENTION_PATTERN.exec(textBefore);
+    if (!match) {
+      mentionAnchorRef.current = null;
+      setMentionQuery(null);
+      return;
+    }
+
+    const end = range.startOffset;
+    mentionAnchorRef.current = { node: textNode, start: end - match[1].length - 1, end };
+    setMentionQuery(match[1]);
+  }, []);
+
+  const handleInput = useCallback(() => {
+    if (composingRef.current) return;
+    setSuppressMenu(false);
+    syncFromDom();
+    updateMention();
+  }, [syncFromDom, updateMention]);
 
   const addReference = useCallback(
     (option: ReferenceOption) => {
-      if (resolvedReferences.some((reference) => reference.id === option.id)) return;
+      const root = editorRef.current;
+      if (!root) return;
 
-      const nextReferences = [...resolvedReferences, option];
-      updateReferences(nextReferences);
-
-      if (mention.open) {
-        const nextValue = `${value.slice(0, mention.atIndex)}${value.slice(mention.atIndex + 1 + mention.query.length)}`;
-        onChange(nextValue);
+      if (chipHosts.some((chip) => chip.id === option.id)) {
+        mentionAnchorRef.current = null;
+        setMentionQuery(null);
+        setSuppressMenu(true);
+        return;
       }
 
+      root.focus();
+      const anchor = mentionAnchorRef.current;
+      const host = createChipHost(option.id);
+      const space = document.createTextNode(' ');
+
+      if (anchor && root.contains(anchor.node) && anchor.start >= 0) {
+        const range = document.createRange();
+        range.setStart(anchor.node, anchor.start);
+        range.setEnd(anchor.node, Math.min(anchor.end, anchor.node.nodeValue?.length ?? anchor.end));
+        range.deleteContents();
+        range.insertNode(space);
+        range.insertNode(host);
+      } else {
+        root.appendChild(host);
+        root.appendChild(space);
+      }
+
+      const caret = document.createRange();
+      caret.setStartAfter(space);
+      caret.collapse(true);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(caret);
+
+      mentionAnchorRef.current = null;
+      setMentionQuery(null);
+      setSuppressMenu(true);
       setActiveIndex(0);
-      textareaRef.current?.focus();
+      syncFromDom();
     },
-    [mention.atIndex, mention.open, mention.query, onChange, resolvedReferences, updateReferences, value],
+    [chipHosts, syncFromDom],
   );
 
   const removeReference = useCallback(
     (id: string) => {
-      updateReferences(resolvedReferences.filter((reference) => reference.id !== id));
-      textareaRef.current?.focus();
+      const root = editorRef.current;
+      if (!root) return;
+      const host = root.querySelector<HTMLElement>(`[data-chip="${CSS.escape(id)}"]`);
+      if (host) {
+        const next = host.nextSibling;
+        host.remove();
+        root.focus();
+        const selection = window.getSelection();
+        const range = document.createRange();
+        if (next) {
+          range.setStartBefore(next);
+          range.collapse(true);
+        } else {
+          range.selectNodeContents(root);
+          range.collapse(false);
+        }
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+      syncFromDom();
     },
-    [resolvedReferences, updateReferences],
+    [syncFromDom],
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (!canSubmit) return;
-    onSubmit?.(value.trim());
-  };
+    const root = editorRef.current;
+    const serialized = root ? serialize(root) : value;
+    onSubmit?.(valueToDisplay(serialized).trim());
+  }, [canSubmit, onSubmit, value, valueToDisplay]);
+
+  const insertLineBreak = useCallback(() => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    const br = document.createElement('br');
+    range.insertNode(br);
+    const caret = document.createRange();
+    caret.setStartAfter(br);
+    caret.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(caret);
+    syncFromDom();
+  }, [syncFromDom]);
+
+  const chipBeforeCaret = useCallback((range: Range): HTMLElement | null => {
+    const { startContainer, startOffset } = range;
+    if (startContainer.nodeType === Node.TEXT_NODE) {
+      if (startOffset > 0) return null;
+      const prev = startContainer.previousSibling as HTMLElement | null;
+      return prev && prev.dataset?.chip ? prev : null;
+    }
+    if (startContainer === editorRef.current) {
+      const prev = startContainer.childNodes[startOffset - 1] as HTMLElement | undefined;
+      return prev && prev.dataset?.chip ? prev : null;
+    }
+    return null;
+  }, []);
 
   const handleSuggestionChange = useCallback(
     (suggestion: string) => {
       if (suggestion === activeSuggestion) {
-        // Deselect: clear input only when it still matches the chip text.
-        // If the user edited after selecting, leave their text intact.
         if (value === activeSuggestion) {
           onChange('');
         }
@@ -216,7 +477,6 @@ export function ChatWithAI({
       setActiveIndex(0);
       return;
     }
-
     setActiveIndex((index) => {
       if (filteredOptions.length === 0) return 0;
       if (index < filteredOptions.length) return index;
@@ -233,7 +493,6 @@ export function ChatWithAI({
     const updateMenuPosition = () => {
       const anchor = menuAnchorRef.current;
       if (!anchor) return;
-
       const rect = anchor.getBoundingClientRect();
       setMenuStyle({
         position: 'fixed',
@@ -251,7 +510,7 @@ export function ChatWithAI({
       window.removeEventListener('resize', updateMenuPosition);
       window.removeEventListener('scroll', updateMenuPosition, true);
     };
-  }, [referenceMenuOpen, resolvedReferences.length, value]);
+  }, [referenceMenuOpen, chipHosts.length, value]);
 
   useEffect(() => {
     if (!referenceMenuOpen) return;
@@ -264,37 +523,40 @@ export function ChatWithAI({
       ) {
         return;
       }
-      closeReferenceMenu();
+      mentionAnchorRef.current = null;
+      setSuppressMenu(true);
+      setMentionQuery(null);
     };
 
     document.addEventListener('mousedown', onMouseDown);
     return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [closeReferenceMenu, referenceMenuOpen]);
+  }, [referenceMenuOpen]);
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (composingRef.current) return;
+
     if (referenceMenuOpen) {
       if (event.key === 'ArrowDown' && filteredOptions.length > 0) {
         event.preventDefault();
         setActiveIndex((index) => Math.min(index + 1, filteredOptions.length - 1));
         return;
       }
-
       if (event.key === 'ArrowUp' && filteredOptions.length > 0) {
         event.preventDefault();
         setActiveIndex((index) => Math.max(index - 1, 0));
         return;
       }
-
       if (event.key === 'Enter' && !event.shiftKey && filteredOptions.length > 0) {
         event.preventDefault();
         const active = filteredOptions[activeIndex];
         if (active) addReference(active);
         return;
       }
-
       if (event.key === 'Escape') {
         event.preventDefault();
-        closeReferenceMenu();
+        mentionAnchorRef.current = null;
+        setSuppressMenu(true);
+        setMentionQuery(null);
         return;
       }
     }
@@ -302,6 +564,24 @@ export function ChatWithAI({
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSubmit();
+      return;
+    }
+
+    if (event.key === 'Enter' && event.shiftKey) {
+      event.preventDefault();
+      insertLineBreak();
+      return;
+    }
+
+    if (event.key === 'Backspace') {
+      const selection = window.getSelection();
+      if (selection && selection.isCollapsed && selection.rangeCount > 0) {
+        const chip = chipBeforeCaret(selection.getRangeAt(0));
+        if (chip?.dataset.chip) {
+          event.preventDefault();
+          removeReference(chip.dataset.chip);
+        }
+      }
     }
   };
 
@@ -351,41 +631,33 @@ export function ChatWithAI({
             <div className={cn(styles.bar, disabled && styles.barDisabled)}>
               {contextSlot}
 
-              {resolvedReferences.length > 0 ? (
-                <div
-                  className={styles.referenceRow}
-                  role={hasReferenceSupport ? 'group' : undefined}
-                  aria-label={hasReferenceSupport ? 'References' : undefined}
-                >
-                  {resolvedReferences.map((reference) => (
-                    <ReferenceTag
-                      key={reference.id}
-                      reference={reference}
-                      disabled={disabled}
-                      onRemove={() => removeReference(reference.id)}
-                    />
-                  ))}
-                </div>
-              ) : null}
-
               <div className={styles.inputRow}>
-                <textarea
-                  ref={textareaRef}
-                  rows={1}
-                  value={value}
-                  disabled={disabled}
-                  placeholder={placeholder}
+                <div
+                  ref={editorRef}
+                  role="textbox"
+                  aria-multiline="true"
                   aria-label={placeholder}
                   aria-expanded={referenceMenuOpen}
                   aria-controls={referenceMenuOpen ? listId : undefined}
-                  aria-activedescendant={
-                    referenceMenuOpen && filteredOptions[activeIndex]
-                      ? `${listId}-${filteredOptions[activeIndex].id}`
-                      : undefined
-                  }
-                  className={cn('rc-body-sm', styles.input)}
-                  onChange={(event) => onChange(event.target.value)}
+                  data-chat-input
+                  data-placeholder={placeholder}
+                  data-empty={isEmpty ? 'true' : undefined}
+                  contentEditable={!disabled}
+                  suppressContentEditableWarning
+                  spellCheck
+                  className={cn('rc-body-sm', styles.editor)}
+                  onInput={handleInput}
                   onKeyDown={handleKeyDown}
+                  onKeyUp={updateMention}
+                  onMouseUp={updateMention}
+                  onFocus={updateMention}
+                  onCompositionStart={() => {
+                    composingRef.current = true;
+                  }}
+                  onCompositionEnd={() => {
+                    composingRef.current = false;
+                    handleInput();
+                  }}
                 />
 
                 <IconButton
@@ -412,6 +684,20 @@ export function ChatWithAI({
           ) : null}
         </div>
       </div>
+
+      {chipHosts.map(({ id, el }) => {
+        const reference = referenceMap.get(id);
+        if (!reference) return null;
+        return createPortal(
+          <ReferenceTag
+            reference={reference}
+            disabled={disabled}
+            onRemove={() => removeReference(id)}
+          />,
+          el,
+          id,
+        );
+      })}
     </div>
   );
 }

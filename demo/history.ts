@@ -1,13 +1,28 @@
 import type { ChatScope } from './Dashboard';
 
+export interface ConversationTurn {
+  text: string;
+  quote?: string;
+  /** Signals/trends the user attached to this turn. */
+  references?: { shorthand: string; label: string }[];
+  /** @deprecated single-reference field kept for reading older stored turns. */
+  reference?: { shorthand: string; label: string };
+  /** True when `text` already reads naturally with reference labels inline. */
+  composed?: boolean;
+}
+
 export interface StoredConversation {
   id: string;
   title: string;
   scope: ChatScope;
   ts: number;
+  /** Full list of user turns, so a conversation can be replayed verbatim. */
+  turns?: ConversationTurn[];
 }
 
 const STORAGE_KEY = 'rc-aquinas-conversations';
+const ACTIVE_KEY = 'rc-aquinas-active-conversation';
+const SESSION_KEY = 'rc-aquinas-session';
 const MAX = 20;
 
 const SEED: StoredConversation[] = [
@@ -46,4 +61,48 @@ export function saveConversation(conversation: StoredConversation): StoredConver
     // Ignore storage failures in the prototype.
   }
   return next;
+}
+
+/** The conversation the user last had open, restored when the chat re-opens. */
+export function loadActiveConversationId(): string | null {
+  try {
+    return localStorage.getItem(ACTIVE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function saveActiveConversationId(id: string | null): void {
+  try {
+    if (id) localStorage.setItem(ACTIVE_KEY, id);
+    else localStorage.removeItem(ACTIVE_KEY);
+  } catch {
+    // Ignore storage failures in the prototype.
+  }
+}
+
+export interface DemoSession {
+  signalId: string | null;
+  chatOpen: boolean;
+  expanded: boolean;
+  scope: ChatScope;
+}
+
+/** Snapshot of the current page/panel so a refresh lands the user where they were. */
+export function loadSession(): DemoSession | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as DemoSession;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSession(session: DemoSession): void {
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch {
+    // Ignore storage failures in the prototype.
+  }
 }
