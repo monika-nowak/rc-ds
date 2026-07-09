@@ -92,6 +92,7 @@ function RecordsDetail({
           <div key={record.id} className={styles.recordsRow}>
             <Link
               size="sm"
+              className={styles.recordIdLink}
               onClick={() =>
                 onOpenRecord?.({
                   id: Number(record.id),

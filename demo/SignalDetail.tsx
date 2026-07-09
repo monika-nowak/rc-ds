@@ -315,7 +315,7 @@ export function SignalDetail({
                     className={styles.recordRefButton}
                     onClick={() => onOpenRecord(proof)}
                   >
-                    <Badge appearance="subtle" color="lightPurple">
+                    <Badge appearance="subtle" color="info">
                       Record {proof.id}
                     </Badge>
                   </button>
@@ -353,7 +353,9 @@ export function SignalDetail({
                   className={`${styles.recordsTableRow} ${styles.recordsTableColumns} ${styles.recordsTableRowButton}`}
                   onClick={() => onOpenRecord(record)}
                 >
-                  <span className={`rc-label-md ${styles.recordsCell}`}>{record.id}</span>
+                  <span className={`rc-label-md ${styles.recordsCell} ${styles.recordsCellId}`}>
+                    {record.id}
+                  </span>
                   <span className={`rc-body-sm ${styles.recordsCell}`}>
                     <span className={styles.recordsCellVerbatim}>{record.quote}</span>
                   </span>

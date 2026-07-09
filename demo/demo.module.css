@@ -398,8 +398,8 @@
   height: 40px;
   flex-shrink: 0;
   border-radius: var(--rc-radius-sm);
-  background: #dfe5ff;
-  color: var(--rc-purple-600);
+  background: var(--rc-blue-100);
+  color: var(--rc-icon-info);
 }
 
 .recordHeaderTitle {
@@ -782,8 +782,8 @@
 .refChip {
   padding: 2px 8px;
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-purple-100);
-  color: var(--rc-text-ai);
+  background: var(--rc-blue-100);
+  color: var(--rc-text-info);
 }
 
 .refChipButton {
@@ -794,7 +794,7 @@
 }
 
 .refChipButton:hover {
-  background: var(--rc-purple-200);
+  background: var(--rc-blue-200);
 }
 
 /* ---- Data view (chart answer) ---- */
@@ -1696,6 +1696,15 @@
 
 .recordsCellMuted {
   color: var(--rc-text-secondary);
+}
+
+/* Record ID shares the blue "record" accent used across all record references. */
+.recordsCellId {
+  color: var(--rc-text-info);
+}
+
+.recordIdLink {
+  color: var(--rc-text-info);
 }
 
 /* Verbatim mirrors the Figma cell: clamped to three lines with an ellipsis. */
