@@ -29,6 +29,12 @@ export function App() {
   const [quote, setQuote] = useState<QuoteRequest | null>(null);
   const [activeRecord, setActiveRecord] = useState<RecordEntry | null>(null);
   const [recordFromChat, setRecordFromChat] = useState(false);
+  // A "switch context to this card" request. Set when a card's "Ask AI" button
+  // is clicked so the panel starts a fresh conversation scoped to it (rather
+  // than restoring the last one). The nonce lets an already-open panel react.
+  const [scopeRequest, setScopeRequest] = useState<{ scope: ChatScope; nonce: number } | null>(
+    null,
+  );
 
   // Persist the current page/panel snapshot whenever it changes.
   useEffect(() => {
@@ -40,8 +46,19 @@ export function App() {
     });
   }, [activeSignal, chatOpen, expanded, scope]);
 
+  // Open the chat and restore the last conversation (FAB / general entry point).
   const openChat = (nextScope: ChatScope) => {
     setScope(nextScope);
+    setScopeRequest(null);
+    setChatOpen(true);
+  };
+
+  // A card's "Ask AI" button: switch the conversation context to that card and
+  // keep the panel open if it already is (instead of closing it). Starts a
+  // fresh conversation scoped to the clicked signal/trend.
+  const askAboutScope = (nextScope: ChatScope) => {
+    setScope(nextScope);
+    setScopeRequest({ scope: nextScope, nonce: Date.now() });
     setChatOpen(true);
   };
 
@@ -62,6 +79,7 @@ export function App() {
   // Open the chat (keeping the current page's scope) and attach the highlighted
   // text as a quoted context chip.
   const askAboutSelection = (text: string) => {
+    setScopeRequest(null);
     setChatOpen(true);
     setQuote({ text, nonce: Date.now() });
   };
@@ -96,7 +114,7 @@ export function App() {
           {activeSignal ? (
             <SignalDetail signal={activeSignal} onOpenRecord={(record) => openRecord(record, false)} />
           ) : (
-            <Dashboard onAsk={openChat} onOpenSignal={openSignal} />
+            <Dashboard onAsk={askAboutScope} onOpenSignal={openSignal} />
           )}
         </div>
 
@@ -109,6 +127,7 @@ export function App() {
           <div style={{ display: activeRecord ? 'none' : 'contents' }}>
             <AskAiPanel
               scope={scope}
+              scopeRequest={scopeRequest}
               onScopeChange={setScope}
               onClose={() => setChatOpen(false)}
               expanded={expanded}

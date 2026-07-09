@@ -103,6 +103,9 @@ function errorAnswer(message: string): Answer {
 
 interface AskAiPanelProps {
   scope: ChatScope;
+  /** A "switch context to this card" request from a card's Ask AI button. When
+   * its nonce changes, the panel starts a fresh conversation scoped to it. */
+  scopeRequest?: { scope: ChatScope; nonce: number } | null;
   onScopeChange: (scope: ChatScope) => void;
   onClose: () => void;
   onOpenRecord?: (record: RecordEntry) => void;
@@ -459,6 +462,7 @@ function loadInitialConversation(): {
 
 export function AskAiPanel({
   scope,
+  scopeRequest,
   onScopeChange,
   onClose,
   expanded,
@@ -466,7 +470,11 @@ export function AskAiPanel({
   quote,
   onOpenRecord,
 }: AskAiPanelProps) {
-  const [initialConversation] = useState(() => loadInitialConversation());
+  // When the panel is opened by a card's "Ask AI" (scopeRequest present), skip
+  // restoring the last conversation and start fresh, scoped to that card.
+  const [initialConversation] = useState(() =>
+    scopeRequest ? null : loadInitialConversation(),
+  );
   const [view, setView] = useState<View>('conversation');
   const [value, setValue] = useState('');
   const [messages, setMessages] = useState<Message[]>(
@@ -493,6 +501,9 @@ export function AskAiPanel({
   const bodyRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const lastQuoteNonce = useRef<number>(0);
+  // Seed with the mount nonce so opening via a card (handled by the fresh-start
+  // init above) doesn't re-trigger the effect; only later clicks switch context.
+  const lastScopeReqNonce = useRef<number | null>(scopeRequest?.nonce ?? null);
 
   const isSignalScope = scope.kind === 'signal';
 
@@ -781,6 +792,16 @@ export function AskAiPanel({
     setSuggestions(defaultSuggestions(next));
     setView('conversation');
   };
+
+  // Clicking a card's "Ask AI" while the panel is already open switches the
+  // conversation context to that card (fresh scoped conversation) and keeps the
+  // panel open. The mount case is handled by the fresh-start init above.
+  useEffect(() => {
+    if (!scopeRequest || scopeRequest.nonce === lastScopeReqNonce.current) return;
+    lastScopeReqNonce.current = scopeRequest.nonce;
+    chooseScope(scopeRequest.scope);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scopeRequest]);
 
   // Clearing the scope pill resets the conversation back to the whole report.
   const clearScope = () => chooseScope({ kind: 'whole', label: 'Whole report' });
