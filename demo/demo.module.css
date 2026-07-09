@@ -642,7 +642,7 @@
   gap: var(--rc-spacing-4);
   border-top: 1px solid var(--rc-border-subtle-01);
   background: var(--rc-background-blank);
-  padding: var(--rc-spacing-4) var(--rc-spacing-6) var(--rc-spacing-2);
+  padding: var(--rc-spacing-4) var(--rc-spacing-6);
 }
 
 .suggestedHeader {
