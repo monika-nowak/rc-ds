@@ -1694,7 +1694,10 @@
   color: var(--rc-text-info);
 }
 
-.recordIdLink {
+/* Higher specificity than the DS .link colour so the record ID keeps the
+   blue record accent (and on hover). */
+.records .recordIdLink,
+.records .recordIdLink:hover {
   color: var(--rc-text-info);
 }
 
