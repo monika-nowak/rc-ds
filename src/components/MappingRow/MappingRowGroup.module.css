@@ -1,0 +1,18 @@
+.root {
+  display: grid;
+  /* Shared tracks the row cards align to via subgrid:
+     chip (widest) · arrow · status badge (widest) · message. */
+  grid-template-columns: max-content max-content max-content 1fr;
+  column-gap: var(--rc-spacing-2);
+  row-gap: var(--rc-spacing-3);
+  width: 100%;
+}
+
+/* "Validation Context" — an amber-tinted panel that groups related rows
+   needing attention (matches the Figma "Validation Context" container). */
+.context {
+  padding: var(--rc-spacing-4);
+  border: 1px solid var(--rc-border-support-warning);
+  border-radius: var(--rc-radius-lg);
+  background: var(--rc-background-support-warning);
+}

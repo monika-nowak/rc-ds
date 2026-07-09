@@ -34,4 +34,6 @@ export * from './components/Spinner';
 export * from './components/StatusIndicator';
 export * from './components/RCLoader';
 export * from './components/ChatWithAI';
+export * from './components/BarChart';
+export * from './components/Banner';
 export * from './icons';

@@ -29,6 +29,7 @@ const meta = {
     showCategory: { control: 'boolean' },
     showConsiderations: { control: 'boolean' },
     elevated: { control: 'boolean' },
+    hoverable: { control: 'boolean' },
     layout: { control: 'select', options: ['project', 'stacked'] },
     density: { control: 'select', options: ['compact', 'default', 'roomy'] },
     titleSize: { control: 'select', options: ['h5', 'h6', 'h7'] },
@@ -58,6 +59,26 @@ export const ProjectCard: Story = {
     createdDate: '1 May 2026',
     authorName: 'Monika Nowak',
     onMenuClick: () => undefined,
+  },
+};
+
+/** Interactive card — larger shadow on hover/focus. Hover the card to see the lift. */
+export const Hoverable: Story = {
+  args: {
+    variant: 'project',
+    hoverable: true,
+    title: 'Card title',
+    createdDate: '1 May 2026',
+    authorName: 'Monika Nowak',
+    onMenuClick: () => undefined,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Set `hoverable` to raise the card with a larger shadow (`--rc-shadow-md`) on hover and keyboard focus. Works with any layout/variant.',
+      },
+    },
   },
 };
 

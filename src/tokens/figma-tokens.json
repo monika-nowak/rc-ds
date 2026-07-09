@@ -24,7 +24,8 @@
     "support/error": "#ff5001", "support/success": "#15803d", "support/warning": "#f59e0b", "support/info": "#4500f9",
     "focus/default": "#151316", "focus/inverse": "#ffffff",
     "button/primary": "#151316", "button/primary-hover": "#5a575d", "button/primary-active": "#312d34", "button/secondary": "#eaeaeb", "button/secondary-hover": "#bfbec0", "button/tertiary": "#bfbec0", "button/tertiary-hover": "#fafafa", "button/ghost-hover": "#eaeaeb", "button/danger": "#ff5001", "button/danger-hover": "#c43b01", "button/ai": "#8752fa", "button/ai-hover": "#663dc0", "button/ai-active": "#4b2b8f", "button/ai-secondary": "#ece9ff", "button/ai-secondary-hover": "#d7d0ff", "button/ai-tertiary-hover": "#f7f6ff", "button/ai-ghost": "#f7f6ff", "button/ai-ghost-hover": "#ece9ff", "button/disabled": "#eaeaeb", "button/disabled-text": "#a09ea2",
-    "step/indicator/current-bg": "#151316", "step/indicator/upcoming-bg": "#bfbec0", "step/indicator/fg": "#ffffff", "step/label/current": "#151316", "step/label/upcoming": "#757277"
+    "step/indicator/current-bg": "#151316", "step/indicator/upcoming-bg": "#bfbec0", "step/indicator/fg": "#ffffff", "step/label/current": "#151316", "step/label/upcoming": "#757277",
+    "chart/1": "#8752fa", "chart/2": "#4500f9", "chart/3": "#ff5001", "chart/4": "#15803d", "chart/5": "#f59e0b", "chart/6": "#cd83ff", "chart/red": "#d92d20", "chart/bar": "#8752fa", "chart/neutral": "#a09ea2", "chart/track": "#eaeaeb", "chart/grid": "#eaeaeb", "chart/axis": "#bfbec0", "chart/tick-label": "#757277", "chart/value-label": "#5a575d", "chart/value-label-on-bar": "#fafafa", "chart/total-label": "#151316"
   },
   "spacing": { "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64 },
   "radius": { "none": 0, "sm": 4, "md": 8, "lg": 12, "full": 9999 },

@@ -7,6 +7,7 @@ import {
   useState,
   type CSSProperties,
   type KeyboardEvent,
+  type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
@@ -79,6 +80,9 @@ export interface ChatWithAIProps {
   references?: Reference[];
   onReferencesChange?: (references: Reference[]) => void;
   referenceOptions?: ReferenceOption[];
+  /** Optional content rendered inside the input frame, above the text row
+   *  (e.g. a quoted-context chip). */
+  contextSlot?: ReactNode;
   helperText?: string;
   showHelperText?: boolean;
   disabled?: boolean;
@@ -98,6 +102,7 @@ export function ChatWithAI({
   references = [],
   onReferencesChange,
   referenceOptions = [],
+  contextSlot,
   helperText,
   showHelperText = false,
   disabled = false,
@@ -344,24 +349,26 @@ export function ChatWithAI({
 
           <div ref={menuAnchorRef} className={styles.menuAnchor}>
             <div className={cn(styles.bar, disabled && styles.barDisabled)}>
-              <div className={styles.aiIcon} aria-hidden>
-                <Icon name="sparkle" size={18} tone="ai" />
-              </div>
+              {contextSlot}
 
-              <div
-                className={styles.inputArea}
-                role={hasReferenceSupport ? 'group' : undefined}
-                aria-label={hasReferenceSupport ? 'Message with references' : undefined}
-              >
-                {resolvedReferences.map((reference) => (
-                  <ReferenceTag
-                    key={reference.id}
-                    reference={reference}
-                    disabled={disabled}
-                    onRemove={() => removeReference(reference.id)}
-                  />
-                ))}
+              {resolvedReferences.length > 0 ? (
+                <div
+                  className={styles.referenceRow}
+                  role={hasReferenceSupport ? 'group' : undefined}
+                  aria-label={hasReferenceSupport ? 'References' : undefined}
+                >
+                  {resolvedReferences.map((reference) => (
+                    <ReferenceTag
+                      key={reference.id}
+                      reference={reference}
+                      disabled={disabled}
+                      onRemove={() => removeReference(reference.id)}
+                    />
+                  ))}
+                </div>
+              ) : null}
 
+              <div className={styles.inputRow}>
                 <textarea
                   ref={textareaRef}
                   rows={1}
@@ -380,23 +387,23 @@ export function ChatWithAI({
                   onChange={(event) => onChange(event.target.value)}
                   onKeyDown={handleKeyDown}
                 />
-              </div>
 
-              <IconButton
-                type="button"
-                variant="ai"
-                size="sm"
-                label="Send message"
-                disabled={!canSubmit}
-                className={styles.sendButton}
-                onClick={handleSubmit}
-              >
-                {loading ? (
-                  <Spinner size="xs" label="Sending" />
-                ) : (
-                  <Icon name="arrow-right" size={16} tone="on-color" />
-                )}
-              </IconButton>
+                <IconButton
+                  type="button"
+                  variant="ai"
+                  size="sm"
+                  label="Send message"
+                  disabled={!canSubmit}
+                  className={styles.sendButton}
+                  onClick={handleSubmit}
+                >
+                  {loading ? (
+                    <Spinner size="xs" label="Sending" />
+                  ) : (
+                    <Icon name="arrow-right" size={16} tone="on-color" />
+                  )}
+                </IconButton>
+              </div>
             </div>
           </div>
 

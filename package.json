@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "storybook dev -p 6006",
+    "app": "vite --port 5173",
     "build": "tsc -b && vite build",
     "build-storybook": "storybook build",
     "generate:icons": "node scripts/generate-icon-list.mjs && node scripts/generate-curated-map.mjs",
@@ -15,6 +16,14 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+    "@visx/axis": "^4.0.0",
+    "@visx/grid": "^4.0.0",
+    "@visx/group": "^4.0.0",
+    "@visx/responsive": "^4.0.0",
+    "@visx/scale": "^4.0.0",
+    "@visx/shape": "^4.0.0",
+    "@visx/text": "^4.0.0",
+    "@visx/tooltip": "^4.0.0",
     "clsx": "^2.1.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

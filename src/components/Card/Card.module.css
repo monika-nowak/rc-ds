@@ -6,10 +6,17 @@
   border-radius: var(--rc-radius-md);
   background: var(--rc-layer-01);
   overflow: hidden;
+  transition: box-shadow 150ms ease-in-out;
 }
 
 .elevated {
   box-shadow: var(--rc-shadow-sm);
+}
+
+/* Interactive lift — larger shadow on hover/focus-visible. */
+.hoverable:hover,
+.hoverable:focus-visible {
+  box-shadow: var(--rc-shadow-md);
 }
 
 /* Layout modes */

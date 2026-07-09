@@ -68,6 +68,11 @@ export const semanticGroups: Record<string, string[]> = {
     'step/indicator/current-bg', 'step/indicator/upcoming-bg', 'step/indicator/fg',
     'step/label/current', 'step/label/upcoming',
   ],
+  Chart: [
+    'chart/1', 'chart/2', 'chart/3', 'chart/4', 'chart/5', 'chart/6', 'chart/red',
+    'chart/bar', 'chart/neutral', 'chart/track', 'chart/grid', 'chart/axis',
+    'chart/tick-label', 'chart/value-label', 'chart/value-label-on-bar', 'chart/total-label',
+  ],
 };
 
 export const primitiveFamilies = [

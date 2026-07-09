@@ -1,2 +1,11 @@
 export { MappingRow } from './MappingRow';
-export type { MappingRowProps, MappingRowState } from './MappingRow';
+export type {
+  MappingRowProps,
+  MappingRowMappingProps,
+  MappingRowValidationProps,
+  MappingRowState,
+  MappingRowStatus,
+  MappingRowStatusTone,
+} from './MappingRow';
+export { MappingRowGroup } from './MappingRowGroup';
+export type { MappingRowGroupProps } from './MappingRowGroup';

@@ -1,0 +1,1590 @@
+/* ---- App shell: full-width nav on top, content row below ---- */
+.appShell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.appBody {
+  display: flex;
+  align-items: flex-start;
+  /* Slide the body up under the sticky, translucent nav so the purple hero
+     bleeds through it (matches Figma). Heroes add matching top padding. */
+  margin-top: -56px;
+}
+
+.appMain {
+  flex: 1;
+  min-width: 0;
+  /* Horizontal page padding — shrinks when the chat sidebar is open. */
+  --rc-page-px: 96px;
+  /* Cap the content column so text keeps a comfortable reading measure. */
+  --rc-content-max: 1040px;
+  /* Query container: layouts inside react to the actual left-column width,
+     which shrinks when the chat sidebar opens (not just the viewport). */
+  container: main / inline-size;
+}
+
+.appMainCompact {
+  --rc-page-px: 48px;
+}
+
+/* ---- Page shell ---- */
+.page {
+  min-height: 100vh;
+  background: var(--rc-background-canvas);
+}
+
+/* ---- Header ---- */
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+}
+
+/* Higher specificity (child of .appShell) to override AppHeader's solid
+   background with a translucent, blurred surface — matches the Figma nav. */
+.appShell > .stickyHeader {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.headerStart {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  min-width: 0;
+}
+
+.logo {
+  color: var(--rc-text-primary);
+  height: 20px;
+  width: auto;
+}
+
+.headerDivider {
+  /* Full-height separator: negative block margin cancels the header's 8px
+     vertical padding so the line spans the entire 56px nav, matching Figma. */
+  align-self: stretch;
+  margin: calc(-1 * var(--rc-spacing-2)) var(--rc-spacing-2);
+}
+
+.clientBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-blue-500);
+  color: var(--rc-white-1000);
+  font: 500 12px/16px var(--rc-font-sans);
+}
+
+.clientName {
+  color: var(--rc-text-secondary);
+  font: 500 14px/18px var(--rc-font-sans);
+}
+
+.slash {
+  color: var(--rc-neutral-200);
+}
+
+.reportTitle {
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+}
+
+.headerEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-4);
+}
+
+.avatarBlue {
+  background: var(--rc-blue-500);
+}
+
+/* ---- Hero ---- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--rc-spacing-6);
+  /* Extra top padding (64 + 56 nav) so content clears the overlapping nav. */
+  padding-block: 120px 64px;
+  /* Hero keeps its own Figma margin (page padding), not the narrow content cap. */
+  padding-inline: var(--rc-page-px, 96px);
+  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+  transition: padding 220ms ease;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+}
+
+.heroMetaMuted {
+  color: var(--rc-text-secondary);
+}
+
+.heroMetaStrong {
+  color: var(--rc-text-primary);
+}
+
+.heroTitle {
+  margin: 0;
+  color: var(--rc-text-primary);
+  font: 700 48px/1.1 var(--rc-font-sans);
+  letter-spacing: 0.01em;
+}
+
+/* ---- Main content ---- */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding-block: 48px;
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1200px)) / 2)
+  );
+  transition: padding 220ms ease;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.sectionHeaderTitle {
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+}
+
+.sectionRule {
+  flex: 1;
+  margin: 0;
+}
+
+.trendGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+}
+
+.trendLabel {
+  color: var(--rc-text-primary);
+}
+
+.cardWrap {
+  position: relative;
+}
+
+.askSparkle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-100);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.askSparkle:hover {
+  background: var(--rc-purple-200);
+}
+
+.signalsHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  padding-left: 48px;
+}
+
+.signalsHeaderTitle {
+  color: var(--rc-text-primary);
+}
+
+.signalsHeaderCount {
+  color: var(--rc-text-tertiary);
+}
+
+.signalGrid {
+  display: grid;
+  /* 280px floor caps the row at 3 cards within the 1040px content container. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--rc-spacing-4);
+}
+
+.signalCell {
+  position: relative;
+  display: flex;
+  cursor: pointer;
+}
+
+.signalCell:focus-visible {
+  outline: 2px solid var(--rc-border-focus, var(--rc-purple-500));
+  outline-offset: 2px;
+  border-radius: var(--rc-radius-md);
+}
+
+.signalCell > article {
+  width: 100%;
+}
+
+.signalTags {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.statCard {
+  container-type: inline-size;
+}
+
+/* Stat card rendered as a plain element (outside the DS Card wrapper). */
+.statCardStandalone {
+  padding: var(--rc-spacing-6);
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+}
+
+.statBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+/*
+ * Switch to a horizontal layout only when there's enough room for even the
+ * longest label ("specialties represented" ≈ 148px) to stay on a single line,
+ * so every card flips together and none wraps.
+ */
+@container (min-width: 200px) {
+  .statBody {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--rc-spacing-3);
+  }
+
+  .statText {
+    white-space: nowrap;
+  }
+}
+
+.statIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-50);
+  color: var(--rc-icon-ai);
+}
+
+.statIcon svg {
+  display: block;
+}
+
+.statText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-1);
+}
+
+.showAll {
+  align-self: flex-start;
+}
+
+.notableGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+}
+
+/* ---- Floating button ---- */
+.fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: var(--rc-radius-sm);
+  background-color: #8752fa;
+  background-image:
+    radial-gradient(130% 130% at 8% 8%, #4500f9 0%, rgba(69, 0, 249, 0) 55%),
+    radial-gradient(120% 120% at 92% 6%, #cd83ff 0%, rgba(205, 131, 255, 0) 55%),
+    radial-gradient(150% 150% at 95% 95%, #ff5001 0%, rgba(255, 80, 1, 0) 60%),
+    radial-gradient(150% 150% at 5% 100%, #8752fa 0%, rgba(135, 82, 250, 0) 65%);
+  box-shadow: var(--rc-shadow-lg);
+  cursor: pointer;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms ease;
+  z-index: 40;
+}
+
+.fab svg {
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 18px 34px -10px rgba(88, 40, 220, 0.55),
+    0 8px 18px -8px rgba(255, 80, 1, 0.38);
+}
+
+.fab:hover svg {
+  transform: rotate(-14deg) scale(1.14);
+}
+
+.fab:active {
+  transform: scale(1.02);
+  box-shadow:
+    0 10px 22px -10px rgba(88, 40, 220, 0.5),
+    0 5px 12px -8px rgba(255, 80, 1, 0.34);
+}
+
+.fab:focus-visible {
+  outline: 2px solid var(--rc-focus-ring, #4500f9);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab,
+  .fab svg {
+    transition: none;
+  }
+
+  .fab:hover {
+    transform: none;
+  }
+
+  .fab:hover svg {
+    transform: none;
+  }
+}
+
+/* ---- AI Chat sidebar (docked right) ---- */
+.panel {
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 480px;
+  max-width: 100vw;
+  height: calc(100vh - 56px);
+  background: var(--rc-background-canvas);
+  border-left: 1px solid var(--rc-border-subtle-01);
+  box-shadow: -16px 0 40px -24px rgb(24 24 48 / 22%);
+  overflow: hidden;
+}
+
+.panelExpanded {
+  width: 720px;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-3);
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  background: var(--rc-background-blank);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.panelAiMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rc-radius-md);
+  background: linear-gradient(135deg, #4500f9 0%, #8752fa 35%, #cd83ff 70%, #ff5001 130%);
+  flex-shrink: 0;
+}
+
+.panelTitleBlock {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.panelTitle {
+  color: var(--rc-text-primary);
+}
+
+.panelSubtitle {
+  color: var(--rc-text-tertiary);
+}
+
+.panelHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+}
+
+.panelBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--rc-spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  text-align: center;
+  padding-top: var(--rc-spacing-8);
+}
+
+.scopedTo {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  color: var(--rc-text-tertiary);
+}
+
+.scopeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+  padding: 2px 8px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-100);
+  color: var(--rc-text-ai);
+}
+
+.emptyHelper {
+  max-width: 340px;
+  color: var(--rc-text-tertiary);
+}
+
+.emptyHelper strong {
+  color: var(--rc-text-ai);
+}
+
+/* ---- Scope picker ---- */
+.pickerIntro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-1);
+  text-align: center;
+  align-items: center;
+}
+
+.pickerHeading {
+  color: var(--rc-text-primary);
+}
+
+.pickerSub {
+  color: var(--rc-text-tertiary);
+  max-width: 380px;
+}
+
+.scopeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-3);
+  width: 100%;
+  padding: var(--rc-spacing-4);
+  background: var(--rc-background-blank);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.scopeRow:hover {
+  border-color: var(--rc-border-subtle-02);
+  box-shadow: var(--rc-shadow-sm);
+}
+
+.scopeRowIndented {
+  margin-left: 32px;
+  width: calc(100% - 32px);
+}
+
+.scopeGlyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-purple-100);
+  color: var(--rc-text-ai);
+  font: 700 12px/16px var(--rc-font-sans);
+  flex-shrink: 0;
+}
+
+.scopeRowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.scopeRowTitle {
+  color: var(--rc-text-primary);
+}
+
+.scopeRowSub {
+  color: var(--rc-text-tertiary);
+}
+
+.signalsSubhead {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  color: var(--rc-text-tertiary);
+  padding-left: 4px;
+}
+
+/* ---- Suggested ---- */
+.suggested {
+  flex-shrink: 0;
+  border-top: 1px solid var(--rc-border-subtle-01);
+  background: var(--rc-background-blank);
+  padding: var(--rc-spacing-4) var(--rc-spacing-6) var(--rc-spacing-2);
+}
+
+.suggestedLabel {
+  color: var(--rc-text-tertiary);
+  margin-bottom: var(--rc-spacing-1);
+}
+
+.suggestionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-3);
+  width: 100%;
+  padding: var(--rc-spacing-3) 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--rc-border-subtle-01);
+  cursor: pointer;
+  text-align: left;
+  color: var(--rc-text-primary);
+}
+
+.suggestionRow:first-of-type {
+  border-top: none;
+}
+
+.suggestionRow:hover .suggestionText {
+  color: var(--rc-text-ai);
+}
+
+/* ---- Conversation messages ---- */
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.userBubble {
+  align-self: flex-end;
+  max-width: 80%;
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-button-ai);
+  color: var(--rc-text-on-color);
+}
+
+.userBubble .refToken {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  margin: 0 2px;
+  border-radius: var(--rc-radius-sm);
+  background: rgb(255 255 255 / 25%);
+  color: var(--rc-text-on-color);
+  font-weight: 700;
+}
+
+.userBubble .userQuote {
+  margin-bottom: var(--rc-spacing-2);
+  padding: var(--rc-spacing-1) var(--rc-spacing-2);
+  border-radius: var(--rc-radius-sm);
+  background: rgb(255 255 255 / 15%);
+  color: rgb(255 255 255 / 90%);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.answer {
+  align-self: stretch;
+  padding: var(--rc-spacing-4);
+  background: var(--rc-background-blank);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  color: var(--rc-text-primary);
+}
+
+.answer ul {
+  margin: 0;
+  padding-left: var(--rc-spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.proof {
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  background: var(--rc-background-support-info);
+  border-radius: var(--rc-radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-1);
+}
+
+.proofLabel {
+  color: var(--rc-text-info);
+}
+
+.proofQuote {
+  color: var(--rc-text-secondary);
+}
+
+.refChips {
+  display: flex;
+  gap: var(--rc-spacing-2);
+}
+
+.refChip {
+  padding: 2px 8px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-100);
+  color: var(--rc-text-ai);
+}
+
+/* ---- Data view (chart answer) ---- */
+.dataView {
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  overflow: hidden;
+  background: var(--rc-background-blank);
+  animation: rc-fade-in 260ms ease;
+}
+
+.dataViewHead {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  background: var(--rc-purple-100);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.dataViewHeadText {
+  color: var(--rc-text-ai);
+}
+
+.dataViewBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  padding: var(--rc-spacing-4);
+}
+
+.dataTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.dataRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px minmax(120px, 1.5fr);
+  align-items: center;
+  gap: var(--rc-spacing-3);
+  padding: var(--rc-spacing-3) 0;
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.dataRow:last-child {
+  border-bottom: none;
+}
+
+.dataHeadRow {
+  padding-top: 0;
+}
+
+.dataColHead {
+  color: var(--rc-text-tertiary);
+}
+
+.dataColHead:nth-child(2) {
+  text-align: left;
+}
+
+.dataCell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  color: var(--rc-text-primary);
+  min-width: 0;
+  text-align: left;
+}
+
+.dataValue {
+  color: var(--rc-text-primary);
+}
+
+.dataShare {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-3);
+}
+
+.dataBarTrack {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-chart-track);
+  overflow: hidden;
+}
+
+.dataBarFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-chart-bar);
+  transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dataPct {
+  width: 34px;
+  text-align: right;
+  color: var(--rc-text-secondary);
+  flex-shrink: 0;
+}
+
+.dataViewFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-3);
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  border-top: 1px solid var(--rc-border-subtle-01);
+  color: var(--rc-text-tertiary);
+}
+
+.dataSource {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.dataSourceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-green-500, #16a34a);
+}
+
+.dataActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-4);
+}
+
+.dataAction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+  cursor: pointer;
+}
+
+.dataAction:hover {
+  color: var(--rc-text-secondary);
+}
+
+/* ---- Data view: expandable rows ---- */
+.dataRowGroup {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.dataRowGroup:last-child {
+  border-bottom: none;
+}
+
+.dataRowButton {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--rc-radius-sm);
+  transition: background 140ms ease;
+}
+
+.dataRowButton:hover {
+  background: var(--rc-background-hover);
+}
+
+.dataCaret {
+  transition: transform 160ms ease;
+  flex-shrink: 0;
+}
+
+.dataRowOpen .dataCaret {
+  transform: rotate(90deg);
+}
+
+.records {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-3);
+  padding: var(--rc-spacing-3) var(--rc-spacing-3) var(--rc-spacing-4);
+  background: var(--rc-background-canvas);
+  border-radius: var(--rc-radius-sm);
+  animation: rc-fade-in 200ms ease;
+}
+
+.recordsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-3);
+}
+
+.recordsTitle {
+  color: var(--rc-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recordsTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.recordsRow {
+  display: grid;
+  grid-template-columns: minmax(78px, auto) minmax(0, 1fr) minmax(72px, auto);
+  align-items: start;
+  gap: var(--rc-spacing-3);
+  padding: var(--rc-spacing-3) 0;
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.recordsRow:last-child {
+  border-bottom: none;
+}
+
+.recordsHeadRow {
+  padding-top: 0;
+  padding-bottom: var(--rc-spacing-2);
+}
+
+.recordsColHead {
+  color: var(--rc-text-tertiary);
+}
+
+.recordVerbatim {
+  color: var(--rc-text-secondary);
+}
+
+.recordDate {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
+.recordsNote {
+  color: var(--rc-text-tertiary);
+}
+
+/* ---- History ---- */
+.historyGroupLabel {
+  color: var(--rc-text-tertiary);
+  margin-top: var(--rc-spacing-2);
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-3);
+  width: 100%;
+  padding: var(--rc-spacing-4);
+  background: var(--rc-background-blank);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  cursor: pointer;
+  text-align: left;
+}
+
+.historyRow:hover {
+  border-color: var(--rc-border-subtle-02);
+}
+
+.historyRowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyRowTitle {
+  color: var(--rc-text-primary);
+}
+
+.historyRowTime {
+  color: var(--rc-text-tertiary);
+}
+
+.panelFooter {
+  flex-shrink: 0;
+  padding: var(--rc-spacing-4);
+  background: var(--rc-background-blank);
+  border-top: 1px solid var(--rc-border-subtle-01);
+}
+
+/* Quoted context chip rendered inside the composer frame, above the text row:
+   minimal light-purple box with the quoted text in italics. */
+.composerQuote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-2);
+  /* Match the send button's 8px inset: the bar already pads 8px on the right,
+     so only the 16px-left padding needs trimming to 8px. */
+  margin-left: calc(-1 * var(--rc-spacing-2));
+  padding: var(--rc-spacing-2) var(--rc-spacing-3);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-100);
+}
+
+.composerQuoteText {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--rc-text-ai);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.composerQuoteClose {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--rc-radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.composerQuoteClose:hover {
+  background: rgb(0 0 0 / 6%);
+}
+
+/* Floating "Ask AI" pill shown above a text selection. */
+.selectionAsk {
+  position: fixed;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+  padding: 6px 10px;
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-layer-01);
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -10px rgb(24 24 48 / 35%);
+  animation: selectionAskIn 120ms ease;
+}
+
+.selectionAsk:hover {
+  background: var(--rc-background-hover);
+}
+
+@keyframes selectionAskIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- Streaming / thinking ---- */
+.thinkingCard {
+  align-items: flex-start;
+}
+
+.thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+}
+
+.thinking span {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-button-ai);
+  opacity: 0.35;
+  animation: rc-thinking 1s ease-in-out infinite;
+}
+
+.thinking span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.thinking span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes rc-thinking {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--rc-button-ai);
+  animation: rc-blink 1s step-end infinite;
+}
+
+@keyframes rc-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.suggestionRow:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.proof,
+.refChips {
+  animation: rc-fade-in 260ms ease;
+}
+
+/* ============================ Signal detail page ============================ */
+.signalPage {
+  min-height: 100vh;
+  background: var(--rc-background-canvas);
+  /* Wider than the dashboard: two-column layout (scoring sidebar + content). */
+  --rc-signal-max: 1200px;
+}
+
+.signalHero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+  /* 56px nav overlap + 64px so the visual top space equals the 64px bottom. */
+  padding-block: 120px 64px;
+  /* Same margin as the dashboard hero: fixed page padding, not the centred cap. */
+  padding-inline: var(--rc-page-px, 96px);
+  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.signalKicker {
+  color: var(--rc-text-primary);
+}
+
+.signalTitle {
+  margin: 0;
+  color: var(--rc-text-primary);
+  font: 700 44px/1.15 var(--rc-font-sans);
+  letter-spacing: 0.01em;
+}
+
+.signalBadgeRow {
+  display: flex;
+  gap: var(--rc-spacing-2);
+}
+
+.signalMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 64px;
+  padding-block: 0 96px;
+  /* Match the signal hero: fixed 96px page padding so the content lines up
+     with the header instead of using the narrower centred cap. */
+  padding-inline: var(--rc-page-px, 96px);
+}
+
+.scoringCol {
+  flex: 0 0 335px;
+  width: 335px;
+  padding-top: 64px;
+  /* Pin the scoring card while the right column scrolls. top:40 + the 64px
+     padding lands the card 48px below the 56px sticky nav. */
+  position: sticky;
+  top: 40px;
+  align-self: flex-start;
+}
+
+.signalContent {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-top: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* Stack the scoring card above the content when the left column is narrow —
+   e.g. on smaller screens, or when the chat sidebar opens and squeezes it.
+   Kicks in early enough that the content beside the 335px card never gets
+   cramped (e.g. stat cards wrapping to a tight 2×2). */
+@container main (max-width: 1100px) {
+  .signalMain {
+    flex-direction: column;
+    gap: 32px;
+    /* One source of top spacing below the hero; columns reset their own. */
+    padding-block: 48px 96px;
+  }
+  .scoringCol {
+    flex: 1 1 auto;
+    width: 100%;
+    padding-top: 0;
+    position: static;
+  }
+  .signalContent {
+    padding-top: 0;
+  }
+}
+
+/* Scoring card */
+.scoringCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+  padding: var(--rc-spacing-4);
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+}
+
+.scoreBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.scoreStrengthTop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.scoreBlock2 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-2);
+}
+
+.scoreStrengthStrong {
+  color: var(--rc-orange-500);
+}
+.scoreStrengthModerate {
+  color: var(--rc-amber-600);
+}
+.scoreStrengthEmerging {
+  color: var(--rc-text-secondary);
+}
+
+.scoreNote {
+  color: var(--rc-text-secondary);
+}
+
+.scoreFootnote {
+  color: var(--rc-text-tertiary);
+}
+
+.scoreValue {
+  color: var(--rc-text-primary);
+}
+
+/* Signal strength gradient meter: grey track with the coloured gradient
+   filling up to the score, mirroring the Figma component. */
+.strengthMeter {
+  position: relative;
+  height: 6px;
+  background: var(--rc-background-hover);
+}
+
+.strengthFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--rc-support-info) 0%,
+    var(--rc-purple-500) 32%,
+    #e0c8ff 58%,
+    var(--rc-orange-400) 82%,
+    var(--rc-orange-500) 100%
+  );
+}
+
+.strengthKnob {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--rc-text-primary);
+  border: 2px solid var(--rc-layer-01);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 3px rgba(21, 19, 22, 0.25);
+}
+
+/* Breakdown */
+.scoreBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.scoreMetric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.scoreMetricHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-2);
+}
+
+.scoreMetricLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--rc-text-secondary);
+}
+
+.scoreTrack {
+  height: 6px;
+  background: var(--rc-background-hover);
+  overflow: hidden;
+}
+
+.scoreTrackFill {
+  display: block;
+  height: 100%;
+}
+
+.scoreFillLight {
+  background: var(--rc-purple-300);
+}
+.scoreFillPurple {
+  background: var(--rc-purple-500);
+}
+.scoreFillOrange {
+  background: var(--rc-orange-500);
+}
+
+.scoreSubRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-2) var(--rc-spacing-4);
+}
+
+.scoreSub {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scoreSubLabel {
+  color: var(--rc-text-tertiary);
+}
+
+.scoreSubValue {
+  color: var(--rc-text-tertiary);
+}
+
+.scoreToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--rc-text-primary);
+  cursor: pointer;
+}
+
+/* Section header: icon + title + rule */
+.signalSection {
+  display: flex;
+  flex-direction: column;
+  /* Figma: 40px between the section header and its body. */
+  gap: var(--rc-spacing-10);
+}
+
+/* Two sections side by side (What HCPs Report / What This Suggests). */
+.sectionRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px 64px;
+}
+
+@media (max-width: 700px) {
+  .sectionRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.signalSectionHead {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.signalSectionTitle {
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+}
+
+.signalSectionIcon {
+  display: inline-flex;
+  color: var(--rc-icon-ai);
+}
+
+.signalSectionRule {
+  flex: 1 1 0;
+}
+
+.featuredIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-purple-100);
+  color: var(--rc-icon-ai);
+  flex-shrink: 0;
+}
+
+.sectionBody {
+  color: var(--rc-text-secondary);
+  max-width: 46rem;
+}
+
+/* So what — numbered relevance list */
+.relevanceList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  /* Figma: 64px between the two columns. */
+  gap: var(--rc-spacing-16);
+}
+
+.relevanceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* Figma: 16px between the number badge and the text. */
+  gap: var(--rc-spacing-4);
+}
+
+.relevanceText {
+  color: var(--rc-text-secondary);
+}
+
+/* Signal-page stat grid */
+.signalStatGrid {
+  display: grid;
+  /* Match the dashboard: flow into a single horizontal row when there's room,
+     wrapping to fewer columns only when space runs out. */
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--rc-spacing-4);
+}
+
+/* Proof quote card */
+.proofCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+  padding: var(--rc-spacing-8);
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+}
+
+.proofQuote {
+  margin: 0;
+  color: var(--rc-text-primary);
+  font: 500 22px/34px var(--rc-font-sans);
+  letter-spacing: 0.005em;
+}
+
+.proofMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-3);
+}
+
+.proofMetaText {
+  color: var(--rc-text-secondary);
+}
+
+.proofMetaDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--rc-border-subtle-01);
+}
+
+/* Records table */
+.recordsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.recordsCount {
+  color: var(--rc-text-secondary);
+}
+
+.recordsTableWrap {
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  overflow: hidden;
+  /* White table surface (Figma: content #FFFFFF, header #FAFAFA). */
+  background: var(--rc-layer-01);
+}
+
+/* Responsive column tracks: minmax keeps every column above a readable
+   minimum so the flexible Verbatim column can never collapse to 0 (which
+   previously caused columns to overlap in the narrow content area). */
+.recordsTableColumns {
+  grid-template-columns:
+    minmax(48px, 0.7fr)
+    minmax(132px, 3fr)
+    minmax(92px, 1fr)
+    minmax(92px, 1.1fr)
+    minmax(104px, 1.3fr);
+}
+
+.recordsTableHead {
+  display: grid;
+  background: var(--rc-layer-02);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.recordsTableRow {
+  display: grid;
+  align-items: start;
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.recordsTableRow:last-child {
+  border-bottom: none;
+}
+
+.recordsHeadCell {
+  padding: 12px 16px;
+  color: var(--rc-text-secondary);
+  min-width: 0;
+}
+
+.recordsCell {
+  padding: 12px 16px;
+  color: var(--rc-text-primary);
+  min-width: 0;
+}
+
+.recordsCellMuted {
+  color: var(--rc-text-secondary);
+}
+
+/* Verbatim mirrors the Figma cell: clamped to three lines with an ellipsis. */
+.recordsCellVerbatim {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes rc-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

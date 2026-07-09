@@ -154,6 +154,8 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
   statsAppearance?: CardStatsSpacing;
   className?: string;
   elevated?: boolean;
+  /** Enable an interactive hover/focus state that raises the card with a larger shadow. */
+  hoverable?: boolean;
   /** Top slot — project: top-left badge row; stacked: replaces default badge row when set. */
   header?: ReactNode;
   /** Default header badge label for project layout when `header` is not provided. */
@@ -385,12 +387,12 @@ function ConsiderationsSection({
           <li key={item} className={styles.considerationsItem}>
             <Icon
               name="arrow-elbow-down-right"
-              size={24}
+              size={16}
               tone="secondary"
               className={styles.considerationsIcon}
               aria-hidden
             />
-            <span className={cn('rc-body-md', styles.considerationsText)}>{item}</span>
+            <span className={cn('rc-body-sm', styles.considerationsText)}>{item}</span>
           </li>
         ))}
       </ul>
@@ -408,6 +410,7 @@ export function Card({
   statsSpacing: statsSpacingProp,
   className,
   elevated = true,
+  hoverable = false,
   header,
   badgeLabel,
   footer,
@@ -538,6 +541,7 @@ export function Card({
           styles.layoutProject,
           densityClass,
           elevated && styles.elevated,
+          hoverable && styles.hoverable,
           hasHeaderStart && styles.projectWithHeaderStart,
           className,
         )}
@@ -598,6 +602,7 @@ export function Card({
         styles.layoutStacked,
         densityClass,
         elevated && styles.elevated,
+        hoverable && styles.hoverable,
         Boolean(categoryFooter) && styles.layoutStackedWithFooter,
         className,
       )}

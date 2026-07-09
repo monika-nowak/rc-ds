@@ -1,0 +1,134 @@
+.banner {
+  position: relative;
+  display: flex;
+  width: 100%;
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-layer-01);
+}
+
+/* Layout */
+.layoutHorizontal {
+  flex-direction: row;
+  align-items: center;
+}
+
+.layoutStacked {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Density — comfortable default vs tighter inline */
+.densityDefault {
+  gap: var(--rc-spacing-6);
+  padding: var(--rc-spacing-4);
+}
+
+.densityCompact {
+  gap: var(--rc-spacing-4);
+  padding: var(--rc-spacing-3);
+}
+
+/* Leading illustration slot */
+.leading {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-background-brand);
+  flex-shrink: 0;
+}
+
+.tileCompact {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--rc-radius-sm);
+}
+
+.tileGlyph {
+  width: 28px;
+  height: auto;
+  color: var(--rc-icon-on-color);
+}
+
+/* Text block */
+.text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--rc-spacing-1);
+  min-width: 0;
+}
+
+.eyebrow {
+  display: flex;
+  margin-bottom: var(--rc-spacing-1);
+}
+
+.title {
+  margin: 0;
+  color: var(--rc-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin: 0;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* Trailing actions */
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.layoutStacked .actions {
+  margin-top: var(--rc-spacing-1);
+}
+
+/* Dismiss button */
+.dismiss {
+  display: flex;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.dismissFloating {
+  position: absolute;
+  top: var(--rc-spacing-2);
+  right: var(--rc-spacing-2);
+}
+
+/* Emphasis — surface treatments */
+.emphasis-subtle {
+  background: var(--rc-layer-01);
+  border-color: var(--rc-border-subtle-01);
+}
+
+.emphasis-branded {
+  background: linear-gradient(120deg, var(--rc-purple-50), var(--rc-purple-100));
+  border-color: var(--rc-purple-200);
+}
+
+.emphasis-elevated {
+  background: var(--rc-layer-01);
+  border-color: var(--rc-border-subtle-01);
+  box-shadow: var(--rc-shadow-md);
+}
+
+/* Leading accent bar */
+.accent {
+  border-left: 4px solid var(--rc-background-brand);
+}

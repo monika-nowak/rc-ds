@@ -132,12 +132,56 @@ export const ExpandableList: Story = {
   },
 };
 
+/** Full file row — icon tile, name + size, row count, and date columns. */
 export const File: Story = {
   args: {
     type: 'file',
-    fileName: 'data_export.csv',
+    fileName: 'File-name.csv',
     fileSize: '87.2 KB',
+    rows: '248 rows',
+    date: 'May 5, 2026',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'File row with a leading icon tile. The `fileSize`, `rows`, and `date` columns are each optional and render only when provided.',
+      },
+    },
+  },
+};
+
+/** Every metadata column is independently toggleable. */
+export const FileColumnVariants: Story = {
+  args: {
+    type: 'file',
+    fileName: 'File-name.csv',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Each column (`fileSize`, `rows`, `date`) renders only when its prop is provided, so rows can show any combination.',
+      },
+    },
+  },
+  render: () => (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        maxWidth: 720,
+        width: '100%',
+      }}
+    >
+      <ListItem type="file" fileName="File-name.csv" fileSize="87.2 KB" rows="248 rows" date="May 5, 2026" />
+      <ListItem type="file" fileName="File-name.csv" fileSize="87.2 KB" />
+      <ListItem type="file" fileName="File-name.csv" rows="248 rows" />
+      <ListItem type="file" fileName="File-name.csv" date="May 5, 2026" />
+      <ListItem type="file" fileName="File-name.csv" />
+    </div>
+  ),
 };
 
 /** Single radio row — selected. In production, multiple rows share the same `name` for grouping. */
@@ -228,7 +272,7 @@ export const AllVariants: Story = {
       >
         <FilterPanel />
       </ListItem>
-      <ListItem type="file" fileName="data_export.csv" fileSize="87.2 KB" />
+      <ListItem type="file" fileName="File-name.csv" fileSize="87.2 KB" rows="248 rows" date="May 5, 2026" />
     </div>
   ),
 };

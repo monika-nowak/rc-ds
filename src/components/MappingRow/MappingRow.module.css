@@ -47,3 +47,97 @@
 .select :global(button) {
   height: 48px;
 }
+
+/* ── Validation variant ─────────────────────────────────────────────
+   Each validation row is a self-contained bordered card laid out as a grid:
+   [ chip ] [ arrow ] [ status badge ] [ message ]. */
+.validationRoot {
+  display: grid;
+  /* chip · arrow · status badge · message. */
+  grid-template-columns: max-content max-content max-content 1fr;
+  align-items: center;
+  column-gap: var(--rc-spacing-2);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--rc-spacing-3);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-01);
+}
+
+/* Inside a group, share the group's column tracks (subgrid) while keeping the
+   per-row card border, so chips / arrows / badges / messages align across rows. */
+.validationRowGrouped {
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+/* Compact chip for validation rows — smaller than the mapping field chip,
+   with a subtle gray fill (matches the Figma "Validation Row" chip). */
+.sourceCompact {
+  flex: initial;
+  height: auto;
+  padding: var(--rc-spacing-1) var(--rc-spacing-3);
+  border-color: transparent;
+  background: var(--rc-layer-03);
+}
+
+/* Arrow icon between the chip and the status badge. */
+.validationArrow {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+/* Status badge — equal-width across rows. Standalone rows use a min-width sized
+   to fit the longest expected label so short labels pad out to match; the
+   icon + label stay centered. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--rc-spacing-1);
+  min-width: calc(var(--rc-spacing-16) * 2); /* ~128px — fits the longest label */
+  padding: var(--rc-spacing-1) var(--rc-spacing-3);
+  border-radius: var(--rc-radius-sm);
+  justify-self: start;
+}
+
+/* Inside a group the badge stretches to fill its shared grid column so every
+   badge is identical and left + right edges line up across rows. */
+.validationRowGrouped .pill {
+  width: 100%;
+  justify-self: stretch;
+}
+
+.pillLabel {
+  white-space: nowrap;
+}
+
+.pillError {
+  background: var(--rc-background-support-error);
+  color: var(--rc-support-error);
+}
+
+.pillWarning {
+  background: var(--rc-background-support-warning);
+  color: var(--rc-text-warning);
+}
+
+.pillSuccess {
+  background: var(--rc-background-support-success);
+  color: var(--rc-text-success);
+}
+
+.pillNeutral {
+  background: var(--rc-neutral-50);
+  color: var(--rc-text-secondary);
+}
+
+.message {
+  min-width: 0;
+  color: var(--rc-text-helper);
+}

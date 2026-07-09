@@ -107,27 +107,35 @@
 /* File */
 .file {
   display: flex;
-  align-items: center;
-  gap: var(--rc-spacing-4);
+  align-items: stretch;
   width: 100%;
-  min-height: 56px;
-  padding: 0 var(--rc-spacing-4);
+  min-height: 72px;
+  overflow: hidden;
   border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-layer-01);
 }
 
-.fileIcon {
+/* Leading square icon tile, matches row height. */
+.fileTile {
+  display: flex;
   flex-shrink: 0;
-  color: var(--rc-icon-primary);
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 72px;
+  color: var(--rc-icon-secondary);
+  background: var(--rc-layer-03);
 }
 
+/* Name + size cell: fills remaining width, 24px padding, 8px gap, baseline-aligned. */
 .fileContent {
   display: flex;
   flex: 1;
   align-items: baseline;
   gap: var(--rc-spacing-2);
   min-width: 0;
+  padding: var(--rc-spacing-6);
   overflow: hidden;
   white-space: nowrap;
 }
@@ -137,5 +145,17 @@
 }
 
 .fileSize {
-  color: var(--rc-text-secondary);
+  color: var(--rc-text-helper);
+}
+
+/* Trailing metadata columns (rows, date): fixed 150px cell, 24px padding, right-aligned. */
+.fileColumn {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  width: 150px;
+  padding: var(--rc-spacing-6);
+  color: var(--rc-text-helper);
+  white-space: nowrap;
 }

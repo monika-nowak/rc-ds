@@ -1,5 +1,5 @@
 import { useState, type InputHTMLAttributes, type ReactNode, type KeyboardEvent } from 'react';
-import { File } from '@phosphor-icons/react';
+import { Table } from '@phosphor-icons/react';
 import { Checkbox } from '../Checkbox';
 import { Radio } from '../Radio';
 import { Divider } from '../Divider';
@@ -44,8 +44,16 @@ export interface ListItemRadioProps extends ListItemBaseProps {
 
 export interface ListItemFileProps extends ListItemBaseProps {
   type: 'file';
+  /** File name, rendered in text-primary. */
   fileName: string;
-  fileSize: string;
+  /** File size (e.g. "87.2 KB"). Rendered in text-secondary next to the name. Omit to hide. */
+  fileSize?: string;
+  /** Leading icon shown inside the gray tile. Defaults to a table icon. */
+  icon?: ReactNode;
+  /** Row-count column (e.g. "248 rows"). Omit to hide. */
+  rows?: ReactNode;
+  /** Date column (e.g. "May 5, 2026"). Omit to hide. */
+  date?: ReactNode;
 }
 
 export type ListItemProps = ListItemSelectableProps | ListItemRadioProps | ListItemFileProps;
@@ -54,13 +62,25 @@ export function ListItem(props: ListItemProps) {
   const { className } = props;
 
   if (props.type === 'file') {
+    const { fileName, fileSize, icon, rows, date } = props;
+
     return (
       <div className={cn(styles.file, className)}>
-        <File size={24} weight="regular" className={styles.fileIcon} aria-hidden />
-        <div className={styles.fileContent}>
-          <span className={cn('rc-body-md', styles.fileName)}>{props.fileName}</span>
-          <span className={cn('rc-body-sm', styles.fileSize)}>{props.fileSize}</span>
+        <div className={styles.fileTile} aria-hidden>
+          {icon ?? <Table size={24} weight="regular" />}
         </div>
+        <div className={styles.fileContent}>
+          <span className={cn('rc-label-lg', styles.fileName)}>{fileName}</span>
+          {fileSize != null ? (
+            <span className={cn('rc-body-sm', styles.fileSize)}>{fileSize}</span>
+          ) : null}
+        </div>
+        {rows != null ? (
+          <span className={cn('rc-body-sm', styles.fileColumn)}>{rows}</span>
+        ) : null}
+        {date != null ? (
+          <span className={cn('rc-body-sm', styles.fileColumn)}>{date}</span>
+        ) : null}
       </div>
     );
   }
