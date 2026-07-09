@@ -865,8 +865,6 @@
 
 .recordsTitle {
   color: var(--rc-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .recordsTable {
