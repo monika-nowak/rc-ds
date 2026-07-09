@@ -1394,8 +1394,9 @@
 .strengthFillGradient {
   background: linear-gradient(
     90deg,
-    var(--rc-purple-700) 0%,
-    var(--rc-purple-500) 50%,
+    var(--rc-blue-500) 0%,
+    var(--rc-purple-500) 35%,
+    var(--rc-light-purple-400) 70%,
     var(--rc-orange-500) 100%
   );
 }
