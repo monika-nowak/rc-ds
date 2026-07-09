@@ -1508,7 +1508,10 @@
   gap: 32px 64px;
 }
 
-@media (max-width: 700px) {
+/* Collapse to one column based on the actual content-column width (which
+   shrinks when a side panel opens), not the viewport width. Generous
+   threshold so the two columns never overflow under an open side panel. */
+@container main (max-width: 900px) {
   .sectionRow {
     grid-template-columns: 1fr;
   }
