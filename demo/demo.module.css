@@ -1395,6 +1395,17 @@
   height: 100%;
 }
 
+/* Main Signal Strength meter: gradient across the weak → strong colour scale
+   (dark purple → purple → orange). */
+.strengthFillGradient {
+  background: linear-gradient(
+    90deg,
+    var(--rc-purple-700) 0%,
+    var(--rc-purple-500) 50%,
+    var(--rc-orange-500) 100%
+  );
+}
+
 .strengthKnob {
   position: absolute;
   top: 50%;

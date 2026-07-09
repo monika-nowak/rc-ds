@@ -148,7 +148,7 @@ function ScoringCard({ signal }: { signal: Signal }) {
           </div>
           <div className={styles.strengthMeter}>
             <span
-              className={`${styles.strengthFill} ${tierFillClass(score)}`}
+              className={`${styles.strengthFill} ${styles.strengthFillGradient}`}
               style={{ width: `${Math.round(score * 100)}%` }}
             />
             <span
