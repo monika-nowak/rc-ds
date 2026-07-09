@@ -70,32 +70,6 @@
   margin: calc(-1 * var(--rc-spacing-2)) var(--rc-spacing-2);
 }
 
-.clientBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--rc-radius-sm);
-  background: var(--rc-blue-500);
-  color: var(--rc-white-1000);
-  font: 500 12px/16px var(--rc-font-sans);
-}
-
-.clientName {
-  color: var(--rc-text-secondary);
-  font: 500 14px/18px var(--rc-font-sans);
-}
-
-.slash {
-  color: var(--rc-neutral-200);
-}
-
-.reportTitle {
-  color: var(--rc-text-primary);
-  white-space: nowrap;
-}
-
 .headerEnd {
   display: flex;
   align-items: center;

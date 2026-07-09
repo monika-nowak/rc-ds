@@ -4,10 +4,10 @@ import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
 import { AppHeader } from '../src/components/AppHeader';
 import { Avatar } from '../src/components/Avatar';
 import { Badge } from '../src/components/Badge';
+import { Breadcrumbs, type BreadcrumbTrailItem } from '../src/components/Breadcrumb';
 import { Button } from '../src/components/Button';
 import { Card } from '../src/components/Card';
 import { Divider } from '../src/components/Divider';
-import { IconButton } from '../src/components/IconButton';
 import { Logo } from '../src/components/Logo';
 import { Icon } from '../src/icons';
 import {
@@ -132,6 +132,21 @@ export function ReportHeader({
   signalLabel?: string;
   onBack?: () => void;
 }) {
+  const breadcrumbItems: BreadcrumbTrailItem[] = [
+    { id: 'client', label: 'Givinostat / DMD', showDropdown: true, onClick: () => {} },
+    {
+      id: 'report',
+      label: 'MSL Insights – March 2026',
+      isCurrent: !signalLabel,
+      onClick: signalLabel ? onBack : undefined,
+    },
+  ];
+
+  if (signalLabel) {
+    breadcrumbItems.push({ kind: 'back', id: 'back', label: 'Back to report', onClick: onBack });
+    breadcrumbItems.push({ id: 'signal', label: signalLabel, isCurrent: true });
+  }
+
   return (
     <AppHeader
       className={styles.stickyHeader}
@@ -139,19 +154,7 @@ export function ReportHeader({
         <div className={styles.headerStart}>
           <Logo className={styles.logo} />
           <Divider orientation="vertical" className={styles.headerDivider} />
-          <span className={styles.clientBadge}>G</span>
-          <span className={styles.clientName}>Givinostat / DMD</span>
-          <span className={styles.slash}>/</span>
-          <span className={`rc-label-md ${styles.reportTitle}`}>MSL Insights – March 2026</span>
-          {signalLabel ? (
-            <>
-              <span className={styles.slash}>/</span>
-              <IconButton variant="ghost" size="sm" label="Back to report" onClick={onBack}>
-                <Icon name="arrow-left" size={16} tone="primary" />
-              </IconButton>
-              <span className={`rc-label-md ${styles.reportTitle}`}>{signalLabel}</span>
-            </>
-          ) : null}
+          <Breadcrumbs leading={{ prefix: 'G' }} items={breadcrumbItems} />
         </div>
       }
       end={
