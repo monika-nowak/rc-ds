@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatWithAI, type Reference, type ReferenceOption } from '../src/components/ChatWithAI';
+import { Badge } from '../src/components/Badge';
 import { IconButton } from '../src/components/IconButton';
 import { Link } from '../src/components/Link';
 import { Divider } from '../src/components/Divider';
@@ -299,15 +300,17 @@ function AnswerView({
               <button
                 key={ref}
                 type="button"
-                className={`rc-label-sm ${styles.refChip} ${styles.refChipButton}`}
+                className={styles.recordRefButton}
                 onClick={() => onOpenRecord(RECORDS[id])}
               >
-                {ref}
+                <Badge appearance="subtle" color="info">
+                  {ref}
+                </Badge>
               </button>
             ) : (
-              <span key={ref} className={`rc-label-sm ${styles.refChip}`}>
+              <Badge key={ref} appearance="subtle" color="info">
                 {ref}
-              </span>
+              </Badge>
             );
           })}
         </div>

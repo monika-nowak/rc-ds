@@ -785,23 +785,6 @@
   gap: var(--rc-spacing-2);
 }
 
-.refChip {
-  padding: 2px 8px;
-  border-radius: var(--rc-radius-sm);
-  background: var(--rc-blue-100);
-  color: var(--rc-text-info);
-}
-
-.refChipButton {
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  transition: background 0.12s ease;
-}
-
-.refChipButton:hover {
-  background: var(--rc-blue-200);
-}
 
 /* ---- Data view (chart answer) ---- */
 .dataView {
