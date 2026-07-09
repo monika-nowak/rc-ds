@@ -30,8 +30,14 @@ const BASE_URL = (
 // (e.g. response_format), so detect it to keep the request minimal.
 const IS_GEMINI = /generativelanguage\.googleapis\.com/.test(BASE_URL);
 
+// In production the key must never reach the client bundle, so we route
+// through the /api/chat serverless proxy (which holds the key server-side).
+// Locally (`npm run app`) there is no serverless runtime, so we call the
+// provider directly with the key from `.env.local`.
+const USE_PROXY = import.meta.env.PROD;
+
 export function llmConfigured(): boolean {
-  return typeof API_KEY === 'string' && API_KEY.trim().length > 0;
+  return USE_PROXY || (typeof API_KEY === 'string' && API_KEY.trim().length > 0);
 }
 
 export interface ChatTurn {
@@ -141,6 +147,19 @@ async function callOpenAI(system: string, turns: ChatTurn[]): Promise<string> {
   return data.choices?.[0]?.message?.content ?? '';
 }
 
+async function callProxy(system: string, turns: ChatTurn[]): Promise<string> {
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system, turns }),
+  });
+  if (!response.ok) {
+    throw new Error(`Chat request failed (${response.status}): ${await response.text()}`);
+  }
+  const data = await response.json();
+  return data.content ?? '';
+}
+
 async function callAnthropic(system: string, turns: ChatTurn[]): Promise<string> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -186,6 +205,13 @@ export async function generateAnswer(params: {
   const trimmedHistory = history.slice(-6);
   const turns: ChatTurn[] = [...trimmedHistory, { role: 'user', content: question }];
 
-  const raw = PROVIDER === 'anthropic' ? await callAnthropic(system, turns) : await callOpenAI(system, turns);
+  let raw: string;
+  if (USE_PROXY) {
+    raw = await callProxy(system, turns);
+  } else if (PROVIDER === 'anthropic') {
+    raw = await callAnthropic(system, turns);
+  } else {
+    raw = await callOpenAI(system, turns);
+  }
   return answerFromRaw(extractJson(raw), scope);
 }

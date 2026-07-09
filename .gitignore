@@ -90,3 +90,5 @@ gen-*.cjs
 scripts/figma/
 scripts/figma-batch-log.cjs
 .chat-*
+.vercel
+.env*
