@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { TrendUp } from '@phosphor-icons/react';
 import { Icon } from '../../icons';
 import { cn } from '../../lib/cn';
 import { Avatar } from '../Avatar';
@@ -316,7 +317,7 @@ function CardStats({
       {stats.map((stat) => (
         <div key={`${stat.label}-${stat.value}`} className={statClass}>
           <span className={cn('rc-heading-h7', styles.statValue)}>{stat.value}</span>
-          <span className={cn('rc-label-md', styles.statLabel)}>{stat.label}</span>
+          <span className={cn('rc-body-sm', styles.statLabel)}>{stat.label}</span>
         </div>
       ))}
     </div>
@@ -384,7 +385,15 @@ function ConsiderationsSection({
 
   return (
     <div className={styles.considerations}>
-      <p className={cn('rc-label-lg', styles.considerationsLabel)}>{label}</p>
+      <div className={styles.considerationsHeader}>
+        <TrendUp
+          size={16}
+          weight="regular"
+          className={styles.considerationsHeaderIcon}
+          aria-hidden
+        />
+        <p className={cn('rc-label-lg', styles.considerationsLabel)}>{label}</p>
+      </div>
       <ul className={styles.considerationsList}>
         {items.map((item) => (
           <li key={item} className={styles.considerationsItem}>

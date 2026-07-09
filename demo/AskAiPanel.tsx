@@ -6,7 +6,7 @@ import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
 import type { ChatScope } from './Dashboard';
 import type { QuoteRequest } from './App';
-import { TRENDS } from './data';
+import { RECORDS, TRENDS, type RecordEntry } from './data';
 import {
   buildAnswer,
   countTokens,
@@ -63,6 +63,7 @@ interface AskAiPanelProps {
   scope: ChatScope;
   onScopeChange: (scope: ChatScope) => void;
   onClose: () => void;
+  onOpenRecord?: (record: RecordEntry) => void;
   expanded: boolean;
   onToggleExpanded: () => void;
   quote?: QuoteRequest | null;
@@ -70,10 +71,10 @@ interface AskAiPanelProps {
 
 function RecordsDetail({
   row,
-  onAsk,
+  onOpenRecord,
 }: {
   row: DataRow;
-  onAsk?: (text: string) => void;
+  onOpenRecord?: (record: RecordEntry) => void;
 }) {
   const records = sampleRecords(row.label);
 
@@ -89,7 +90,18 @@ function RecordsDetail({
         </div>
         {records.map((record) => (
           <div key={record.id} className={styles.recordsRow}>
-            <Link size="sm" onClick={() => onAsk?.(`Open record ${record.id}`)}>
+            <Link
+              size="sm"
+              onClick={() =>
+                onOpenRecord?.({
+                  id: Number(record.id),
+                  specialty: '',
+                  institution: '',
+                  date: record.date,
+                  quote: record.verbatim,
+                })
+              }
+            >
               {record.id}
             </Link>
             <span className={`rc-body-sm ${styles.recordVerbatim}`}>{record.verbatim}</span>
@@ -105,7 +117,13 @@ function RecordsDetail({
   );
 }
 
-function DataViewCard({ data, onAsk }: { data: DataView; onAsk?: (text: string) => void }) {
+function DataViewCard({
+  data,
+  onOpenRecord,
+}: {
+  data: DataView;
+  onOpenRecord?: (record: RecordEntry) => void;
+}) {
   const [grown, setGrown] = useState(false);
   const [openRow, setOpenRow] = useState<string | null>(null);
 
@@ -156,7 +174,7 @@ function DataViewCard({ data, onAsk }: { data: DataView; onAsk?: (text: string) 
                 {isOpen ? (
                   <>
                     <Divider />
-                    <RecordsDetail row={row} onAsk={onAsk} />
+                    <RecordsDetail row={row} onOpenRecord={onOpenRecord} />
                   </>
                 ) : null}
               </div>
@@ -187,10 +205,10 @@ function DataViewCard({ data, onAsk }: { data: DataView; onAsk?: (text: string) 
 
 function AnswerView({
   message,
-  onAsk,
+  onOpenRecord,
 }: {
   message: AssistantMessage;
-  onAsk?: (text: string) => void;
+  onOpenRecord?: (record: RecordEntry) => void;
 }) {
   const { answer, revealed, showData, showProof, showRefs, status } = message;
   const streaming = status === 'streaming';
@@ -207,52 +225,90 @@ function AnswerView({
 
   const lastIndex = rendered.length - 1;
 
+  const renderContent = (block: AnswerBlock, count: number, index: number) => {
+    const tokens = block.tokens.slice(0, count);
+    const withCursor = streaming && index === lastIndex && revealed < total;
+    return (
+      <>
+        {tokens.map((token, tokenIndex) =>
+          token.bold ? (
+            <strong key={tokenIndex}>{token.text}</strong>
+          ) : (
+            <span key={tokenIndex}>{token.text}</span>
+          ),
+        )}
+        {withCursor ? <span className={styles.cursor} /> : null}
+      </>
+    );
+  };
+
+  // Group consecutive list items into a single <ul> so bullets sit tight
+  // together (8px), while paragraphs keep the larger block gap.
+  type RenderGroup =
+    | { kind: 'p'; index: number; block: AnswerBlock; count: number }
+    | { kind: 'ul'; items: { index: number; block: AnswerBlock; count: number }[] };
+  const groups: RenderGroup[] = [];
+  rendered.forEach(({ block, count }, index) => {
+    if (block.type === 'li') {
+      const last = groups[groups.length - 1];
+      if (last && last.kind === 'ul') {
+        last.items.push({ index, block, count });
+      } else {
+        groups.push({ kind: 'ul', items: [{ index, block, count }] });
+      }
+    } else {
+      groups.push({ kind: 'p', index, block, count });
+    }
+  });
+
   return (
     <div className={styles.answer} data-selectable-ask>
-      {rendered.map(({ block, count }, index) => {
-        const tokens = block.tokens.slice(0, count);
-        const withCursor = streaming && index === lastIndex && revealed < total;
-        const content = (
-          <>
-            {tokens.map((token, tokenIndex) =>
-              token.bold ? (
-                <strong key={tokenIndex}>{token.text}</strong>
-              ) : (
-                <span key={tokenIndex}>{token.text}</span>
-              ),
-            )}
-            {withCursor ? <span className={styles.cursor} /> : null}
-          </>
-        );
-        return block.type === 'li' ? (
-          <ul key={index} className="rc-body-sm">
-            <li>{content}</li>
+      {groups.map((group, groupIndex) =>
+        group.kind === 'ul' ? (
+          <ul key={groupIndex} className="rc-body-sm">
+            {group.items.map((item) => (
+              <li key={item.index}>{renderContent(item.block, item.count, item.index)}</li>
+            ))}
           </ul>
         ) : (
-          <p key={index} className="rc-body-sm">
-            {content}
+          <p key={groupIndex} className="rc-body-sm">
+            {renderContent(group.block, group.count, group.index)}
           </p>
-        );
-      })}
+        ),
+      )}
 
       {showData && answer.dataView ? (
-        <DataViewCard data={answer.dataView} onAsk={onAsk} />
+        <DataViewCard data={answer.dataView} onOpenRecord={onOpenRecord} />
       ) : null}
 
       {showProof && answer.proof ? (
         <div className={styles.proof}>
           <span className={`rc-label-sm ${styles.proofLabel}`}>{answer.proof.label}</span>
-          <span className={`rc-body-sm ${styles.proofQuote}`}>{answer.proof.quote}</span>
+          <span className={`rc-body-sm ${styles.answerProofQuote}`}>{answer.proof.quote}</span>
         </div>
       ) : null}
 
       {showRefs && answer.refs ? (
         <div className={styles.refChips}>
-          {answer.refs.map((ref) => (
-            <span key={ref} className={`rc-label-sm ${styles.refChip}`}>
-              {ref}
-            </span>
-          ))}
+          {answer.refs.map((ref) => {
+            const match = /^R(\d+)$/.exec(ref);
+            const id = match ? Number(match[1]) : Number.NaN;
+            const clickable = onOpenRecord && !Number.isNaN(id) && Boolean(RECORDS[id]);
+            return clickable ? (
+              <button
+                key={ref}
+                type="button"
+                className={`rc-label-sm ${styles.refChip} ${styles.refChipButton}`}
+                onClick={() => onOpenRecord(RECORDS[id])}
+              >
+                {ref}
+              </button>
+            ) : (
+              <span key={ref} className={`rc-label-sm ${styles.refChip}`}>
+                {ref}
+              </span>
+            );
+          })}
         </div>
       ) : null}
     </div>
@@ -278,6 +334,7 @@ export function AskAiPanel({
   expanded,
   onToggleExpanded,
   quote,
+  onOpenRecord,
 }: AskAiPanelProps) {
   const [view, setView] = useState<View>('conversation');
   const [value, setValue] = useState('');
@@ -285,6 +342,7 @@ export function AskAiPanel({
   const [generating, setGenerating] = useState(false);
   const [attachedQuote, setAttachedQuote] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>(() => defaultSuggestions(scope));
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
     loadConversations(),
   );
@@ -618,7 +676,11 @@ export function AskAiPanel({
               ) : message.status === 'thinking' ? (
                 <ThinkingBubble key={message.id} />
               ) : (
-                <AnswerView key={message.id} message={message} onAsk={send} />
+                <AnswerView
+                  key={message.id}
+                  message={message}
+                  onOpenRecord={onOpenRecord}
+                />
               ),
             )}
           </div>
@@ -627,19 +689,38 @@ export function AskAiPanel({
 
       {view === 'conversation' ? (
         <div className={styles.suggested}>
-          <p className={`rc-label-sm ${styles.suggestedLabel}`}>Suggested</p>
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={`${suggestion}-${index}`}
-              type="button"
-              className={styles.suggestionRow}
-              disabled={generating}
-              onClick={() => send(suggestion)}
-            >
-              <span className={`rc-label-md ${styles.suggestionText}`}>{suggestion}</span>
-              <Icon name="arrow-right" size={16} tone="tertiary" />
-            </button>
-          ))}
+          <button
+            type="button"
+            className={styles.suggestedHeader}
+            onClick={() => setSuggestionsOpen((open) => !open)}
+            aria-expanded={suggestionsOpen}
+          >
+            <span className={`rc-label-sm ${styles.suggestedLabel}`}>Suggested</span>
+            <Icon
+              name="caret-down"
+              size={16}
+              tone="tertiary"
+              className={suggestionsOpen ? styles.suggestedCaretOpen : styles.suggestedCaret}
+            />
+          </button>
+          {suggestionsOpen ? (
+            <div className={styles.suggestionList}>
+              {suggestions
+                .filter((suggestion, index, all) => all.indexOf(suggestion) === index)
+                .map((suggestion, index) => (
+                  <button
+                    key={`${suggestion}-${index}`}
+                    type="button"
+                    className={styles.suggestionRow}
+                    disabled={generating}
+                    onClick={() => send(suggestion)}
+                  >
+                    <span className={`rc-heading-h8 ${styles.suggestionText}`}>{suggestion}</span>
+                    <Icon name="arrow-right" size={16} tone="tertiary" />
+                  </button>
+                ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -652,7 +733,7 @@ export function AskAiPanel({
             references={references}
             referenceOptions={REFERENCE_OPTIONS}
             loading={generating}
-            placeholder="Ask a follow-up, or type @ to reference"
+            placeholder="Ask a follow-up. Type @ to reference or select any text to ask about"
             contextSlot={
               attachedQuote ? (
                 <div className={styles.composerQuote}>

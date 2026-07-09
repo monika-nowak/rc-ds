@@ -17,6 +17,7 @@ import {
   RECORDS,
   deriveBreakdown,
   signalStrength,
+  type RecordEntry,
   type ScoreMetric,
   type Signal,
   type StatIcon,
@@ -87,6 +88,16 @@ function SectionHeader({
   );
 }
 
+/**
+ * Bars use only the three signal-strength tier colors, chosen by value:
+ * Strong (≥0.8) = orange, Moderate (0.6–0.79) = purple, Weak (<0.6) = dark purple.
+ */
+function tierFillClass(fraction: number): string {
+  if (fraction >= 0.8) return styles.scoreFillOrange;
+  if (fraction >= 0.6) return styles.scoreFillPurple;
+  return styles.scoreFillWeak;
+}
+
 function ScoreMetricRow({ metric, fillClass }: { metric: ScoreMetric; fillClass: string }) {
   return (
     <div className={styles.scoreMetric}>
@@ -124,7 +135,7 @@ function ScoringCard({ signal }: { signal: Signal }) {
       ? styles.scoreStrengthStrong
       : strength.tone === 'moderate'
         ? styles.scoreStrengthModerate
-        : styles.scoreStrengthEmerging;
+        : styles.scoreStrengthWeak;
   const breakdown = deriveBreakdown(signal);
 
   return (
@@ -137,7 +148,7 @@ function ScoringCard({ signal }: { signal: Signal }) {
           </div>
           <div className={styles.strengthMeter}>
             <span
-              className={styles.strengthFill}
+              className={`${styles.strengthFill} ${tierFillClass(score)}`}
               style={{ width: `${Math.round(score * 100)}%` }}
             />
             <span
@@ -156,8 +167,14 @@ function ScoringCard({ signal }: { signal: Signal }) {
         <>
           <div className={styles.scoreBlock2}>
             <div className={styles.scoreBreakdown}>
-              <ScoreMetricRow metric={breakdown.distribution} fillClass={styles.scoreFillLight} />
-              <ScoreMetricRow metric={breakdown.narrative} fillClass={styles.scoreFillPurple} />
+              <ScoreMetricRow
+                metric={breakdown.distribution}
+                fillClass={tierFillClass(breakdown.distribution.fraction)}
+              />
+              <ScoreMetricRow
+                metric={breakdown.narrative}
+                fillClass={tierFillClass(breakdown.narrative.fraction)}
+              />
               <div className={styles.scoreMetric}>
                 <div className={styles.scoreMetricHead}>
                   <span className={styles.scoreMetricLabel}>
@@ -170,7 +187,7 @@ function ScoringCard({ signal }: { signal: Signal }) {
                 </div>
                 <div className={styles.scoreTrack}>
                   <span
-                    className={`${styles.scoreTrackFill} ${styles.scoreFillOrange}`}
+                    className={`${styles.scoreTrackFill} ${tierFillClass(breakdown.strategicFit.fraction)}`}
                     style={{ width: `${Math.round(breakdown.strategicFit.fraction * 100)}%` }}
                   />
                 </div>
@@ -207,7 +224,13 @@ function ScoringCard({ signal }: { signal: Signal }) {
   );
 }
 
-export function SignalDetail({ signal }: { signal: Signal }) {
+export function SignalDetail({
+  signal,
+  onOpenRecord,
+}: {
+  signal: Signal;
+  onOpenRecord: (record: RecordEntry) => void;
+}) {
   const stats: SignalStat[] = [
     { icon: 'database', value: signal.records, emphasis: 'records', label: 'analyzed' },
     { icon: 'first-aid-kit', value: signal.hcps, emphasis: 'HCPs', label: 'contributing' },
@@ -287,9 +310,15 @@ export function SignalDetail({ signal }: { signal: Signal }) {
               <div className={styles.proofCard}>
                 <p className={styles.proofQuote}>{proof.quote}</p>
                 <div className={styles.proofMeta}>
-                  <Badge appearance="subtle" color="lightPurple">
-                    Record {proof.id}
-                  </Badge>
+                  <button
+                    type="button"
+                    className={styles.recordRefButton}
+                    onClick={() => onOpenRecord(proof)}
+                  >
+                    <Badge appearance="subtle" color="lightPurple">
+                      Record {proof.id}
+                    </Badge>
+                  </button>
                   <span className={styles.proofMetaDivider} />
                   <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.specialty}</span>
                   <span className={styles.proofMetaDivider} />
@@ -318,9 +347,11 @@ export function SignalDetail({ signal }: { signal: Signal }) {
                 <span className={`rc-body-sm ${styles.recordsHeadCell}`}>HCP Specialty</span>
               </div>
               {records.map((record) => (
-                <div
+                <button
                   key={record.id}
-                  className={`${styles.recordsTableRow} ${styles.recordsTableColumns}`}
+                  type="button"
+                  className={`${styles.recordsTableRow} ${styles.recordsTableColumns} ${styles.recordsTableRowButton}`}
+                  onClick={() => onOpenRecord(record)}
                 >
                   <span className={`rc-label-md ${styles.recordsCell}`}>{record.id}</span>
                   <span className={`rc-body-sm ${styles.recordsCell}`}>
@@ -335,7 +366,7 @@ export function SignalDetail({ signal }: { signal: Signal }) {
                   <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
                     {record.specialty}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>

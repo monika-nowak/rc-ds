@@ -590,14 +590,17 @@ export function findSignal(id: string): Signal | undefined {
 
 export interface SignalStrength {
   label: string;
-  tone: 'strong' | 'moderate' | 'emerging';
+  tone: 'strong' | 'moderate' | 'weak';
 }
 
-/** Qualitative strength derived from the combined score. */
+/**
+ * Qualitative strength derived from the combined score.
+ * Tiers: Strong = 0.8+, Moderate = 0.6–0.79, Weak = <0.6.
+ */
 export function signalStrength(score: number): SignalStrength {
-  if (score >= 0.85) return { label: 'Strong', tone: 'strong' };
-  if (score >= 0.8) return { label: 'Moderate', tone: 'moderate' };
-  return { label: 'Emerging', tone: 'emerging' };
+  if (score >= 0.8) return { label: 'Strong', tone: 'strong' };
+  if (score >= 0.6) return { label: 'Moderate', tone: 'moderate' };
+  return { label: 'Weak', tone: 'weak' };
 }
 
 export interface ScoreSubMetric {
@@ -633,7 +636,8 @@ export function deriveBreakdown(signal: Signal): ScoreBreakdown {
 
   const distMain = clamp(score + j(1));
   const narrMain = clamp(score + j(2));
-  const fit = Math.max(1, Math.min(5, Math.round(score * 5)));
+  // Normalized 0..1, consistent with the other metrics.
+  const fit = clamp(score + j(9));
 
   return {
     distribution: {
@@ -656,7 +660,7 @@ export function deriveBreakdown(signal: Signal): ScoreBreakdown {
         { label: 'Specificity', value: fmt(clamp(narrMain + j(8))) },
       ],
     },
-    strategicFit: { value: String(fit), fraction: fit / 5 },
+    strategicFit: { value: fmt(fit), fraction: fit },
   };
 }
 

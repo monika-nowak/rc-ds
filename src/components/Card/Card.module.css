@@ -152,8 +152,19 @@
 .considerations {
   display: flex;
   flex-direction: column;
-  gap: var(--rc-spacing-4);
+  gap: var(--rc-spacing-6);
   width: 100%;
+}
+
+.considerationsHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  color: var(--rc-text-secondary);
+}
+
+.considerationsHeaderIcon {
+  flex-shrink: 0;
 }
 
 .considerationsLabel {
