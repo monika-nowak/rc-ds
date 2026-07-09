@@ -399,7 +399,7 @@
   flex-shrink: 0;
   border-radius: var(--rc-radius-sm);
   background: #dfe5ff;
-  color: #2b3f8f;
+  color: var(--rc-purple-600);
 }
 
 .recordHeaderTitle {
@@ -463,18 +463,6 @@
   color: var(--rc-text-primary);
 }
 
-.recordFooter {
-  flex-shrink: 0;
-  display: flex;
-  padding: var(--rc-spacing-4) var(--rc-spacing-6);
-  border-top: 1px solid var(--rc-border-subtle-01);
-  background: var(--rc-background-blank);
-}
-
-.recordFooterButton {
-  width: 100%;
-  justify-content: center;
-}
 
 .panelHeader {
   display: flex;

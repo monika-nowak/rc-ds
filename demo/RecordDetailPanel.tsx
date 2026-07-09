@@ -1,5 +1,4 @@
-import { Database } from '@phosphor-icons/react';
-import { Button } from '../src/components/Button';
+import { ArrowsOutSimple, Database, Rows } from '@phosphor-icons/react';
 import { IconButton } from '../src/components/IconButton';
 import { Icon } from '../src/icons';
 import type { RecordEntry } from './data';
@@ -46,17 +45,20 @@ export function RecordDetailPanel({
           </IconButton>
         ) : null}
         <span className={styles.recordFeaturedIcon} aria-hidden>
-          <Database size={20} weight="regular" />
+          <Rows size={20} weight="regular" />
         </span>
         <span className={`rc-heading-h7 ${styles.recordHeaderTitle}`}>Record {record.id}</span>
         <div className={styles.recordHeaderButtons}>
+          <IconButton variant="ghost" size="sm" label="Open in data source">
+            <Database size={18} weight="regular" />
+          </IconButton>
           <IconButton
             variant="ghost"
             size="sm"
             label={expanded ? 'Collapse' : 'Expand'}
             onClick={onToggleExpanded}
           >
-            <Icon name="arrow-square-out" size={18} tone="primary" />
+            <ArrowsOutSimple size={18} weight="regular" />
           </IconButton>
           <IconButton variant="ghost" size="sm" label="Close" onClick={onClose}>
             <Icon name="x" size={18} tone="primary" />
@@ -77,17 +79,6 @@ export function RecordDetailPanel({
           ))}
         </dl>
       </div>
-
-      <footer className={styles.recordFooter}>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={styles.recordFooterButton}
-          iconLeft={<Icon name="arrow-square-out" size={16} tone="primary" />}
-        >
-          Open in data source
-        </Button>
-      </footer>
     </aside>
   );
 }
