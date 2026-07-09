@@ -385,9 +385,15 @@
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
-  padding: var(--rc-spacing-2);
+  /* Larger left inset when there is no back arrow (matches Figma 16px). */
+  padding: var(--rc-spacing-2) var(--rc-spacing-2) var(--rc-spacing-2) var(--rc-spacing-4);
   background: var(--rc-background-blank);
   border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+/* With the back arrow present, the leading padding drops to 8px. */
+.recordHeaderWithBack {
+  padding-left: var(--rc-spacing-2);
 }
 
 .recordFeaturedIcon {

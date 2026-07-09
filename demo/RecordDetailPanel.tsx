@@ -38,7 +38,9 @@ export function RecordDetailPanel({
       className={`${styles.panel} ${expanded ? styles.panelExpanded : ''}`}
       aria-label={`Record ${record.id}`}
     >
-      <header className={styles.recordHeader}>
+      <header
+        className={`${styles.recordHeader} ${fromChat ? styles.recordHeaderWithBack : ''}`}
+      >
         {fromChat ? (
           <IconButton variant="ghost" size="sm" label="Back to chat" onClick={onBack}>
             <Icon name="caret-left" size={18} tone="primary" />
