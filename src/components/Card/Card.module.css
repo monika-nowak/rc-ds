@@ -63,6 +63,12 @@
   flex: 1 1 auto;
 }
 
+/* Roomy cards (signal, trend) space their sections 24px apart to match the
+   Figma Card component; default/compact keep the tighter 16px rhythm. */
+.densityRoomy .stackedContent {
+  gap: var(--rc-spacing-6);
+}
+
 .stackedHeader {
   display: flex;
   flex-direction: column;
