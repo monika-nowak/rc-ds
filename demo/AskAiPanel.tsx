@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatWithAI, type Reference, type ReferenceOption } from '../src/components/ChatWithAI';
+import { Chats } from '@phosphor-icons/react';
 import { Badge } from '../src/components/Badge';
 import { IconButton } from '../src/components/IconButton';
 import { Link } from '../src/components/Link';
@@ -612,10 +613,10 @@ export function AskAiPanel({
         <IconButton
           variant="ghost"
           size="sm"
-          label="Back to conversations"
+          label="Conversations"
           onClick={() => setView('history')}
         >
-          <Icon name="caret-left" size={18} tone="primary" />
+          <Chats size={18} weight="regular" />
         </IconButton>
         <span className={styles.panelAiMark} aria-hidden>
           <Icon name="sparkle" size={20} tone="on-color" />
