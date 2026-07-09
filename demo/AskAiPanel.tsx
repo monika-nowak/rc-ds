@@ -159,7 +159,7 @@ function DataViewCard({
                   onClick={() => setOpenRow(isOpen ? null : row.label)}
                 >
                   <span className={`rc-body-sm ${styles.dataCell}`}>
-                    <Icon name="caret-right" size={12} tone="ai" className={styles.dataCaret} />
+                    <Icon name="caret-right" size={12} tone="tertiary" className={styles.dataCaret} />
                     {row.label}
                   </span>
                   <span className={`rc-body-sm ${styles.dataValue}`}>{row.value}</span>
