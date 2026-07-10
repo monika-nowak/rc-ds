@@ -29,9 +29,21 @@ import {
   type ConversationTurn,
   type StoredConversation,
 } from './history';
+import {
+  clearLlmConfig,
+  loadLlmConfig,
+  PROVIDER_DEFAULTS,
+  PROVIDER_ORDER,
+  saveLlmConfig,
+  type LlmConfig,
+  type LlmProvider,
+} from './llmSettings';
+import { Input } from '../src/components/Input';
+import { Select, type SelectEntry } from '../src/components/Select';
+import { Button } from '../src/components/Button';
 import styles from './demo.module.css';
 
-type View = 'conversation' | 'scope' | 'history';
+type View = 'conversation' | 'scope' | 'history' | 'settings';
 type AssistantStatus = 'thinking' | 'streaming' | 'done';
 
 interface UserMessage {
@@ -77,8 +89,6 @@ const REFERENCE_OPTIONS: ReferenceOption[] = [
 
 const TYPE_INTERVAL_MS = 22;
 const THINKING_MS = 650;
-
-const LLM_AVAILABLE = llmConfigured();
 
 /** Flatten an answer into plain text so it can be fed back as chat history. */
 function answerToText(answer: Answer): string {
@@ -489,10 +499,37 @@ export function AskAiPanel({
     () => initialConversation?.suggestions ?? defaultSuggestions(scope),
   );
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
-  const [useLLM, setUseLLM] = useState(LLM_AVAILABLE);
+  // Live availability is reactive: saving a key in settings flips it on without
+  // a reload; clearing the key flips it back off (falling back to the demo engine).
+  const [llmAvailable, setLlmAvailable] = useState(() => llmConfigured());
+  const [useLLM, setUseLLM] = useState(() => llmConfigured());
+  const [previousView, setPreviousView] = useState<View>('conversation');
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
     loadConversations(),
   );
+
+  const openSettings = () => {
+    setPreviousView((current) => (view === 'settings' ? current : view));
+    setView('settings');
+  };
+
+  const closeSettings = () => {
+    setView(previousView === 'settings' ? 'conversation' : previousView);
+  };
+
+  const handleSaveConfig = (config: LlmConfig) => {
+    saveLlmConfig(config);
+    setLlmAvailable(true);
+    setUseLLM(true);
+    closeSettings();
+  };
+
+  const handleClearConfig = () => {
+    clearLlmConfig();
+    setLlmAvailable(false);
+    setUseLLM(false);
+    closeSettings();
+  };
 
   const idRef = useRef(initialConversation?.nextId ?? 0);
   const messagesRef = useRef<Message[]>(messages);
@@ -822,20 +859,32 @@ export function AskAiPanel({
   };
 
   const headerTitle =
-    view === 'scope' ? 'New chat' : view === 'history' ? 'Conversations' : 'Ask AI';
+    view === 'scope'
+      ? 'New chat'
+      : view === 'history'
+        ? 'Conversations'
+        : view === 'settings'
+          ? 'LLM settings'
+          : 'Ask AI';
   const headerSubtitle =
     view === 'scope'
       ? 'Choose a scope to begin'
       : view === 'history'
         ? 'Saved to this project'
-        : isSignalScope
-          ? scope.label
-          : undefined;
+        : view === 'settings'
+          ? 'Bring your own key'
+          : isSignalScope
+            ? scope.label
+            : undefined;
 
   return (
     <aside className={`${styles.panel} ${expanded ? styles.panelExpanded : ''}`} aria-label="Ask AI">
       <header className={styles.panelHeader}>
-        {view !== 'history' ? (
+        {view === 'settings' ? (
+          <IconButton variant="ghost" size="sm" label="Back" onClick={closeSettings}>
+            <Icon name="caret-left" size={18} tone="primary" />
+          </IconButton>
+        ) : view !== 'history' ? (
           <IconButton
             variant="ghost"
             size="sm"
@@ -848,6 +897,8 @@ export function AskAiPanel({
         <span className={styles.panelAiMark} aria-hidden>
           {view === 'history' ? (
             <Chats size={20} weight="regular" />
+          ) : view === 'settings' ? (
+            <Icon name="gear" size={20} tone="on-color" />
           ) : (
             <Icon name="sparkle" size={20} tone="on-color" />
           )}
@@ -859,20 +910,39 @@ export function AskAiPanel({
           ) : null}
         </div>
         <div className={styles.panelHeaderActions}>
-          {LLM_AVAILABLE ? (
-            <button
-              type="button"
-              className={`rc-label-sm ${styles.modeToggle} ${useLLM ? styles.modeToggleLive : ''}`}
-              onClick={() => setUseLLM((value) => !value)}
-              title={
-                useLLM
-                  ? 'Live model answers — click to switch to demo answers'
-                  : 'Demo answers — click to switch to the live model'
-              }
-            >
-              {useLLM ? 'Live' : 'Demo'}
-            </button>
+          {view !== 'settings' ? (
+            llmAvailable ? (
+              <button
+                type="button"
+                className={`rc-label-sm ${styles.modeToggle} ${useLLM ? styles.modeToggleLive : ''}`}
+                onClick={() => setUseLLM((value) => !value)}
+                title={
+                  useLLM
+                    ? 'Live model answers — click to switch to demo answers'
+                    : 'Demo answers — click to switch to the live model'
+                }
+              >
+                {useLLM ? 'Live' : 'Demo'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={`rc-label-sm ${styles.connectPill}`}
+                onClick={openSettings}
+                title="Connect your own LLM to get live answers"
+              >
+                Connect LLM
+              </button>
+            )
           ) : null}
+          <IconButton
+            variant="ghost"
+            size="sm"
+            label="LLM settings"
+            onClick={openSettings}
+          >
+            <Icon name="gear" size={18} tone="primary" />
+          </IconButton>
           <IconButton variant="ghost" size="sm" label="New chat" onClick={startNewChat}>
             <Icon name="plus" size={18} tone="primary" />
           </IconButton>
@@ -886,7 +956,9 @@ export function AskAiPanel({
       </header>
 
       <div className={styles.panelBody} ref={bodyRef}>
-        {view === 'scope' ? (
+        {view === 'settings' ? (
+          <LlmSettings onSave={handleSaveConfig} onClear={handleClearConfig} />
+        ) : view === 'scope' ? (
           <ScopePicker onPick={chooseScope} />
         ) : view === 'history' ? (
           <History conversations={conversations} onOpen={openHistoryItem} />
@@ -924,6 +996,25 @@ export function AskAiPanel({
               Ask a question below, or use a suggestion. Reference signals, trends or records anytime
               with <strong>@</strong>.
             </p>
+            <div className={styles.emptyConnect}>
+              {llmAvailable ? (
+                <span className={`rc-body-xs ${styles.emptyConnectNote}`}>
+                  {useLLM ? 'Live answers on' : 'Demo answers'} · manage your key in{' '}
+                  <button type="button" className={styles.inlineLink} onClick={openSettings}>
+                    LLM settings
+                  </button>
+                </span>
+              ) : (
+                <Button
+                  variant="aiSecondary"
+                  size="sm"
+                  iconLeft={<Icon name="sparkle" size={16} tone="ai" />}
+                  onClick={openSettings}
+                >
+                  Connect your LLM
+                </Button>
+              )}
+            </div>
           </div>
         ) : (
           <div className={styles.messages}>
@@ -996,7 +1087,7 @@ export function AskAiPanel({
         </div>
       ) : null}
 
-      {view !== 'history' ? (
+      {view !== 'history' && view !== 'settings' ? (
         <div className={styles.panelFooter} ref={footerRef}>
           <ChatWithAI
             value={value}
@@ -1026,6 +1117,96 @@ export function AskAiPanel({
         </div>
       ) : null}
     </aside>
+  );
+}
+
+function LlmSettings({
+  onSave,
+  onClear,
+}: {
+  onSave: (config: LlmConfig) => void;
+  onClear: () => void;
+}) {
+  const [existing] = useState(() => loadLlmConfig());
+  const [provider, setProvider] = useState<LlmProvider>(existing?.provider ?? 'anthropic');
+  const [apiKey, setApiKey] = useState(existing?.apiKey ?? '');
+  const [model, setModel] = useState(existing?.model ?? PROVIDER_DEFAULTS[provider].model);
+  // Track whether the model was hand-edited so switching providers can safely
+  // refresh the prefilled default without clobbering a user's custom model.
+  const [modelDirty, setModelDirty] = useState(Boolean(existing?.model));
+
+  const providerOptions: SelectEntry[] = PROVIDER_ORDER.map((id) => ({
+    kind: 'option',
+    id,
+    label: PROVIDER_DEFAULTS[id].label,
+  }));
+
+  const changeProvider = (next: LlmProvider) => {
+    setProvider(next);
+    if (!modelDirty) setModel(PROVIDER_DEFAULTS[next].model);
+  };
+
+  const trimmedKey = apiKey.trim();
+  const canSave = trimmedKey.length > 0 && model.trim().length > 0;
+
+  const save = () => {
+    if (!canSave) return;
+    onSave({ provider, apiKey: trimmedKey, model: model.trim() });
+  };
+
+  return (
+    <div className={styles.settings}>
+      <p className={`rc-body-sm ${styles.settingsIntro}`}>
+        Use your own LLM for live answers. Pick a provider, paste an API key, and pick a model.
+      </p>
+
+      <Select
+        label="Provider"
+        options={providerOptions}
+        value={provider}
+        onValueChange={(value) => changeProvider(value as LlmProvider)}
+        showHelperText={false}
+      />
+
+      <Input
+        label="API key"
+        type="password"
+        placeholder={provider === 'anthropic' ? 'sk-ant-…' : 'sk-…'}
+        value={apiKey}
+        autoComplete="off"
+        showHelperText={false}
+        onChange={(event) => setApiKey(event.target.value)}
+      />
+
+      <Input
+        label="Model"
+        placeholder={PROVIDER_DEFAULTS[provider].model}
+        value={model}
+        showHelperText
+        helperText={`Default: ${PROVIDER_DEFAULTS[provider].model}`}
+        onChange={(event) => {
+          setModel(event.target.value);
+          setModelDirty(true);
+        }}
+      />
+
+      <p className={`rc-body-xs ${styles.settingsReassure}`}>
+        <Icon name="lock" size={14} tone="tertiary" />
+        Your key is stored only in this browser and sent directly to the provider — never to our
+        servers.
+      </p>
+
+      <div className={styles.settingsActions}>
+        <Button variant="ai" size="sm" onClick={save} disabled={!canSave}>
+          Save &amp; connect
+        </Button>
+        {existing ? (
+          <Button variant="tertiary" size="sm" onClick={onClear}>
+            Disconnect
+          </Button>
+        ) : null}
+      </div>
+    </div>
   );
 }
 

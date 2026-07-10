@@ -1,0 +1,34 @@
+---
+description: Stable Figma MCP connectivity — avoid expiring PAT tokens in chat
+alwaysApply: true
+---
+
+# Figma MCP — stable connection
+
+## Account (required)
+
+Use **only** `monika.nowak@fluxon.com` (Fluxon team). Before Figma MCP calls, confirm `whoami` returns that email. If any server shows a different account, do not use it — ask the user to re-authenticate that server in Cursor → Settings → MCP.
+
+Use this order when reading or writing Figma:
+
+1. **`plugin-figma-figma`** (official Figma plugin MCP) — primary. OAuth/session via Figma desktop plugin. No Personal Access Token in chat or shell.
+2. **`figma-desktop`** (`http://127.0.0.1:3845/mcp`) — fallback when Figma Desktop is open.
+3. **`figma`** (`https://mcp.figma.com/mcp`) — remote OAuth MCP; authenticate once in Cursor Settings → MCP → Connect.
+
+## Do not
+
+- Paste `figd_…` tokens into chat or shell commands.
+- Use `figma-developer-mcp` with a hardcoded `--figma-api-key` in `~/.cursor/mcp.json`.
+- Fall back to raw Figma REST API in shell unless both MCP paths failed and the user explicitly provides a token for a one-off fix.
+
+## If Figma calls fail
+
+1. Confirm Figma Desktop is running and the Cursor/Figma plugin is connected.
+2. In Cursor → **Settings → MCP**, check green status for `figma` and `plugin-figma-figma`.
+3. For `figma` HTTP server: click **Connect / Authenticate** (OAuth), not regenerate PAT.
+4. For file access errors: open the target file in Figma and ensure the logged-in account has at least view access.
+
+## DS file keys (this project)
+
+- Design System: `bAfW17PaIBzJodq0a6DXXQ`
+- RC-Designs (PoC): `8uDaglpwUCFXkewyfpYWu5`

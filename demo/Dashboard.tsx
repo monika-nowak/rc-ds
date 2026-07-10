@@ -154,7 +154,11 @@ export function ReportHeader({
         <div className={styles.headerStart}>
           <Logo className={styles.logo} />
           <Divider orientation="vertical" className={styles.headerDivider} />
-          <Breadcrumbs leading={{ prefix: 'G' }} items={breadcrumbItems} />
+          <Breadcrumbs
+            className={styles.reportBreadcrumb}
+            leading={{ prefix: 'G' }}
+            items={breadcrumbItems}
+          />
         </div>
       }
       end={

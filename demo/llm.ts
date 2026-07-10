@@ -1,43 +1,23 @@
 import type { ChatScope } from './Dashboard';
 import { answerFromRaw, type Answer, type RawAnswer } from './aiEngine';
 import { RECORDS, STATS, TRENDS } from './data';
+import { loadLlmConfig, PROVIDER_DEFAULTS, type LlmConfig } from './llmSettings';
 
 /**
  * Optional live-LLM backend for the chat. The prototype ships with a
- * deterministic mock engine (aiEngine.ts); when an API key is configured via
- * `.env.local` this module lets the same UI render real, unpredictable answers
- * so we can stress-test the design.
+ * deterministic mock engine (aiEngine.ts); when the visitor configures their
+ * own provider + API key in the chat settings ("Bring Your Own Key"), this
+ * module renders real, unpredictable answers so we can stress-test the design.
  *
- * Config (Vite env, all optional except the key):
- *   VITE_LLM_API_KEY   — provider key (required to enable live mode)
- *   VITE_LLM_PROVIDER  — 'openai' (default) | 'anthropic'
- *   VITE_LLM_MODEL     — model id (sensible per-provider default otherwise)
- *   VITE_LLM_BASE_URL  — override for OpenAI-compatible gateways
+ * The key/provider/model come from `loadLlmConfig()` (localStorage, per-browser)
+ * — NOT from build-time env — and the browser calls the provider DIRECTLY. No
+ * key ever reaches our servers or the build. If no key is configured the caller
+ * falls back to the built-in demo engine.
  */
 
-type Provider = 'openai' | 'anthropic';
-
-const API_KEY = import.meta.env.VITE_LLM_API_KEY as string | undefined;
-const PROVIDER = ((import.meta.env.VITE_LLM_PROVIDER as string | undefined) ?? 'openai') as Provider;
-const MODEL =
-  (import.meta.env.VITE_LLM_MODEL as string | undefined) ??
-  (PROVIDER === 'anthropic' ? 'claude-3-5-haiku-latest' : 'gpt-4o-mini');
-const BASE_URL = (
-  (import.meta.env.VITE_LLM_BASE_URL as string | undefined) ?? 'https://api.openai.com/v1'
-).replace(/\/+$/, '');
-
-// Google's Gemini OpenAI-compatible layer rejects some OpenAI-only fields
-// (e.g. response_format), so detect it to keep the request minimal.
-const IS_GEMINI = /generativelanguage\.googleapis\.com/.test(BASE_URL);
-
-// In production the key must never reach the client bundle, so we route
-// through the /api/chat serverless proxy (which holds the key server-side).
-// Locally (`npm run app`) there is no serverless runtime, so we call the
-// provider directly with the key from `.env.local`.
-const USE_PROXY = import.meta.env.PROD;
-
 export function llmConfigured(): boolean {
-  return USE_PROXY || (typeof API_KEY === 'string' && API_KEY.trim().length > 0);
+  const config = loadLlmConfig();
+  return Boolean(config && config.apiKey.trim().length > 0);
 }
 
 export interface ChatTurn {
@@ -126,53 +106,55 @@ function extractJson(text: string): RawAnswer {
   return JSON.parse(body) as RawAnswer;
 }
 
-async function callOpenAI(system: string, turns: ChatTurn[]): Promise<string> {
-  const response = await fetch(`${BASE_URL}/chat/completions`, {
+// Note on `temperature`: the current default models (claude-sonnet-5 and the
+// GPT-5.x reasoning family) reject non-default sampling params, so we omit
+// `temperature` entirely to keep the prefilled defaults working. Users can
+// still switch to older models via the editable model field.
+
+// OpenAI-compatible chat/completions (used for both OpenAI and Gemini). Gemini's
+// compat layer rejects some OpenAI-only fields (e.g. response_format), so we
+// only send response_format for OpenAI.
+async function callOpenAICompatible(
+  config: LlmConfig,
+  system: string,
+  turns: ChatTurn[],
+): Promise<string> {
+  const endpoint = PROVIDER_DEFAULTS[config.provider].endpoint;
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${API_KEY}`,
+      Authorization: `Bearer ${config.apiKey}`,
     },
     body: JSON.stringify({
-      model: MODEL,
-      temperature: 0.5,
-      ...(IS_GEMINI ? {} : { response_format: { type: 'json_object' } }),
+      model: config.model,
+      ...(config.provider === 'gemini' ? {} : { response_format: { type: 'json_object' } }),
       messages: [{ role: 'system', content: system }, ...turns],
     }),
   });
   if (!response.ok) {
-    throw new Error(`OpenAI request failed (${response.status}): ${await response.text()}`);
+    throw new Error(`${config.provider} request failed (${response.status}): ${await response.text()}`);
   }
   const data = await response.json();
   return data.choices?.[0]?.message?.content ?? '';
 }
 
-async function callProxy(system: string, turns: ChatTurn[]): Promise<string> {
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system, turns }),
-  });
-  if (!response.ok) {
-    throw new Error(`Chat request failed (${response.status}): ${await response.text()}`);
-  }
-  const data = await response.json();
-  return data.content ?? '';
-}
-
-async function callAnthropic(system: string, turns: ChatTurn[]): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+async function callAnthropic(
+  config: LlmConfig,
+  system: string,
+  turns: ChatTurn[],
+): Promise<string> {
+  const response = await fetch(PROVIDER_DEFAULTS.anthropic.endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': API_KEY as string,
+      'x-api-key': config.apiKey,
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: config.model,
       max_tokens: 1024,
-      temperature: 0.5,
       system,
       messages: turns,
     }),
@@ -205,13 +187,14 @@ export async function generateAnswer(params: {
   const trimmedHistory = history.slice(-6);
   const turns: ChatTurn[] = [...trimmedHistory, { role: 'user', content: question }];
 
-  let raw: string;
-  if (USE_PROXY) {
-    raw = await callProxy(system, turns);
-  } else if (PROVIDER === 'anthropic') {
-    raw = await callAnthropic(system, turns);
-  } else {
-    raw = await callOpenAI(system, turns);
+  const config = loadLlmConfig();
+  if (!config || config.apiKey.trim().length === 0) {
+    throw new Error('No LLM key configured. Add one in the chat settings to use live answers.');
   }
+
+  const raw =
+    config.provider === 'anthropic'
+      ? await callAnthropic(config, system, turns)
+      : await callOpenAICompatible(config, system, turns);
   return answerFromRaw(extractJson(raw), scope);
 }

@@ -64,10 +64,13 @@
 }
 
 .headerDivider {
-  /* Full-height separator: negative block margin cancels the header's 8px
-     vertical padding so the line spans the entire 56px nav, matching Figma. */
+  /* Full-height separator spanning the entire 56px nav (edge to edge). The
+     header is 56px with 8px vertical padding and centers its 24px start row, so
+     stretching the divider and pulling 16px of negative block margin extends it
+     past the padding to both nav edges, matching Figma. */
   align-self: stretch;
-  margin: calc(-1 * var(--rc-spacing-2)) var(--rc-spacing-2);
+  margin-block: calc(-1 * var(--rc-spacing-4));
+  margin-inline: var(--rc-spacing-2);
 }
 
 .headerEnd {
@@ -78,6 +81,14 @@
 
 .avatarBlue {
   background: var(--rc-blue-500);
+}
+
+/* The report's client badge uses the blue "info" accent (#4500F9 / blue-500),
+   matching the user avatar — not the breadcrumb's default brand-purple. Re-point
+   the brand token for this trail so the DS selector prefix inherits it, without
+   touching the shared DS component (whose purple default is intentional). */
+.reportBreadcrumb {
+  --rc-background-brand: var(--rc-blue-500);
 }
 
 /* ---- Hero ---- */
@@ -1127,6 +1138,70 @@
   border-color: transparent;
   background: var(--rc-purple-100, #f6eaff);
   color: var(--rc-purple-700, #4b2b8f);
+}
+
+/* "Connect LLM" pill shown in the header when no BYOK key is configured yet. */
+.connectPill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--rc-spacing-2);
+  border: 1px dashed var(--rc-border-ai, #b892fb);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-blank);
+  color: var(--rc-text-ai, #6b2fd6);
+  cursor: pointer;
+}
+
+/* ---- BYOK LLM settings (inside the chat panel) ---- */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.settingsIntro {
+  color: var(--rc-text-tertiary);
+}
+
+/* Let the DS Input/Select fill the panel width (they cap at 280px by default). */
+.settings > div {
+  max-width: none;
+}
+
+.settingsReassure {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-1);
+  color: var(--rc-text-tertiary);
+}
+
+.settingsActions {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  margin-top: var(--rc-spacing-1);
+}
+
+/* ---- Empty-state connect entry point ---- */
+.emptyConnect {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--rc-spacing-3);
+}
+
+.emptyConnectNote {
+  color: var(--rc-text-tertiary);
+}
+
+.inlineLink {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--rc-text-ai, #6b2fd6);
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
 }
 
 /* Quoted context chip rendered inside the composer frame, above the text row:

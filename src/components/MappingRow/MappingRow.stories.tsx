@@ -81,13 +81,13 @@ export const AllStates: Story = {
   ),
 };
 
-export const ValidationMissing: Story = {
-  name: 'Validation — Missing',
+export const ValidationRow: Story = {
+  name: 'Validation Row',
   parameters: {
     docs: {
       description: {
         story:
-          'Validation variant (matches the Figma "upload-error" screen): gray chip, arrow, error-tone status badge, and message.',
+          'Single validation row — change `sourceField`, `status.label`, and `message` for each issue. Layout and error styling stay the same.',
       },
     },
   },
@@ -95,34 +95,17 @@ export const ValidationMissing: Story = {
     variant: 'validation',
     sourceField: 'HCP Name',
     status: { label: 'Missing', tone: 'error' },
-    message: 'Add a column named HCP Name to your file.',
-  },
-};
-
-export const ValidationWrongName: Story = {
-  name: 'Validation — Wrong name',
-  parameters: {
-    docs: {
-      description: {
-        story: 'Validation variant used when a column exists but is named incorrectly.',
-      },
-    },
-  },
-  args: {
-    variant: 'validation',
-    sourceField: 'MSL Name',
-    status: { label: 'Wrong name', tone: 'error' },
-    message: 'Found CSL instead. Rename the column to MSL Name.',
+    message: 'No value found in this column for the uploaded file.',
   },
 };
 
 export const ValidationContext: Story = {
-  name: 'Validation context',
+  name: 'Validation Context',
   parameters: {
     docs: {
       description: {
         story:
-          'Related validation rows wrapped in `MappingRowGroup` with `context`, rendering the amber "Validation Context" panel from Figma. Rows still align into clean columns via subgrid.',
+          'Related validation rows wrapped in `MappingRowGroup` with `context`, rendering the error-tinted "Validation Context" panel from Figma. Each row is the same component with different text props.',
       },
     },
   },
@@ -130,7 +113,7 @@ export const ValidationContext: Story = {
     variant: 'validation',
     sourceField: 'HCP Name',
     status: { label: 'Missing', tone: 'error' },
-    message: 'Add a column named HCP Name to your file.',
+    message: 'No value found in this column for the uploaded file.',
   },
   render: () => (
     <MappingRowGroup context>
@@ -138,13 +121,13 @@ export const ValidationContext: Story = {
         variant="validation"
         sourceField="HCP Name"
         status={{ label: 'Missing', tone: 'error' }}
-        message="Add a column named HCP Name to your file."
+        message="No value found in this column for the uploaded file."
       />
       <MappingRow
         variant="validation"
-        sourceField="MSL Name"
+        sourceField="HCP Name"
         status={{ label: 'Wrong name', tone: 'error' }}
-        message="Found CSL instead. Rename the column to MSL Name."
+        message="Expected HCP Name but found Question in your file."
       />
     </MappingRowGroup>
   ),

@@ -10,8 +10,8 @@ export interface MappingRowGroupProps {
    */
   children: ReactNode;
   /**
-   * Wrap the rows in an amber-tinted "Validation Context" panel for a set of
-   * related issues that need attention (matches the Figma component).
+   * Wrap the rows in an error-tinted "Validation Context" panel for a set of
+   * related issues (matches the Figma component).
    */
   context?: boolean;
   className?: string;
@@ -22,7 +22,7 @@ export interface MappingRowGroupProps {
  * `[ chip ] [ arrow ] [ status badge ] [ message ]`. Chips share the widest
  * chip's width, badges share the widest badge's track (and stretch to fill it so
  * they are all equal width), and messages start at the same x across rows. Set
- * `context` to wrap them in the amber "Validation Context" panel.
+ * `context` to wrap them in the error "Validation Context" panel.
  */
 export function MappingRowGroup({ children, context = false, className }: MappingRowGroupProps) {
   return (

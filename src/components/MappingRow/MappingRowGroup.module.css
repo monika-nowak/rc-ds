@@ -8,11 +8,11 @@
   width: 100%;
 }
 
-/* "Validation Context" — an amber-tinted panel that groups related rows
-   needing attention (matches the Figma "Validation Context" container). */
+/* "Validation Context" — error-tinted panel that groups related validation rows
+   (matches the Figma "Validation Context" container). */
 .context {
   padding: var(--rc-spacing-4);
-  border: 1px solid var(--rc-border-support-warning);
+  border: 1px solid var(--rc-border-support-error);
   border-radius: var(--rc-radius-lg);
-  background: var(--rc-background-support-warning);
+  background: var(--rc-background-support-error);
 }
