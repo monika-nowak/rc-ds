@@ -2253,6 +2253,8 @@ button.citationTag:hover {
 .signalHero {
   /* 56px nav overlap + 64px so the visual top space equals the 64px bottom. */
   padding-block: 120px 64px;
+  /* Same page padding as .signalMain so hero + group share one centering rail. */
+  padding-inline: var(--rc-page-px, 96px);
   background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
@@ -2261,11 +2263,11 @@ button.citationTag:hover {
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-6);
-  /* Align with the left edge of the centered Strength + content group. */
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - (335px + 64px + var(--rc-content-max, 1000px))) / 2)
-  );
+  /* Same measure as .signalMainInner so hero left edge matches Strength. */
+  box-sizing: border-box;
+  width: min(100%, calc(335px + 64px + var(--rc-content-max, 1000px)));
+  max-width: calc(335px + 64px + var(--rc-content-max, 1000px));
+  margin-inline: auto;
 }
 
 .signalKicker {
@@ -2284,16 +2286,23 @@ button.citationTag:hover {
   gap: var(--rc-spacing-2);
 }
 
+/* Outer shell: page padding + centers the Strength + content group. */
 .signalMain {
   display: flex;
+  justify-content: center;
+  padding-block: 0 96px;
+  padding-inline: var(--rc-page-px, 96px);
+}
+
+/* Inner row: Strength LEFT + content RIGHT, capped as one centered unit. */
+.signalMainInner {
+  display: flex;
+  flex-direction: row;
   align-items: flex-start;
   gap: 64px;
-  padding-block: 0 96px;
-  /* Center Strength (335) + gap (64) + content-max (1000) as one group. */
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - (335px + 64px + var(--rc-content-max, 1000px))) / 2)
-  );
+  box-sizing: border-box;
+  width: min(100%, calc(335px + 64px + var(--rc-content-max, 1000px)));
+  max-width: calc(335px + 64px + var(--rc-content-max, 1000px));
 }
 
 .scoringCol {
@@ -2322,10 +2331,6 @@ button.citationTag:hover {
    Keep its content measure aligned with the dashboard's 1000px column. */
 .trendMain {
   flex-direction: column;
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - var(--rc-content-max, 1200px)) / 2)
-  );
 }
 
 .trendMain .signalContent {
@@ -2333,16 +2338,15 @@ button.citationTag:hover {
   max-width: var(--rc-content-max, 1000px);
 }
 
-/* Stack the scoring card above the content when the left column is narrow —
-   e.g. on smaller screens, or when the chat sidebar opens and squeezes it.
-   Kicks in early enough that the content beside the 335px card never gets
-   cramped (e.g. stat cards wrapping to a tight 2×2). */
-@container main (max-width: 1100px) {
+/* Stack only when the main column cannot fit Strength + a usable content rail.
+   Previous 1100px threshold stacked too early (chat open / mid desktop). */
+@container main (max-width: 720px) {
   .signalMain {
+    padding-block: 48px 96px;
+  }
+  .signalMainInner {
     flex-direction: column;
     gap: 32px;
-    /* One source of top spacing below the hero; columns reset their own. */
-    padding-block: 48px 96px;
   }
   .scoringCol {
     flex: 1 1 auto;

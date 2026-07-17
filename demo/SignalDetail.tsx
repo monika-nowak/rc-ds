@@ -290,152 +290,154 @@ export function SignalDetail({
       </section>
 
       <div className={styles.signalMain}>
-        <aside className={styles.scoringCol}>
-          <ScoringCard signal={signal} />
-        </aside>
+        <div className={styles.signalMainInner}>
+          <aside className={styles.scoringCol}>
+            <ScoringCard signal={signal} />
+          </aside>
 
-        <div className={styles.signalContent}>
-          <div className={styles.signalStatGrid}>
-            {stats.map((stat) => (
-              <SignalStatCard key={stat.emphasis} stat={stat} />
-            ))}
-          </div>
-
-          <div className={styles.sectionRow}>
-            <section className={styles.signalSection}>
-              <SectionHeader
-                icon={<ClipboardText size={16} weight="regular" />}
-                title="What HCPs Report"
-                boxed
-              />
-              <p className={`rc-body-md ${styles.sectionBody}`}>{signal.report}</p>
-            </section>
-
-            <section className={styles.signalSection}>
-              <SectionHeader
-                icon={<ChartLine size={16} weight="regular" />}
-                title="Interpretation"
-                boxed
-              />
-              <p className={`rc-body-md ${styles.sectionBody}`}>{signal.description}</p>
-            </section>
-          </div>
-
-          <section className={styles.signalSection}>
-            <SectionHeader
-              icon={<Target size={16} weight="regular" />}
-              title="Strategic Relevance"
-              boxed
-            />
-            <div className={styles.relevanceList}>
-              {splitSoWhat(signal.soWhat).map((point, i) => (
-                <div className={styles.relevanceItem} key={i}>
-                  <Badge appearance="subtle" color="lightPurple">
-                    {i + 1}
-                  </Badge>
-                  <p className={`rc-body-md ${styles.relevanceText}`}>{point}</p>
-                </div>
+          <div className={styles.signalContent}>
+            <div className={styles.signalStatGrid}>
+              {stats.map((stat) => (
+                <SignalStatCard key={stat.emphasis} stat={stat} />
               ))}
             </div>
-          </section>
 
-          {proof ? (
-            <section className={`${styles.signalSection} ${styles.signalProofSection}`}>
+            <div className={styles.sectionRow}>
+              <section className={styles.signalSection}>
+                <SectionHeader
+                  icon={<ClipboardText size={16} weight="regular" />}
+                  title="What HCPs Report"
+                  boxed
+                />
+                <p className={`rc-body-md ${styles.sectionBody}`}>{signal.report}</p>
+              </section>
+
+              <section className={styles.signalSection}>
+                <SectionHeader
+                  icon={<ChartLine size={16} weight="regular" />}
+                  title="Interpretation"
+                  boxed
+                />
+                <p className={`rc-body-md ${styles.sectionBody}`}>{signal.description}</p>
+              </section>
+            </div>
+
+            <section className={styles.signalSection}>
               <SectionHeader
-                icon={<CellSignalFull size={16} weight="regular" />}
-                title="Signal proofs"
+                icon={<Target size={16} weight="regular" />}
+                title="Strategic Relevance"
                 boxed
               />
-              {proofPattern === 'A3' ? (
-                <Card layout="stacked" density="roomy" elevated={false}>
-                  <ProofChart
-                    type={proofPattern}
-                    scope={proofScope}
-                    embedded
-                    embeddedCaption={THEME_BAR_SUBTITLE}
-                    embeddedTitle={false}
-                  />
-                </Card>
-              ) : (
-                <ProofChart type={proofPattern} scope={proofScope} showHeader />
-              )}
-              <div className={`${styles.proofCard} ${styles.signalProofCard}`}>
-                <p className={styles.proofQuote}>{proof.quote}</p>
-                <div className={styles.proofMeta}>
-                  <button
-                    type="button"
-                    className={styles.recordRefButton}
-                    onClick={() => onOpenRecord(proof)}
-                  >
-                    <Badge appearance="subtle" color="info">
-                      Record {proof.id}
+              <div className={styles.relevanceList}>
+                {splitSoWhat(signal.soWhat).map((point, i) => (
+                  <div className={styles.relevanceItem} key={i}>
+                    <Badge appearance="subtle" color="lightPurple">
+                      {i + 1}
                     </Badge>
-                  </button>
-                  <span className={styles.proofMetaDivider} />
-                  <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.specialty}</span>
-                  <span className={styles.proofMetaDivider} />
-                  <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.institution}</span>
-                  <span className={styles.proofMetaDivider} />
-                  <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.date}</span>
-                </div>
+                    <p className={`rc-body-md ${styles.relevanceText}`}>{point}</p>
+                  </div>
+                ))}
               </div>
             </section>
-          ) : null}
 
-          <div className={styles.recordsBlock}>
-            <SectionHeader
-              icon={<Database size={16} weight="regular" />}
-              title="Records in this signal"
-              boxed
-            />
-            <span className={`rc-body-sm ${styles.recordsCount}`}>
-              Showing {visibleRecords.length} of {recordTotal} records
-            </span>
-            <div className={styles.recordsTableWrap}>
-              <div className={`${styles.recordsTableHead} ${styles.recordsTableColumns}`}>
-                <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Record ID</span>
-                <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Verbatim</span>
-                <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Date</span>
-                <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Institution type</span>
-                <span className={`rc-body-sm ${styles.recordsHeadCell}`}>HCP Specialty</span>
-              </div>
-              {visibleRecords.map((record) => (
-                <button
-                  key={record.id}
-                  type="button"
-                  className={`${styles.recordsTableRow} ${styles.recordsTableColumns} ${styles.recordsTableRowButton}`}
-                  onClick={() => onOpenRecord(record)}
-                >
-                  <span className={`rc-label-md ${styles.recordsCell} ${styles.recordsCellId}`}>
-                    {record.id}
-                  </span>
-                  <span className={`rc-body-sm ${styles.recordsCell}`}>
-                    <span className={styles.recordsCellVerbatim}>{record.quote}</span>
-                  </span>
-                  <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
-                    {record.date}
-                  </span>
-                  <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
-                    {record.institution}
-                  </span>
-                  <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
-                    {record.specialty}
-                  </span>
-                </button>
-              ))}
-            </div>
-            {hasMore ? (
-              <div className={styles.recordsMore}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className={styles.showAll}
-                  onClick={() => setVisibleCount((count) => count + RECORDS_PAGE)}
-                >
-                  Show more records
-                </Button>
-              </div>
+            {proof ? (
+              <section className={`${styles.signalSection} ${styles.signalProofSection}`}>
+                <SectionHeader
+                  icon={<CellSignalFull size={16} weight="regular" />}
+                  title="Signal proofs"
+                  boxed
+                />
+                {proofPattern === 'A3' ? (
+                  <Card layout="stacked" density="roomy" elevated={false}>
+                    <ProofChart
+                      type={proofPattern}
+                      scope={proofScope}
+                      embedded
+                      embeddedCaption={THEME_BAR_SUBTITLE}
+                      embeddedTitle={false}
+                    />
+                  </Card>
+                ) : (
+                  <ProofChart type={proofPattern} scope={proofScope} showHeader />
+                )}
+                <div className={`${styles.proofCard} ${styles.signalProofCard}`}>
+                  <p className={styles.proofQuote}>{proof.quote}</p>
+                  <div className={styles.proofMeta}>
+                    <button
+                      type="button"
+                      className={styles.recordRefButton}
+                      onClick={() => onOpenRecord(proof)}
+                    >
+                      <Badge appearance="subtle" color="info">
+                        Record {proof.id}
+                      </Badge>
+                    </button>
+                    <span className={styles.proofMetaDivider} />
+                    <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.specialty}</span>
+                    <span className={styles.proofMetaDivider} />
+                    <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.institution}</span>
+                    <span className={styles.proofMetaDivider} />
+                    <span className={`rc-body-xs ${styles.proofMetaText}`}>{proof.date}</span>
+                  </div>
+                </div>
+              </section>
             ) : null}
+
+            <div className={styles.recordsBlock}>
+              <SectionHeader
+                icon={<Database size={16} weight="regular" />}
+                title="Records in this signal"
+                boxed
+              />
+              <span className={`rc-body-sm ${styles.recordsCount}`}>
+                Showing {visibleRecords.length} of {recordTotal} records
+              </span>
+              <div className={styles.recordsTableWrap}>
+                <div className={`${styles.recordsTableHead} ${styles.recordsTableColumns}`}>
+                  <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Record ID</span>
+                  <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Verbatim</span>
+                  <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Date</span>
+                  <span className={`rc-body-sm ${styles.recordsHeadCell}`}>Institution type</span>
+                  <span className={`rc-body-sm ${styles.recordsHeadCell}`}>HCP Specialty</span>
+                </div>
+                {visibleRecords.map((record) => (
+                  <button
+                    key={record.id}
+                    type="button"
+                    className={`${styles.recordsTableRow} ${styles.recordsTableColumns} ${styles.recordsTableRowButton}`}
+                    onClick={() => onOpenRecord(record)}
+                  >
+                    <span className={`rc-label-md ${styles.recordsCell} ${styles.recordsCellId}`}>
+                      {record.id}
+                    </span>
+                    <span className={`rc-body-sm ${styles.recordsCell}`}>
+                      <span className={styles.recordsCellVerbatim}>{record.quote}</span>
+                    </span>
+                    <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
+                      {record.date}
+                    </span>
+                    <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
+                      {record.institution}
+                    </span>
+                    <span className={`rc-body-sm ${styles.recordsCell} ${styles.recordsCellMuted}`}>
+                      {record.specialty}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {hasMore ? (
+                <div className={styles.recordsMore}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className={styles.showAll}
+                    onClick={() => setVisibleCount((count) => count + RECORDS_PAGE)}
+                  >
+                    Show more records
+                  </Button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
