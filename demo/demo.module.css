@@ -2365,7 +2365,13 @@ button.citationTag:hover {
    tighter 64px inset — no 1000px cap or centering gap that would leave an
    empty right band. */
 @container main (max-width: 1100px) {
-  .signalHero {
+  /* Global reduced page inset: dashboard (.page), trend + signal (.signalPage)
+     all derive padding from --rc-page-px via the centering formula, so dropping
+     it here tightens margins to 64px on every page when the main area is narrow
+     (e.g. chat open). Set on the page roots because a container query cannot
+     restyle its own container element (.appMain). */
+  .page,
+  .signalPage {
     --rc-page-px: 64px;
   }
   .signalHeroInner {
@@ -2373,7 +2379,6 @@ button.citationTag:hover {
     max-width: none;
   }
   .signalMain {
-    --rc-page-px: 64px;
     padding-block: 48px 96px;
   }
   .signalMainInner {
