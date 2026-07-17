@@ -64,8 +64,8 @@ function SignalStatCard({ stat }: { stat: SignalStat }) {
           <div className={styles.statText}>
             <span className="rc-heading-h6">{stat.value}</span>
             <span className="rc-body-sm">
-              <strong style={{ color: 'var(--rc-text-primary)' }}>{stat.emphasis}</strong>{' '}
-              <span style={{ color: 'var(--rc-text-secondary)' }}>{stat.label}</span>
+              <strong className={styles.statLabelEmphasis}>{stat.emphasis}</strong>
+              <span className={styles.statLabelSecondary}>{stat.label}</span>
             </span>
           </div>
         </div>

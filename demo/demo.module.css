@@ -536,6 +536,19 @@
   min-width: 0;
 }
 
+.statLabelEmphasis,
+.statLabelSecondary {
+  display: block;
+}
+
+.statLabelEmphasis {
+  color: var(--rc-text-primary);
+}
+
+.statLabelSecondary {
+  color: var(--rc-text-secondary);
+}
+
 .showAll {
   align-self: flex-start;
 }
