@@ -105,7 +105,6 @@ export function App() {
     saveDashboardScrollPosition();
     setActiveSignal(signal);
     setActiveTrend(null);
-    setChatOpen(false);
     setActiveRecord(null);
   };
 
@@ -113,7 +112,6 @@ export function App() {
     saveDashboardScrollPosition();
     setActiveTrend(trend);
     setActiveSignal(null);
-    setChatOpen(false);
     setActiveRecord(null);
   };
 
