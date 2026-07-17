@@ -1,0 +1,82 @@
+---
+description: Locked layout conventions for the demo pages (dashboard, signal, trend). Do NOT change these unless the user explicitly asks.
+globs:
+  - demo/**
+alwaysApply: false
+---
+
+# Demo layout rules (LOCKED — do not "improve" on your own)
+
+These layout decisions were dialed in with the user across many iterations. They
+are correct as-is. Do NOT refactor, "clean up", or change any of the values
+below unless the user explicitly asks for that specific change. When a task
+touches these areas, preserve them exactly.
+
+## Shared tokens (`.appMain` in `demo/demo.module.css`)
+
+- `--rc-page-px: 96px` — horizontal page padding at full width.
+- `--rc-content-max: 1000px` — content column cap. Dashboard, Trend, and the
+  Signal right column all use this. Do NOT change to 1040/1200/etc.
+- `.appMain` is a CSS container: `container: main / inline-size`. Layouts react
+  to the **main-area width** (which shrinks when the Ask AI chat docks), not the
+  viewport. Always use `@container main (...)`, never `@media`, for these.
+
+## Content width parity
+
+- Dashboard, Trend detail, and the Signal **right column** share the same
+  `--rc-content-max` (1000px) reading measure. Keep them in sync.
+- Header/hero text must align horizontally with the content column below it
+  using the centering formula:
+  `padding-inline: max(var(--rc-page-px), calc((100% - var(--rc-content-max)) / 2))`.
+
+## Signal detail (two-column: Strength + content)
+
+- Wide / chat closed: **Strength sidebar LEFT (335px) + content RIGHT**, capped
+  as one centered group:
+  `width: min(100%, calc(335px + 64px + var(--rc-content-max)))` with
+  `margin-inline: auto`. `.scoringCol` is `flex: 0 0 335px` and sticky
+  (`top: 40px`). `.signalContent` is `flex: 1 1 0; max-width: --rc-content-max`.
+- The `.signalHeroInner` uses the **same** measure so the hero left edge lines up
+  with Strength.
+- Narrow (chat open) — `@container main (max-width: 1100px)`:
+  - Reduce page padding to **64px** (`--rc-page-px: 64px`) on hero + main.
+  - **Stack**: Signal Strength goes full-width ON TOP of the content
+    (`.signalMainInner { flex-direction: column }`, `.scoringCol` static
+    full-width), content fills the whole main area
+    (`max-width: none`, no 1000px cap / no centering gap → no empty right band).
+  - Stat grid collapses via its own `@container main (max-width: 900px)`.
+- Do NOT: keep the 1000px cap in the stacked state, left-hug the content, or
+  raise/lower the 1100px stack breakpoint without being asked.
+
+## Trend detail
+
+- Single column (no Strength rail). `.trendMain` centers its content at
+  `--rc-content-max` (1000px). Hero follows the dashboard full-bleed background +
+  centered content-column pattern.
+
+## Ask AI chat panel
+
+- Chat stays open across navigation (dashboard ↔ signal ↔ trend). It closes
+  ONLY via the user's X button. Do NOT re-add `setChatOpen(false)` in
+  `openSignal` / `openTrend` handlers in `demo/App.tsx`.
+
+## Dashboard
+
+- Section headers (Key trends, Notable signals, ProjectProof) use a 32×32
+  neutral FeaturedIcon box with a **primary-colored** 16px glyph + divider.
+  Icons imported **directly from Phosphor** (e.g. `ChartLine`, `CellSignalFull`) —
+  the curated `<Icon name>` map is missing some names and renders empty boxes.
+- Section rhythm: 48px header → first item; 24px item → card; 48px between
+  trend groups; 24px header → cards for Notable signals / ProjectProof.
+- `ProjectProof` lives on the dashboard after the stat cards, before Key trends.
+
+## Charts
+
+- Single-series proof/theme bars use
+  `var(--rc-background-accent-light-purple-strong)` (`#cd83ff`) everywhere
+  (dashboard + detail pages). Bars are **square** (`border-radius: 0`) — no pills.
+- Theme labels display sentence-case via `formatThemeLabel` (slugs stay
+  lowercase as keys). Academic/Community share charts keep their own semantic
+  segment colors.
+- Proof section header (e.g. "Signal proofs") sits OUTSIDE the card; the in-card
+  heading is the chart subtitle (e.g. "Records per theme").
