@@ -18,7 +18,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Column mapping row for the upload pipeline. Unmapped rows use error borders; the arrow connector and placeholder chevron use `icon/tertiary` for subtle decorative emphasis.',
+          'Column mapping row for the upload pipeline. Field labels, status badges, and match indicators compose existing `Badge` and `Icon` primitives; this component owns layout only.',
       },
     },
   },
@@ -79,6 +79,45 @@ export const AllStates: Story = {
       />
     </div>
   ),
+};
+
+export const MappingReview: Story = {
+  name: 'Mapping review',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Review screen mixing resolved mappings (`variant="resolved"`) with validation issues (`variant="validation"`) in a flat list. Resolved rows show the mapped target and match percentage; validation rows show the status pill and helper message.',
+      },
+    },
+  },
+  render: () => (
+    <MappingRowGroup layout="list">
+      <MappingRow variant="resolved" sourceField="Call date" targetField="Timestamp" matchPercent={100} />
+      <MappingRow variant="resolved" sourceField="MSL Name" targetField="MSL" matchPercent={100} />
+      <MappingRow
+        variant="validation"
+        sourceField="HCP Name"
+        status={{ label: 'Missing', tone: 'error' }}
+        message={
+          <>
+            Add a column named <strong>HCP Name</strong> to your file.
+          </>
+        }
+      />
+      <MappingRow variant="resolved" sourceField="HCP Name" targetField="HCP" matchPercent={100} />
+    </MappingRowGroup>
+  ),
+};
+
+export const ResolvedRow: Story = {
+  name: 'Resolved',
+  args: {
+    variant: 'resolved',
+    sourceField: 'Call date',
+    targetField: 'Timestamp',
+    matchPercent: 100,
+  },
 };
 
 export const ValidationRow: Story = {

@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Icon } from '../src/icons';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Dashboard, ReportHeader, type ChatScope } from './Dashboard';
 import { SignalDetail } from './SignalDetail';
+import { TrendDetail } from './TrendDetail';
 import { AskAiPanel } from './AskAiPanel';
 import { RecordDetailPanel } from './RecordDetailPanel';
 import { SelectionAsk } from './SelectionAsk';
-import { findSignal, type RecordEntry, type Signal } from './data';
+import { SparkleGlyph } from './SparkleGlyph';
+import { findSignal, findTrend, type RecordEntry, type Signal, type Trend } from './data';
 import { loadSession, saveSession } from './history';
 import styles from './demo.module.css';
 
@@ -23,9 +24,15 @@ export function App() {
   const [chatOpen, setChatOpen] = useState(initialSession?.chatOpen ?? false);
   const [expanded, setExpanded] = useState(initialSession?.expanded ?? false);
   const [scope, setScope] = useState<ChatScope>(initialSession?.scope ?? DEFAULT_SCOPE);
+  const [dashboardScrollY, setDashboardScrollY] = useState(initialSession?.dashboardScrollY ?? 0);
+  const restoreDashboardScrollRef = useRef(false);
   const [activeSignal, setActiveSignal] = useState<Signal | null>(() =>
     initialSession?.signalId ? findSignal(initialSession.signalId) ?? null : null,
   );
+  const [activeTrend, setActiveTrend] = useState<Trend | null>(() => {
+    if (initialSession?.signalId) return null;
+    return initialSession?.trendId ? findTrend(initialSession.trendId) ?? null : null;
+  });
   const [quote, setQuote] = useState<QuoteRequest | null>(null);
   const [activeRecord, setActiveRecord] = useState<RecordEntry | null>(null);
   const [recordFromChat, setRecordFromChat] = useState(false);
@@ -40,11 +47,21 @@ export function App() {
   useEffect(() => {
     saveSession({
       signalId: activeSignal?.id ?? null,
+      trendId: activeTrend?.id ?? null,
+      dashboardScrollY,
       chatOpen,
       expanded,
       scope,
     });
-  }, [activeSignal, chatOpen, expanded, scope]);
+  }, [activeSignal, activeTrend, chatOpen, dashboardScrollY, expanded, scope]);
+
+  // Capture the dashboard only when leaving it. Detail-to-detail navigation
+  // keeps the original dashboard position intact for the eventual return.
+  const saveDashboardScrollPosition = () => {
+    if (!activeSignal && !activeTrend) {
+      setDashboardScrollY(window.scrollY);
+    }
+  };
 
   // Open the chat and restore the last conversation (FAB / general entry point).
   const openChat = (nextScope: ChatScope) => {
@@ -85,26 +102,93 @@ export function App() {
   };
 
   const openSignal = (signal: Signal) => {
+    saveDashboardScrollPosition();
     setActiveSignal(signal);
+    setActiveTrend(null);
     setChatOpen(false);
     setActiveRecord(null);
   };
 
-  const backToReport = () => {
+  const openTrend = (trend: Trend) => {
+    saveDashboardScrollPosition();
+    setActiveTrend(trend);
+    setActiveSignal(null);
+    setChatOpen(false);
+    setActiveRecord(null);
+  };
+
+  // Open a signal detail page from a chat S<n> citation — keep the chat panel
+  // open so the conversation is still there when the user navigates back.
+  const openSignalFromChat = (signalId: string) => {
+    const signal = findSignal(signalId);
+    if (!signal) return;
+    saveDashboardScrollPosition();
+    setActiveSignal(signal);
+    setActiveTrend(null);
+    setActiveRecord(null);
+  };
+
+  // Open a trend detail page from a chat T<n> citation — keep the chat open.
+  const openTrendFromChat = (trendId: string) => {
+    const trend = findTrend(trendId);
+    if (!trend) return;
+    saveDashboardScrollPosition();
+    setActiveTrend(trend);
     setActiveSignal(null);
     setActiveRecord(null);
   };
 
+  const backToReport = () => {
+    restoreDashboardScrollRef.current = true;
+    setActiveSignal(null);
+    setActiveTrend(null);
+    setActiveRecord(null);
+  };
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [activeSignal]);
+    if (activeSignal || activeTrend) window.scrollTo(0, 0);
+  }, [activeSignal, activeTrend]);
+
+  // Wait until the dashboard (and its optional chat layout) has rendered
+  // before returning the viewport to the position saved on navigation away.
+  useLayoutEffect(() => {
+    if (activeSignal || activeTrend || !restoreDashboardScrollRef.current) return;
+
+    restoreDashboardScrollRef.current = false;
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: dashboardScrollY, behavior: 'auto' });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeSignal, activeTrend, chatOpen, dashboardScrollY]);
+
+  const detailLabel = activeSignal
+    ? `Signal ${activeSignal.seq}`
+    : activeTrend
+      ? activeTrend.label
+      : undefined;
+
+  const fabScope = (): ChatScope => {
+    if (activeSignal) {
+      return {
+        kind: 'signal',
+        label: `Signal ${activeSignal.seq}`,
+        shorthand: activeSignal.shorthand,
+      };
+    }
+    if (activeTrend) {
+      return {
+        kind: 'trend',
+        label: activeTrend.label,
+        shorthand: activeTrend.label.replace('Trend ', 'T'),
+      };
+    }
+    return DEFAULT_SCOPE;
+  };
 
   return (
     <div className={styles.appShell}>
-      <ReportHeader
-        signalLabel={activeSignal ? `Signal ${activeSignal.seq}` : undefined}
-        onBack={backToReport}
-      />
+      <ReportHeader detailLabel={detailLabel} onBack={backToReport} />
 
       <div className={styles.appBody}>
         <div
@@ -113,8 +197,14 @@ export function App() {
         >
           {activeSignal ? (
             <SignalDetail signal={activeSignal} onOpenRecord={(record) => openRecord(record, false)} />
+          ) : activeTrend ? (
+            <TrendDetail
+              trend={activeTrend}
+              onOpenRecord={(record) => openRecord(record, false)}
+              onOpenSignal={openSignal}
+            />
           ) : (
-            <Dashboard onAsk={askAboutScope} onOpenSignal={openSignal} />
+            <Dashboard onAsk={askAboutScope} onOpenSignal={openSignal} onOpenTrend={openTrend} />
           )}
         </div>
 
@@ -134,6 +224,8 @@ export function App() {
               onToggleExpanded={() => setExpanded((value) => !value)}
               quote={quote}
               onOpenRecord={(record) => openRecord(record, true)}
+              onOpenSignal={openSignalFromChat}
+              onOpenTrend={openTrendFromChat}
             />
           </div>
         ) : null}
@@ -153,20 +245,11 @@ export function App() {
           <button
             type="button"
             className={styles.fab}
+            style={{ color: 'var(--rc-text-on-color)' }}
             aria-label="Open Ask AI"
-            onClick={() =>
-              openChat(
-                activeSignal
-                  ? {
-                      kind: 'signal',
-                      label: `Signal ${activeSignal.seq}`,
-                      shorthand: activeSignal.shorthand,
-                    }
-                  : DEFAULT_SCOPE,
-              )
-            }
+            onClick={() => openChat(fabScope())}
           >
-            <Icon name="sparkle" size={20} tone="on-color" />
+            <SparkleGlyph size={24} className={styles.fabSparkleBig} />
           </button>
         ) : null}
       </div>

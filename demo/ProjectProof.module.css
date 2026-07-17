@@ -1,0 +1,36 @@
+/* Heading sitting at the TOP of the card, above the chart (16px, secondary). */
+.cardHeading {
+  margin: 0 0 var(--rc-spacing-4);
+  color: var(--rc-text-secondary);
+}
+
+/* Our single legend (square swatches) — DS BarChart legend is disabled. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-4);
+  margin: var(--rc-spacing-3) 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--rc-text-secondary);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+/* Small square marker — no border-radius (square corners). */
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+/* Expand/collapse control below the chart (same secondary/sm button used for
+   the signal-page "Show more records"). */
+.showMore {
+  margin-top: var(--rc-spacing-4);
+}

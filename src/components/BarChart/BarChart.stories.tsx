@@ -106,6 +106,7 @@ const meta = {
     percent: { control: 'boolean' },
     color: { control: 'color' },
     maxBarWidth: { control: { type: 'range', min: 8, max: 96, step: 4 } },
+    barRadius: { control: { type: 'range', min: 0, max: 16, step: 1 } },
     data: { control: false },
     series: { control: false },
     formatValue: { control: false },
@@ -205,6 +206,31 @@ export const StackedHorizontal: Story = {
     showGrid: false,
     height: 300,
     ariaLabel: 'Stacked values by category',
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: 760, maxWidth: '100%' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const StackedHorizontalSquare: Story = {
+  name: 'Stacked horizontal (square ends)',
+  args: {
+    data: stackedByCategory,
+    series: twoSeries,
+    orientation: 'horizontal',
+    stacked: true,
+    barRadius: 0,
+    showValues: true,
+    showTotals: true,
+    showLegend: true,
+    showAxis: false,
+    showGrid: false,
+    height: 300,
+    ariaLabel: 'Stacked values by category (square ends)',
   },
   decorators: [
     (Story) => (

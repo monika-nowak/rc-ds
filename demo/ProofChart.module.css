@@ -1,0 +1,357 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+/* The optional proof heading is part of the Card content, giving it the same
+   32px shell padding and title/description rhythm as dashboard cards. */
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+  width: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+}
+
+.cardHeadingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.cardHeaderIcon,
+.themeHeaderIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--rc-icon-primary);
+}
+
+.cardHeaderFeaturedIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-03);
+  color: var(--rc-icon-primary);
+}
+
+.cardHeader h3,
+.cardHeader p {
+  margin: 0;
+}
+
+.cardHeader h3 {
+  color: var(--rc-text-primary);
+}
+
+.cardHeader p {
+  color: var(--rc-text-secondary);
+}
+
+/* Frameless body — used when the chart is embedded inside another card (e.g.
+   the trend card), so it shares that card's frame instead of nesting its own.
+   Children (chart, legend, note) manage their own top spacing. */
+.frameless {
+  width: 100%;
+}
+
+/* ---- In-card theme breakdown (Figma Card 2334:6729) ---- */
+.themeBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.themeHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.themeHeaderTitle {
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+}
+
+.themeBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.themeSub {
+  margin: 0;
+  color: var(--rc-text-secondary);
+}
+
+.themeRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-3);
+  width: 100%;
+}
+
+.themeRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+}
+
+.themeLabel {
+  flex: 0 0 120px;
+  width: 120px;
+  text-align: right;
+  color: var(--rc-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.themeBarWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-4);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.themeBarTrack {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 20px;
+}
+
+.themeBar {
+  height: 100%;
+  min-width: 0;
+  background: var(--rc-background-accent-light-purple-strong);
+  pointer-events: none;
+}
+
+.themeValue {
+  flex-shrink: 0;
+  color: var(--rc-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.themeBlock .note {
+  margin-top: 0;
+  align-items: center;
+  color: var(--rc-text-tertiary);
+}
+
+.themeBlock .noteIcon {
+  margin-top: 0;
+}
+
+/* Chat shell: 16px rhythm between chart / legend / note, matching the 16px
+   card padding. Page/dashboard cards keep the DS Card defaults. */
+.compactBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+}
+
+.compactBody .legend,
+.compactBody .note {
+  margin-top: 0;
+}
+
+.compactBody .a2 {
+  gap: var(--rc-spacing-4);
+}
+
+/* Chat proof rows — mirrors Data view: label | count | share bar. */
+.compactList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.compactRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px minmax(120px, 1.5fr);
+  align-items: center;
+  gap: var(--rc-spacing-3);
+  width: 100%;
+  min-width: 0;
+  padding: var(--rc-spacing-3) 0;
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.compactRow:last-child {
+  border-bottom: none;
+}
+
+.compactLabel {
+  color: var(--rc-text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.compactTotal {
+  color: var(--rc-text-primary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.compactShare {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.compactTrack {
+  flex: 1;
+  height: 8px;
+  background: var(--rc-chart-track);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.compactBar {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.compactSeg {
+  display: block;
+  min-width: 0;
+  height: 100%;
+  flex-basis: 0;
+}
+
+/* ---- A2: single 100%-stacked Academic/Community bar + baseline marker ---- */
+.a2 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+}
+
+.a2Track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 44px;
+  /* Room below the bar for the baseline marker's caption. */
+  margin-bottom: 22px;
+  background: var(--rc-background-accent-info);
+  pointer-events: none;
+}
+
+.a2Academic,
+.a2Community {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+}
+
+.a2Academic {
+  background: var(--rc-chart-2);
+}
+
+.a2Community {
+  background: var(--rc-background-accent-info);
+}
+
+.a2SegLabelOnDark,
+.a2SegLabelOnLight {
+  font-family: var(--rc-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.a2SegLabelOnDark {
+  color: var(--rc-text-on-color);
+}
+
+.a2SegLabelOnLight {
+  color: var(--rc-text-primary);
+}
+
+/* Thin vertical tick showing where the whole-report Academic baseline falls. */
+.a2Marker {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  transform: translateX(-1px);
+  background: var(--rc-text-primary);
+}
+
+.a2MarkerLabel {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: var(--rc-spacing-1);
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--rc-text-secondary);
+}
+
+/* ---- Our single legend (square swatches) — DS BarChart legend is disabled.
+   Uses divs (not ul/li) so chat `.answer ul li::before` bullets never leak. ---- */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-4);
+  margin: var(--rc-spacing-3) 0 0;
+  padding: 0;
+  color: var(--rc-text-secondary);
+}
+
+/* Inside the A2 stack the column gap already spaces the legend. */
+.a2 .legend {
+  margin-top: 0;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+/* Small square marker — no border-radius (square corners). */
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+/* Interpretive note under the chart — same type/color as Data view's note. */
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-2);
+  margin: var(--rc-spacing-2) 0 0;
+  color: var(--rc-text-tertiary);
+}
+
+.noteIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}

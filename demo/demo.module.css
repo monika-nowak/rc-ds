@@ -19,7 +19,7 @@
   /* Horizontal page padding — shrinks when the chat sidebar is open. */
   --rc-page-px: 96px;
   /* Cap the content column so text keeps a comfortable reading measure. */
-  --rc-content-max: 1040px;
+  --rc-content-max: 1000px;
   /* Query container: layouts inside react to the actual left-column width,
      which shrinks when the chat sidebar opens (not just the viewport). */
   container: main / inline-size;
@@ -64,12 +64,16 @@
 }
 
 .headerDivider {
-  /* Full-height separator spanning the entire 56px nav (edge to edge). The
-     header is 56px with 8px vertical padding and centers its 24px start row, so
-     stretching the divider and pulling 16px of negative block margin extends it
-     past the padding to both nav edges, matching Figma. */
-  align-self: stretch;
-  margin-block: calc(-1 * var(--rc-spacing-4));
+  /* Separator spanning the entire nav edge-to-edge. The AppHeader is a fixed
+     56px row that centres its content, so pinning the divider to exactly 56px
+     and centring it makes it span both nav edges precisely — regardless of how
+     tall the start row's content is (no negative-margin overshoot into the
+     hero). */
+  align-self: center;
+  /* 56px nav minus its 1px bottom border = 55px content box, so the divider
+     fills the visible nav exactly with no protrusion in either direction. */
+  height: 55px;
+  margin-block: 0;
   margin-inline: var(--rc-spacing-2);
 }
 
@@ -93,16 +97,23 @@
 
 /* ---- Hero ---- */
 .hero {
+  /* Extra top padding (64 + 56 nav) so content clears the overlapping nav. */
+  padding-block: 120px 64px;
+  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+/* Keep the hero background full-bleed while lining its content up with the
+   centred main column. */
+.heroContent {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   gap: var(--rc-spacing-6);
-  /* Extra top padding (64 + 56 nav) so content clears the overlapping nav. */
-  padding-block: 120px 64px;
-  /* Hero keeps its own Figma margin (page padding), not the narrow content cap. */
-  padding-inline: var(--rc-page-px, 96px);
-  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
-  border-bottom: 1px solid var(--rc-border-subtle-01);
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1200px)) / 2)
+  );
   transition: padding 220ms ease;
 }
 
@@ -144,6 +155,24 @@
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
+  width: 100%;
+}
+
+.sectionFeaturedIcon {
+  display: inline-flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-03);
+  color: var(--rc-icon-primary);
+}
+
+.sectionFeaturedIcon svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .sectionHeaderTitle {
@@ -151,15 +180,55 @@
   white-space: nowrap;
 }
 
+.sectionHeaderTitleWithInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-1);
+}
+
 .sectionRule {
   flex: 1;
   margin: 0;
 }
 
+.projectProofSection {
+  display: flex;
+  flex-direction: column;
+  /* Match the dashboard section-header → card rhythm used by Notable signals. */
+  gap: var(--rc-spacing-6);
+  scroll-margin-top: 80px;
+}
+
+.trendsSection {
+  display: flex;
+  flex-direction: column;
+  /* Figma (2334:6295): Key trends header → Trend N label = 48px. */
+  gap: var(--rc-spacing-12);
+}
+
+.trendList {
+  display: flex;
+  flex-direction: column;
+  /* Figma: Trend 1 group → Trend 2 group = 48px. */
+  gap: var(--rc-spacing-12);
+  width: 100%;
+}
+
 .trendGroup {
   display: flex;
   flex-direction: column;
+  /* Figma: Trend N label → card = 24px (half the header → label gap). */
   gap: var(--rc-spacing-6);
+  width: 100%;
+  /* Clear the 56px sticky nav when a chat T<n> citation scrolls a trend into view. */
+  scroll-margin-top: 80px;
+}
+
+.trendContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
 }
 
 .trendLabel {
@@ -168,6 +237,180 @@
 
 .cardWrap {
   position: relative;
+}
+
+.trendCardHit {
+  cursor: pointer;
+}
+
+.trendCardHit:focus-visible {
+  outline: 2px solid var(--rc-border-focus, var(--rc-purple-500));
+  outline-offset: 2px;
+  border-radius: var(--rc-radius-md);
+}
+
+/* Trend 2 follows its dedicated Figma composition: two equal panels within
+   one card, rather than Trend 1's vertically stacked considerations + chart. */
+.trendTwoCard {
+  cursor: pointer;
+}
+
+.trendTwoContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+  width: 100%;
+}
+
+.trendTwoHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.trendTwoHeader h3,
+.trendTwoHeader p,
+.trendTwoSubhead {
+  margin: 0;
+}
+
+.trendTwoHeader h3,
+.trendTwoSectionHeader,
+.trendTwoConsiderationList {
+  color: var(--rc-text-primary);
+}
+
+.trendTwoHeader p,
+.trendTwoThemeLabel,
+.trendTwoConsiderationList li span {
+  color: var(--rc-text-secondary);
+}
+
+.trendTwoColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  gap: var(--rc-spacing-8);
+  width: 100%;
+}
+
+.trendTwoThemes,
+.trendTwoConsiderations,
+.trendTwoThemeBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.trendTwoThemes,
+.trendTwoConsiderations {
+  gap: var(--rc-spacing-6);
+}
+
+.trendTwoSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.trendTwoDivider {
+  align-self: stretch;
+  height: auto;
+  margin: 0;
+}
+
+.trendTwoThemeBody {
+  gap: var(--rc-spacing-4);
+}
+
+.trendTwoSubhead {
+  color: var(--rc-text-secondary);
+}
+
+.trendTwoThemeRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-3);
+}
+
+.trendTwoThemeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-6);
+  min-width: 0;
+}
+
+.trendTwoThemeLabel {
+  flex: 0 0 120px;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.trendTwoThemeValue {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--rc-spacing-4);
+  min-width: 0;
+  color: var(--rc-text-secondary);
+}
+
+.trendTwoThemeTrack {
+  display: block;
+  flex: 1 1 auto;
+  height: 20px;
+  min-width: 0;
+}
+
+.trendTwoThemeBar {
+  display: block;
+  height: 100%;
+  min-width: 8px;
+  /* Figma 2339:8034 / ThemeBarList: square-ended 20px bars — no pill radius. */
+  border-radius: 0;
+  background: var(--rc-background-accent-light-purple-strong);
+}
+
+.trendTwoCoverage {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-2);
+  color: var(--rc-text-tertiary);
+}
+
+.trendTwoCoverage svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.trendTwoConsiderationList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  margin: 0;
+  padding: 0 0 0 var(--rc-spacing-6);
+  list-style: none;
+}
+
+.trendTwoConsiderationList li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-4);
+}
+
+.trendTwoConsiderationList li svg {
+  flex: 0 0 auto;
+}
+
+@container main (max-width: 720px) {
+  .trendTwoColumns {
+    grid-template-columns: 1fr;
+    gap: var(--rc-spacing-6);
+  }
+
+  .trendTwoDivider {
+    width: 100%;
+    height: 1px;
+  }
 }
 
 .askSparkle {
@@ -208,7 +451,7 @@
 
 .signalGrid {
   display: grid;
-  /* 280px floor caps the row at 3 cards within the 1040px content container. */
+  /* 280px floor caps the row at 3 cards within the 1000px content container. */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--rc-spacing-4);
 }
@@ -236,8 +479,11 @@
   gap: var(--rc-spacing-2);
 }
 
-.statCard {
+/* Query container — sized by the card's content box (inside padding). */
+.statMeasure {
   container-type: inline-size;
+  container-name: stat-card;
+  width: 100%;
 }
 
 /* Stat card rendered as a plain element (outside the DS Card wrapper). */
@@ -248,28 +494,22 @@
   border-radius: var(--rc-radius-md);
 }
 
+/*
+ * Default: icon beside number + label (horizontal). Stack to three lines only
+ * when the card is too narrow for icon + text side-by-side (~32 icon + 12 gap
+ * + ~80 min text). Labels may wrap while staying in the horizontal layout.
+ */
 .statBody {
   display: flex;
-  flex-direction: column;
-  gap: var(--rc-spacing-2);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--rc-spacing-3);
 }
 
-/*
- * Switch to a horizontal layout only when there's enough room for even the
- * longest label ("institutions covered" / "specialties represented") to stay
- * on a single line, so every card flips together and none wraps. The card's
- * 1px border + 24px padding leave ~198px of queryable content at its widest
- * (248px) track, so the breakpoint sits just below that.
- */
-@container (min-width: 190px) {
+@container stat-card (max-width: 120px) {
   .statBody {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--rc-spacing-3);
-  }
-
-  .statText {
-    white-space: nowrap;
+    flex-direction: column;
+    gap: var(--rc-spacing-2);
   }
 }
 
@@ -293,6 +533,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-1);
+  min-width: 0;
 }
 
 .showAll {
@@ -302,6 +543,7 @@
 .notableGroup {
   display: flex;
   flex-direction: column;
+  /* Figma (2334:6387): Notable signals header → cards = 24px. */
   gap: var(--rc-spacing-6);
 }
 
@@ -318,12 +560,17 @@
   padding: 0;
   border: none;
   border-radius: var(--rc-radius-sm);
-  background-color: #8752fa;
+  /* Layered multi-radial MESH gradient matching demo/assets/ask-ai-icon.png. */
+  background-color: #a187fe;
   background-image:
-    radial-gradient(130% 130% at 8% 8%, #4500f9 0%, rgba(69, 0, 249, 0) 55%),
-    radial-gradient(120% 120% at 92% 6%, #cd83ff 0%, rgba(205, 131, 255, 0) 55%),
-    radial-gradient(150% 150% at 95% 95%, #ff5001 0%, rgba(255, 80, 1, 0) 60%),
-    radial-gradient(150% 150% at 5% 100%, #8752fa 0%, rgba(135, 82, 250, 0) 65%);
+    radial-gradient(115% 115% at 12% 10%, #7d58fb 0%, rgba(125, 88, 251, 0) 55%),
+    radial-gradient(110% 110% at 50% 0%, #a187fe 0%, rgba(161, 135, 254, 0) 50%),
+    radial-gradient(115% 115% at 90% 12%, #936ffc 0%, rgba(147, 111, 252, 0) 55%),
+    radial-gradient(120% 120% at 4% 52%, #aa88ff 0%, rgba(170, 136, 255, 0) 55%),
+    radial-gradient(120% 120% at 100% 55%, #d1aeff 0%, rgba(209, 174, 255, 0) 60%),
+    radial-gradient(110% 110% at 8% 100%, #c989e5 0%, rgba(201, 137, 229, 0) 55%),
+    radial-gradient(100% 100% at 92% 100%, #e9a1de 0%, rgba(233, 161, 222, 0) 55%),
+    radial-gradient(82% 64% at 50% 108%, #ff6a3d 0%, #fb7b8c 30%, rgba(251, 123, 140, 0) 62%);
   box-shadow: var(--rc-shadow-lg);
   cursor: pointer;
   transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms ease;
@@ -331,25 +578,25 @@
 }
 
 .fab svg {
-  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .fab:hover {
-  transform: scale(1.06);
+  transform: scale(1.04);
   box-shadow:
     0 18px 34px -10px rgba(88, 40, 220, 0.55),
     0 8px 18px -8px rgba(255, 80, 1, 0.38);
 }
 
-.fab:hover svg {
-  transform: rotate(-14deg) scale(1.14);
+/* Hover: the white sparkle does a quick, lively zoom in/out so the motion is
+   obvious the instant the pointer lands on the button. Static at rest. */
+.fab:hover .fabSparkleBig {
+  animation: rc-fab-zoom 1.1s ease-in-out infinite;
 }
 
 .fab:active {
-  transform: scale(1.02);
-  box-shadow:
-    0 10px 22px -10px rgba(88, 40, 220, 0.5),
-    0 5px 12px -8px rgba(255, 80, 1, 0.34);
+  transform: scale(1.01);
 }
 
 .fab:focus-visible {
@@ -357,9 +604,20 @@
   outline-offset: 3px;
 }
 
+/* Big star: pronounced yet smooth "breathing" zoom (larger amplitude than the
+   hero so it stays visible under the button's own hover scale). */
+@keyframes rc-fab-zoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.16);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .fab,
-  .fab svg {
+  .fab {
     transition: none;
   }
 
@@ -367,8 +625,8 @@
     transform: none;
   }
 
-  .fab:hover svg {
-    transform: none;
+  .fab:hover .fabSparkleBig {
+    animation: none;
   }
 }
 
@@ -383,7 +641,14 @@
   width: 480px;
   max-width: 100vw;
   height: calc(100vh - 56px);
-  background: var(--rc-background-canvas);
+  /* Figma AI Chat Slider background: white down to ~53%, then blending to
+     purple-100 at the bottom. */
+  background: linear-gradient(
+    180deg,
+    var(--rc-background-blank) 0%,
+    var(--rc-background-blank) 53.333%,
+    var(--rc-purple-100) 100%
+  );
   border-left: 1px solid var(--rc-border-subtle-01);
   box-shadow: -16px 0 40px -24px rgb(24 24 48 / 22%);
   overflow: hidden;
@@ -486,8 +751,8 @@
 .panelHeader {
   display: flex;
   align-items: center;
-  gap: var(--rc-spacing-3);
-  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-2);
   background: var(--rc-background-blank);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
@@ -496,12 +761,48 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--rc-radius-md);
   background: linear-gradient(135deg, #4500f9 0%, #8752fa 35%, #cd83ff 70%, #ff5001 130%);
   color: #ffffff;
   flex-shrink: 0;
+}
+
+/* "Ask AI" floating-button icon — layered multi-radial MESH gradient matching
+   demo/assets/ask-ai-icon.png (indigo top-left, lavender middle/right, warm
+   coral/orange glow at the bottom centre) with a single white sparkle on top. */
+.panelAiMarkMesh {
+  background-color: #a187fe;
+  background-image:
+    radial-gradient(115% 115% at 12% 10%, #7d58fb 0%, rgba(125, 88, 251, 0) 55%),
+    radial-gradient(110% 110% at 50% 0%, #a187fe 0%, rgba(161, 135, 254, 0) 50%),
+    radial-gradient(115% 115% at 90% 12%, #936ffc 0%, rgba(147, 111, 252, 0) 55%),
+    radial-gradient(120% 120% at 4% 52%, #aa88ff 0%, rgba(170, 136, 255, 0) 55%),
+    radial-gradient(120% 120% at 100% 55%, #d1aeff 0%, rgba(209, 174, 255, 0) 60%),
+    radial-gradient(110% 110% at 8% 100%, #c989e5 0%, rgba(201, 137, 229, 0) 55%),
+    radial-gradient(100% 100% at 92% 100%, #e9a1de 0%, rgba(233, 161, 222, 0) 55%),
+    radial-gradient(82% 64% at 50% 108%, #ff6a3d 0%, #fb7b8c 30%, rgba(251, 123, 140, 0) 62%);
+}
+
+.panelAiSparkle {
+  color: #ffffff;
+}
+
+/* Header avatar hover: the white sparkle does the hero big-star subtle zoom. */
+.panelAiMarkMesh .panelAiSparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.panelAiMarkMesh:hover .panelAiSparkle {
+  animation: rc-hero-zoom 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panelAiMarkMesh:hover .panelAiSparkle {
+    animation: none;
+  }
 }
 
 .panelTitleBlock {
@@ -522,7 +823,7 @@
 .panelHeaderActions {
   display: flex;
   align-items: center;
-  gap: var(--rc-spacing-1);
+  gap: var(--rc-spacing-2);
 }
 
 .panelBody {
@@ -539,39 +840,409 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--rc-spacing-2);
+  /* min-height + auto margins on the first/last child center the welcome
+     content when there's spare room, but collapse to top-alignment when the
+     content would overflow — so the top sparkle is never clipped. */
+  min-height: 100%;
+  gap: var(--rc-spacing-4);
   text-align: center;
-  padding-top: var(--rc-spacing-8);
+  padding-block: var(--rc-spacing-4);
 }
 
-.scopedTo {
+.emptyState > :first-child {
+  margin-top: auto;
+}
+
+.emptyState > :last-child {
+  margin-bottom: auto;
+}
+
+/* Hero intro: orb + greeting/subtitle + scope pill, tightly grouped. */
+.welcomeIntro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rc-spacing-3);
+}
+
+/* Empty-state hero: the Figma two-sparkle motif as inline SVG (see WelcomeHero.tsx).
+   Each sparkle animates on its own so they twinkle out of sync. */
+.welcomeHero {
+  display: block;
+  width: 96px;
+  height: 96px;
+  /* The small star orbits on a radius-45 circle that reaches the box edges, so
+     allow it to draw slightly outside the 96×96 viewport instead of clipping. */
+  overflow: visible;
+}
+
+/* transform-box: fill-box anchors each sparkle's transform-origin to its own
+   centre so it scales in place. */
+.heroSparkleBig,
+.heroSparkleSmall {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+/* Big star: subtle, slow "breathing" zoom in/out (no rotation). This runs
+   perpetually and INDEPENDENTLY of the small star's eject cycle — so the hero
+   always has a little life on screen, including in the gaps before/after the
+   small star appears. Never paused or tied to the small star. */
+.heroSparkleBig {
+  animation: rc-hero-pulse 2.6s ease-in-out infinite;
+}
+
+/* Small star: hidden for most of the cycle, then it occasionally performs an
+   orbit. It starts tucked inside the big star's centre, shoots out radially to
+   its top-right start point, then glides a full, constant-radius 360° circle
+   around the big star and stops exactly where it started. The motion is driven
+   by offset-path (SVG viewBox user space): M = big-star centre, L = start point
+   (the small star's own resting centre), then two 180° arcs (r=45) back to the
+   start. offset-rotate: 0deg keeps the star from spinning on its own axis — it
+   just glides while keeping its orientation. It does NOT pulse (that is the big
+   star's job). */
+/* Orbit wrapper: driven along the circle by offset-path (position only). */
+.heroSparkleSmallOrbit {
+  transform-box: fill-box;
+  transform-origin: center;
+  offset-path: path('M 48 48 L 79.5 16 A 45 45 0 0 1 16.5 80 A 45 45 0 0 1 79.5 16');
+  offset-rotate: 0deg;
+  opacity: 0;
+  animation: rc-hero-orbit 5s linear infinite;
+}
+
+/* Inner star: shrinks 100% → 50% in sync with the orbit. It uses the same easing
+   as the offset-distance segment, so the scale tracks progress along the circle
+   (perimeter), not raw clock time. Scale lives here (not on the wrapper) so it
+   never fights the offset-path transform. */
+.heroSparkleSmall {
+  animation: rc-hero-orbit-scale 5s linear infinite;
+}
+
+@keyframes rc-hero-zoom {
+  0%,
+  100% {
+    transform: scale(1.002);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+/* Big hero star pulse: a clearly visible (but still elegant) continuous
+   breathe. Amplitude is intentionally larger than the shared rc-hero-zoom
+   (used by the small panel-header sparkle) so the motion actually reads on the
+   96px hero glyph. */
+@keyframes rc-hero-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.17);
+  }
+}
+
+@keyframes rc-hero-orbit {
+  /* Hidden inside the big star's centre. */
+  0%,
+  6% {
+    offset-distance: 0%;
+    opacity: 0;
+    /* Eject segment decelerates as it reaches the start point. */
+    animation-timing-function: ease-out;
+  }
+  /* Shot out radially to the top-right start point; now fully visible. */
+  16% {
+    offset-distance: 14%;
+    opacity: 1;
+    /* Non-linear glide for the circular part: accelerate out of the start,
+       carry speed around the loop, then ease to a stop back at the start. */
+    animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+  }
+  /* Full, smooth 360° orbit completed — back at the start point. */
+  84% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  /* Brief hold at the start point. */
+  90% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  /* Fade out in place, then stay hidden until the next cycle. */
+  96%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+/* Small star scale: full size while it is tucked away and shooting out, then it
+   shrinks from 100% to 70% across the full 360° orbit (16% → 84%), matching the
+   orbit's easing so the shrink tracks distance travelled along the circle. Holds
+   at 70% during the brief hold + fade-out. The star does NOT spin on its own
+   axis — offset-rotate: 0deg keeps its orientation fixed while it glides. */
+@keyframes rc-hero-orbit-scale {
+  0%,
+  16% {
+    transform: scale(1);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+  }
+  84% {
+    transform: scale(0.7);
+  }
+  90%,
+  100% {
+    transform: scale(0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroSparkleBig {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  /* No motion: the small star simply stays hidden (no orbit, no scale, no eject). */
+  .heroSparkleSmallOrbit {
+    animation: none;
+    offset-path: none;
+    opacity: 0;
+  }
+  .heroSparkleSmall {
+    animation: none;
+    transform: none;
+  }
+}
+
+.welcomeText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+.welcomeGreeting {
+  color: var(--rc-text-primary);
+}
+
+.welcomeSubtitle {
+  max-width: 320px;
+  color: var(--rc-text-helper);
+}
+
+/* The purple "@" call-out inside the welcome subtitle (Figma text-ai). */
+.welcomeAt {
+  color: var(--rc-text-ai);
+  font-weight: 700;
+}
+
+/* Persistent scope context bar: docked directly beneath the panel header,
+   spanning the panel width, and visible in every chat (conversation) state.
+   Sits above the scrolling .panelBody so it stays pinned under the nav. */
+.scopeBar {
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
-  color: var(--rc-text-tertiary);
+  flex-shrink: 0;
+  padding: var(--rc-spacing-2) var(--rc-spacing-4);
+  background: var(--rc-background-blank);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
 }
 
-.scopeChipGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--rc-spacing-1);
+.scopeBarLabel {
+  color: var(--rc-text-secondary);
 }
 
-.scopeChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--rc-spacing-1);
-  padding: 2px 8px;
-  border: none;
+/* Scrollable grouped scope list rendered inside the context-bar Popover.
+   Kept narrow so the popover (content + the DS panel's own padding/border)
+   stays within the chat panel and never clips past its right edge, with a
+   bounded height + internal scroll so every group stays reachable. */
+.scopeMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 244px;
+  max-width: 100%;
+  /* Pull in against the DS popover's spacing-4 padding so the menu reads as a
+     compact dropdown rather than a roomy card. */
+  margin: calc(-1 * var(--rc-spacing-2));
+  max-height: min(72vh, 560px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Thin, on-brand scrollbar instead of the heavy default chrome (only shows
+     if the list still overflows at small panel heights). */
+  scrollbar-width: thin;
+  scrollbar-color: var(--rc-border-subtle-02) transparent;
+}
+
+.scopeMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scopeMenu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scopeMenu::-webkit-scrollbar-thumb {
+  background: var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-full);
+}
+
+.scopeMenu::-webkit-scrollbar-thumb:hover {
+  background: var(--rc-border-strong-01);
+}
+
+/* A trend + its indented signals, grouped tightly together. */
+.scopeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Compact menu rows: override the large full-page card styling so the list
+   reads as a tight dropdown menu rather than stacked cards. */
+.scopeMenu .scopeRow {
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-1) var(--rc-spacing-2);
+  border-color: transparent;
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-purple-100);
-  color: var(--rc-text-ai);
+}
+
+.scopeMenu .scopeRow:hover {
+  border-color: transparent;
+  background: var(--rc-background-hover);
+  box-shadow: none;
+}
+
+.scopeMenu .scopeGlyph {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--rc-radius-sm);
+  font: 700 11px/14px var(--rc-font-sans);
+}
+
+.scopeMenu .scopeGlyph svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Clamp the descriptive subtitle so tall three-line rows don't bloat the list. */
+.scopeMenu .scopeRowSub {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scopeMenu .scopeRowIndented {
+  margin-left: var(--rc-spacing-5);
+  width: auto;
+}
+
+.scopeMenu .signalsSubhead {
+  padding-left: var(--rc-spacing-1);
+}
+
+/* Reference-tag scope pill (Figma 2286:4348): purple-100 bg, radius-sm, a
+   chart-line/shorthand glyph + bold purple-800 label, and a trailing X to reset
+   scope. The label part opens the scope picker; the X clears back to the whole
+   report. Both live inside one visual pill. */
+.scopePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px var(--rc-spacing-2);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-accent-purple);
+}
+
+.scopePillTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--rc-text-accent-purple);
   font-family: inherit;
   cursor: pointer;
 }
 
-.scopeChip:hover {
-  background: var(--rc-purple-200);
+.scopePillGlyph {
+  display: inline-flex;
+  align-items: center;
+  color: var(--rc-icon-ai);
+}
+
+.scopePillLabel {
+  color: var(--rc-text-accent-purple);
+}
+
+.scopePillClear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--rc-icon-ai);
+  cursor: pointer;
+  border-radius: var(--rc-radius-sm);
+}
+
+.scopePillTrigger:focus,
+.scopePillClear:focus {
+  outline: none;
+}
+
+.scopePillTrigger:focus-visible,
+.scopePillClear:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+/* Trend/Signal citation chips — reference-tag styling (Figma 2261:7448): purple
+   accent surface, type-specific leading glyph, bold purple label. Records keep
+   their blue Badge instead. Works as a <button> (clickable) or a <span>. */
+.citationTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px var(--rc-spacing-2) 2px var(--rc-spacing-1);
+  border: none;
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-accent-purple);
+  color: var(--rc-text-accent-purple);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+button.citationTag:hover {
+  background: var(--rc-background-accent-purple-hover);
+}
+
+.citationTag:focus {
+  outline: none;
+}
+
+.citationTag:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+.citationTagIcon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--rc-icon-ai);
+}
+
+.citationTagLabel {
+  color: var(--rc-text-accent-purple);
 }
 
 .emptyHelper {
@@ -583,24 +1254,7 @@
   color: var(--rc-text-ai);
 }
 
-/* ---- Scope picker ---- */
-.pickerIntro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--rc-spacing-1);
-  text-align: center;
-  align-items: center;
-}
-
-.pickerHeading {
-  color: var(--rc-text-primary);
-}
-
-.pickerSub {
-  color: var(--rc-text-tertiary);
-  max-width: 380px;
-}
-
+/* ---- Scope picker (rendered inside the context-bar Popover) ---- */
 .scopeRow {
   display: flex;
   align-items: center;
@@ -668,8 +1322,7 @@
   flex-direction: column;
   gap: var(--rc-spacing-4);
   border-top: 1px solid var(--rc-border-subtle-01);
-  background: var(--rc-background-blank);
-  padding: var(--rc-spacing-4) var(--rc-spacing-6) 0;
+  padding: var(--rc-spacing-4) var(--rc-spacing-6) var(--rc-spacing-2);
 }
 
 .suggestedHeader {
@@ -685,7 +1338,7 @@
 }
 
 .suggestedLabel {
-  color: var(--rc-text-tertiary);
+  color: var(--rc-text-helper);
 }
 
 .suggestedCaret,
@@ -705,13 +1358,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-3);
+  width: 100%;
 }
 
 .suggestionRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--rc-spacing-3);
+  gap: var(--rc-spacing-6);
   width: 100%;
   padding: 0;
   background: none;
@@ -786,14 +1440,45 @@
 
 .answer p {
   margin: 0;
+  /* Intro paragraph: dark primary text with a comfortable reading rhythm. */
+  color: var(--rc-text-primary);
+  line-height: 1.5;
 }
 
 .answer ul {
   margin: 0;
-  padding-left: var(--rc-spacing-5);
+  padding-left: var(--rc-spacing-4);
   display: flex;
   flex-direction: column;
-  gap: var(--rc-spacing-2);
+  gap: var(--rc-spacing-3);
+  list-style: none;
+}
+
+/* Bullet text sits one step lighter than the intro paragraph (secondary gray),
+   with the same comfortable line-height. */
+.answer ul li {
+  position: relative;
+  padding-left: var(--rc-spacing-4);
+  color: var(--rc-text-secondary);
+  line-height: 1.5;
+}
+
+.answer ul li span {
+  color: inherit;
+}
+
+/* Custom bullet dot in accent purple. The flex `ul` blockifies its `li`
+   children, which suppresses the native `::marker`, so we draw our own dot. */
+.answer ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--rc-radius-full);
+  background: var(--rc-purple-500);
+  transform: translateY(-50%);
 }
 
 .proof {
@@ -813,12 +1498,11 @@
   color: var(--rc-text-info);
 }
 
-/* Footer: sources (record badges) on the left, confidence on the right. */
+/* Footer: stacked rows — citation badges on top, then the confidence line with
+   its Score + reviewer controls aligned to the right. */
 .answerFooter {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--rc-spacing-3);
   padding: var(--rc-spacing-3) var(--rc-spacing-4);
   border-top: 1px solid var(--rc-border-subtle-01);
@@ -830,14 +1514,36 @@
   gap: var(--rc-spacing-1);
 }
 
-.answerConfidence {
+/* Confidence line: tier + reason as a flexible left block, controls pinned
+   right and vertically centred. */
+.answerConfidenceRow {
   display: flex;
   align-items: center;
-  gap: var(--rc-spacing-1);
+  justify-content: space-between;
+  gap: var(--rc-spacing-3);
 }
 
-.answerConfidenceLabel {
-  color: var(--rc-text-secondary);
+/* Compact confidence chip — only the tone dot + tier label are visible; the
+   score and reason live in a DS Tooltip revealed on hover / keyboard focus. */
+.confidenceChip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--rc-radius-sm);
+  cursor: default;
+  outline: none;
+}
+
+.confidenceChip:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+/* Right-aligned control cluster (Score chip, review marker, reviewer toggle). */
+.answerControls {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  flex-shrink: 0;
 }
 
 
@@ -854,7 +1560,7 @@
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
-  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  padding: var(--rc-spacing-2) var(--rc-spacing-4);
   background: var(--rc-purple-100);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
@@ -974,10 +1680,242 @@
   align-items: center;
   gap: var(--rc-spacing-1);
   cursor: pointer;
+  /* Reset button chrome so it reads as the original inline affordance. */
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
 }
 
-.dataAction:hover {
+.dataAction:hover:not(:disabled) {
   color: var(--rc-text-secondary);
+}
+
+.dataAction:disabled {
+  cursor: default;
+  color: var(--rc-text-success, var(--rc-text-secondary));
+}
+
+/* Computed interpretation note (baseline / concentration) under the table. */
+.dataNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-2) var(--rc-spacing-4);
+  border-top: 1px solid var(--rc-border-subtle-01);
+  color: var(--rc-text-tertiary);
+}
+
+/* ---- Magnitude stat strip ---- */
+.magnitudeStrip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-4);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-background-blank);
+  animation: rc-fade-in 260ms ease;
+}
+
+.magnitudeStat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.magnitudeValue {
+  color: var(--rc-text-ai);
+}
+
+.magnitudeLabel {
+  color: var(--rc-text-tertiary);
+}
+
+/* ---- Evidence records (real verbatims) ---- */
+.evidenceRecordsTable {
+  animation: rc-fade-in 260ms ease;
+}
+
+/* ---- Actions beta disclaimer ---- */
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-3);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-support-warning, var(--rc-background-hover));
+  color: var(--rc-text-warning, var(--rc-text-secondary));
+}
+
+.disclaimerText {
+  color: inherit;
+}
+
+/* Tooltip content for the confidence chip — score above, reason below.
+   max-content keeps each line from collapsing to a too-narrow column. */
+.confidenceTip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: max-content;
+  /* Keep the bubble to ~1–2 tidy lines and inside the panel (right placement). */
+  max-width: 200px;
+}
+
+.confidenceTipScore {
+  color: inherit;
+  white-space: nowrap;
+}
+
+.confidenceTipReason {
+  color: inherit;
+}
+
+/* ---- Guardrail banner (temporal / out-of-data declines) ---- */
+.guardrailHead {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  padding: var(--rc-spacing-4);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.guardrailReason {
+  color: var(--rc-text-secondary);
+}
+
+/* "Score" rating button — opens the reviewer rubric. Shares the DS focus ring
+   instead of the browser default so there's no off-brand orange outline. */
+.scoreButton {
+  flex-shrink: 0;
+}
+
+.scoreButton:focus {
+  outline: none;
+}
+
+.scoreButton:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+/* ---- Reviewer feedback panel (Figma 2294:5319) — opened by the Score button ---- */
+.feedbackPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  margin: 0 var(--rc-spacing-4) var(--rc-spacing-4);
+  padding: var(--rc-spacing-4);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+  background: var(--rc-background-blank);
+  animation: rc-fade-in 200ms ease;
+}
+
+.feedbackCriterion {
+  display: flex;
+  flex-direction: column;
+  /* Tighter between title/description; more air before the 1–5 row. */
+  gap: var(--rc-spacing-3);
+}
+
+.feedbackCriterionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feedbackCriterionLabel {
+  color: var(--rc-text-primary);
+}
+
+.feedbackCriterionDesc {
+  color: var(--rc-text-tertiary);
+}
+
+.ratingRow {
+  display: flex;
+  gap: var(--rc-spacing-2);
+}
+
+.ratingNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-blank);
+  color: var(--rc-text-tertiary);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.ratingNumber:hover {
+  border-color: var(--rc-border-subtle-02);
+}
+
+.ratingNumber:focus {
+  outline: none;
+}
+
+.ratingNumber:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+.ratingNumberOn {
+  background: var(--rc-background-inverse);
+  border-color: var(--rc-background-inverse);
+  color: var(--rc-text-on-color);
+}
+
+.feedbackComments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.feedbackCommentsLabel {
+  color: var(--rc-text-secondary);
+}
+
+.feedbackActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--rc-spacing-2);
+}
+
+.reviewNotes {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--rc-spacing-3);
+  border: 1px solid var(--rc-border-subtle-02);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-background-blank);
+  color: var(--rc-text-primary);
+  resize: vertical;
+  min-height: 64px;
+  font-family: inherit;
+}
+
+.reviewNotes::placeholder {
+  color: var(--rc-text-tertiary);
+}
+
+.reviewNotes:focus {
+  outline: none;
+  border-color: var(--rc-border-interactive, var(--rc-purple-500));
 }
 
 /* ---- Data view: expandable rows ---- */
@@ -1036,42 +1974,6 @@
   color: var(--rc-text-tertiary);
 }
 
-.recordsTable {
-  display: flex;
-  flex-direction: column;
-}
-
-.recordsRow {
-  display: grid;
-  grid-template-columns: minmax(78px, auto) minmax(0, 1fr) minmax(72px, auto);
-  align-items: start;
-  gap: var(--rc-spacing-3);
-  padding: var(--rc-spacing-3) 0;
-  border-bottom: 1px solid var(--rc-border-subtle-01);
-}
-
-.recordsRow:last-child {
-  border-bottom: none;
-}
-
-.recordsHeadRow {
-  padding-top: 0;
-  padding-bottom: var(--rc-spacing-2);
-}
-
-.recordsColHead {
-  color: var(--rc-text-tertiary);
-}
-
-.recordVerbatim {
-  color: var(--rc-text-secondary);
-}
-
-.recordDate {
-  color: var(--rc-text-tertiary);
-  white-space: nowrap;
-}
-
 .recordsNote {
   color: var(--rc-text-tertiary);
 }
@@ -1117,7 +2019,13 @@
 .panelFooter {
   flex-shrink: 0;
   padding: var(--rc-spacing-4);
-  background: var(--rc-background-blank);
+}
+
+/* Composer input text → 14px (matches answer body). Scoped to the chat footer
+   so the shared ChatWithAI editor default is untouched elsewhere. */
+.panelFooter [data-chat-input] {
+  font-size: 14px;
+  line-height: 20px;
 }
 
 /* Live/Demo toggle for the optional real-LLM backend (only shown when a key is
@@ -1138,19 +2046,6 @@
   border-color: transparent;
   background: var(--rc-purple-100, #f6eaff);
   color: var(--rc-purple-700, #4b2b8f);
-}
-
-/* "Connect LLM" pill shown in the header when no BYOK key is configured yet. */
-.connectPill {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 var(--rc-spacing-2);
-  border: 1px dashed var(--rc-border-ai, #b892fb);
-  border-radius: var(--rc-radius-sm);
-  background: var(--rc-background-blank);
-  color: var(--rc-text-ai, #6b2fd6);
-  cursor: pointer;
 }
 
 /* ---- BYOK LLM settings (inside the chat panel) ---- */
@@ -1353,20 +2248,26 @@
 .signalPage {
   min-height: 100vh;
   background: var(--rc-background-canvas);
-  /* Wider than the dashboard: two-column layout (scoring sidebar + content). */
-  --rc-signal-max: 1200px;
 }
 
 .signalHero {
+  /* 56px nav overlap + 64px so the visual top space equals the 64px bottom. */
+  padding-block: 120px 64px;
+  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+.signalHeroInner {
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-6);
-  /* 56px nav overlap + 64px so the visual top space equals the 64px bottom. */
-  padding-block: 120px 64px;
-  /* Same margin as the dashboard hero: fixed page padding, not the centred cap. */
-  padding-inline: var(--rc-page-px, 96px);
-  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
-  border-bottom: 1px solid var(--rc-border-subtle-01);
+  /* Align only the Signal text to the capped page column. The hero itself
+     retains its original vertical padding and rhythm. */
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1200px)) / 2)
+  );
+  transition: padding 220ms ease;
 }
 
 .signalKicker {
@@ -1388,11 +2289,15 @@
 .signalMain {
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   gap: 64px;
-  padding-block: 0 96px;
-  /* Match the signal hero: fixed 96px page padding so the content lines up
-     with the header instead of using the narrower centred cap. */
-  padding-inline: var(--rc-page-px, 96px);
+  padding-block: 0 64px;
+  /* Share the hero's capped content-column alignment. */
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1200px)) / 2)
+  );
+  transition: padding 220ms ease;
 }
 
 .scoringCol {
@@ -1408,11 +2313,27 @@
 
 .signalContent {
   flex: 1 1 0;
+  max-width: var(--rc-content-max, 1000px);
   min-width: 0;
   padding-top: 64px;
   display: flex;
   flex-direction: column;
   gap: 48px;
+}
+
+/* Trend details (Figma 1065:3664) — single column, no scoring rail.
+   Keep its content measure aligned with the dashboard's 1000px column. */
+.trendMain {
+  flex-direction: column;
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1200px)) / 2)
+  );
+}
+
+.trendMain .signalContent {
+  width: 100%;
+  max-width: var(--rc-content-max, 1000px);
 }
 
 /* Stack the scoring card above the content when the left column is narrow —
@@ -1622,6 +2543,12 @@
   gap: var(--rc-spacing-10);
 }
 
+.signalProofSection {
+  /* Signal Details (2339:3148): this section's header, chart card, and
+     supporting record card follow the page-level 48px rhythm. */
+  gap: var(--rc-spacing-12);
+}
+
 /* Two sections side by side (What HCPs Report / What This Suggests). */
 .sectionRow {
   display: grid;
@@ -1651,7 +2578,7 @@
 
 .signalSectionIcon {
   display: inline-flex;
-  color: var(--rc-icon-ai);
+  color: var(--rc-icon-primary);
 }
 
 .signalSectionRule {
@@ -1665,8 +2592,8 @@
   width: 32px;
   height: 32px;
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-purple-100);
-  color: var(--rc-icon-ai);
+  background: var(--rc-layer-03);
+  color: var(--rc-icon-primary);
   flex-shrink: 0;
 }
 
@@ -1722,6 +2649,15 @@
   letter-spacing: 0.005em;
 }
 
+.signalProofCard {
+  gap: var(--rc-spacing-6);
+  padding: var(--rc-spacing-12);
+}
+
+.signalProofCard .proofQuote {
+  font: 400 20px/32px var(--rc-font-sans);
+}
+
 .proofMeta {
   display: flex;
   align-items: center;
@@ -1737,6 +2673,42 @@
   width: 1px;
   height: 16px;
   background: var(--rc-border-subtle-01);
+}
+
+/* Trend detail — strategic considerations grid (Figma 2×2 cards) */
+.considerationGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--rc-spacing-6);
+  width: 100%;
+}
+
+@container main (max-width: 900px) {
+  .considerationGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.considerationCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  padding: var(--rc-spacing-6);
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+}
+
+.considerationText {
+  margin: 0;
+  color: var(--rc-text-primary);
+}
+
+.considerationRefs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-2);
+  align-items: flex-start;
 }
 
 /* Records table */
@@ -1758,6 +2730,14 @@
   background: var(--rc-layer-01);
 }
 
+/* Nested inside an expanded Data view row: the row provides the enclosing
+   surface, while the table retains only its header and row separators. */
+.recordsTableFlat {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
 /* Responsive column tracks: minmax keeps every column above a readable
    minimum so the flexible Verbatim column can never collapse to 0 (which
    previously caused columns to overlap in the narrow content area). */
@@ -1768,6 +2748,14 @@
     minmax(92px, 1fr)
     minmax(92px, 1.1fr)
     minmax(104px, 1.3fr);
+}
+
+/* Ask AI "Backing records" — specialty is metadata beneath the verbatim, and
+   dates stay in the record detail view so the quote gets the remaining width. */
+.recordsTableColumnsCompact {
+  grid-template-columns:
+    72px
+    minmax(0, 1fr);
 }
 
 .recordsTableHead {
@@ -1829,6 +2817,20 @@
   color: var(--rc-text-secondary);
 }
 
+.recordsTableColumnsCompact > .recordsHeadCell,
+.recordsTableColumnsCompact > .recordsCell {
+  padding: 8px 12px;
+}
+
+.recordsCellSpecialty {
+  display: block;
+  margin-top: var(--rc-spacing-1);
+  overflow: hidden;
+  color: var(--rc-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Record ID shares the blue "record" accent used across all record references. */
 .recordsCellId {
   color: var(--rc-text-info);
@@ -1838,13 +2840,6 @@
   display: flex;
   justify-content: flex-start;
   margin-top: var(--rc-spacing-4);
-}
-
-/* Higher specificity than the DS .link colour so the record ID keeps the
-   blue record accent (and on hover). */
-.records .recordIdLink,
-.records .recordIdLink:hover {
-  color: var(--rc-text-info);
 }
 
 /* Verbatim mirrors the Figma cell: clamped to three lines with an ellipsis. */

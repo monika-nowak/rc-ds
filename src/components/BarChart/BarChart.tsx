@@ -1,11 +1,11 @@
-import { useCallback, useId, useMemo, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useId, useMemo, type ReactNode } from 'react';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { GridColumns, GridRows } from '@visx/grid';
 import { Group } from '@visx/group';
 import { ParentSize } from '@visx/responsive';
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { Text } from '@visx/text';
-import { useTooltip } from '@visx/tooltip';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { cn } from '../../lib/cn';
 import styles from './BarChart.module.css';
 
@@ -43,6 +43,12 @@ export interface BarChartSeries {
   label: string;
   /** Series color — any CSS color or token. Defaults to the categorical palette. */
   color?: string;
+  /**
+   * Color for the on-bar value label of this series (stacked charts only).
+   * Defaults to the DS `--rc-chart-value-label-on-bar` token. Set a dark token
+   * (e.g. `var(--rc-text-primary)`) for light series so numbers stay legible.
+   */
+  labelColor?: string;
 }
 
 export interface BarChartProps {
@@ -68,6 +74,12 @@ export interface BarChartProps {
   showValues?: boolean;
   /** Render category and value axes. */
   showAxis?: boolean;
+  /**
+   * Force the category (tick) axis on/off, independent of `showAxis`. Defaults
+   * to `showAxis || isMulti`. Set `true` to label a single-series bar chart
+   * (e.g. a horizontal ranking) without also drawing the value axis.
+   */
+  showCategoryAxis?: boolean;
   /** Render a bold total at the end of each category (sum of its series). */
   showTotals?: boolean;
   /** Render a subtle full-width background track behind each bar. */
@@ -80,6 +92,24 @@ export interface BarChartProps {
   formatTotal?: (value: number) => string;
   /** Cap bar thickness (px) and center bars within their band. */
   maxBarWidth?: number;
+  /**
+   * Corner radius (px) for bar / stacked-bar ends. Defaults to a small radius
+   * capped at `barThickness / 2` (max 8px). Set `0` for square ends to match
+   * DS progress / share bars.
+   */
+  barRadius?: number;
+  /**
+   * Font size (px) for the category (axis) tick labels. Defaults to the DS
+   * `.tickLabel` size (12px). Only affects the category axis, not value ticks.
+   */
+  categoryLabelSize?: number;
+  /** Format category labels for display without changing their data keys. */
+  formatCategoryLabel?: (label: string) => string;
+  /**
+   * Enable the hover tooltip. Defaults to `true`. Set `false` for static charts
+   * where every value is already labeled on-screen (avoids redundant hover UI).
+   */
+  enableTooltip?: boolean;
   className?: string;
   /** Accessible label for the chart SVG (`role="img"`). Falls back to `title`. */
   ariaLabel?: string;
@@ -118,6 +148,8 @@ const DEFAULT_TRACK_COLOR = 'var(--rc-chart-track)';
 const BAND_PADDING = 0.3;
 const GROUP_PADDING = 0.15;
 const CATEGORY_CHAR_W = 7.2;
+/** Base tick-label font (px) the char-width heuristic is calibrated for. */
+const CATEGORY_BASE_FONT = 12;
 const TOTAL_CHAR_W = 8;
 const CATEGORY_LABEL_MAX = 260;
 const CATEGORY_LABEL_MIN = 56;
@@ -133,6 +165,7 @@ interface ResolvedSeries {
   id: string;
   label: string;
   color: string;
+  labelColor?: string;
 }
 
 interface RowSegment {
@@ -140,6 +173,7 @@ interface RowSegment {
   seriesLabel: string;
   value: number;
   color: string;
+  labelColor?: string;
 }
 
 interface ResolvedRow {
@@ -185,6 +219,7 @@ function normalize(
       id: s.id,
       label: s.label,
       color: s.color ?? paletteColor(i),
+      labelColor: s.labelColor,
     }));
   } else if (groupMode) {
     const ids: string[] = [];
@@ -206,6 +241,7 @@ function normalize(
         seriesLabel: s.label,
         value: datum.values[s.id] ?? 0,
         color: s.color,
+        labelColor: s.labelColor,
       }));
     } else {
       const s = resolvedSeries[0];
@@ -288,6 +324,11 @@ interface BarChartInnerProps
   width: number;
   height: number;
   maxBarWidth?: number;
+  barRadius?: number;
+  categoryLabelSize?: number;
+  formatCategoryLabel: (label: string) => string;
+  showCategoryAxis?: boolean;
+  enableTooltip: boolean;
   ariaLabel: string;
 }
 
@@ -306,6 +347,11 @@ function BarChartInner({
   formatValue,
   formatTotal,
   maxBarWidth,
+  barRadius,
+  categoryLabelSize,
+  formatCategoryLabel,
+  showCategoryAxis: showCategoryAxisProp,
+  enableTooltip,
   ariaLabel,
 }: BarChartInnerProps) {
   const {
@@ -317,15 +363,28 @@ function BarChartInner({
     hideTooltip,
   } = useTooltip<TooltipDatum>();
 
+  // Render the tooltip through a body portal so it is never clipped by an
+  // ancestor's `overflow: hidden` / fixed height (e.g. the chart area or a
+  // constrained section). Coordinates stay relative to `containerRef` (the
+  // chart wrapper), so existing positioning math is unchanged.
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    detectBounds: false,
+    scroll: true,
+  });
+
   const clipId = useId();
   const isMulti = series.length > 1;
   const useGrouped = isMulti && !stacked;
   const insideLabels = !useGrouped && (stacked || isMulti);
-  const showCategoryAxis = showAxis || isMulti;
+  const showCategoryAxis = showCategoryAxisProp ?? (showAxis || isMulti);
   const isVertical = orientation === 'vertical';
 
+  // `CATEGORY_CHAR_W` is calibrated for the 12px base tick label; scale it when
+  // a larger `categoryLabelSize` is used so the reserved margin still fits the
+  // (wider) text and long labels are not clipped. No-op at the 12px default.
+  const categoryCharW = CATEGORY_CHAR_W * ((categoryLabelSize ?? CATEGORY_BASE_FONT) / CATEGORY_BASE_FONT);
   const longestCategoryPx =
-    Math.max(0, ...rows.map((r) => r.label.length)) * CATEGORY_CHAR_W;
+    Math.max(0, ...rows.map((r) => formatCategoryLabel(r.label).length)) * categoryCharW;
   const longestTotalPx =
     Math.max(0, ...rows.map((r) => formatTotal(r.total).length)) * TOTAL_CHAR_W;
 
@@ -380,6 +439,7 @@ function BarChartInner({
 
   const emitTooltip = useCallback(
     (row: ResolvedRow, seg: RowSegment, left: number, top: number) => {
+      if (!enableTooltip) return;
       showTooltip({
         tooltipData: {
           category: row.label,
@@ -391,7 +451,7 @@ function BarChartInner({
         tooltipTop: margin.top + top,
       });
     },
-    [showTooltip, margin.left, margin.top, isMulti],
+    [enableTooltip, showTooltip, margin.left, margin.top, isMulti],
   );
 
   if (innerWidth <= 0 || innerHeight <= 0) return null;
@@ -399,7 +459,8 @@ function BarChartInner({
   const band = categoryScale.bandwidth();
   const barThickness = maxBarWidth ? Math.min(band, maxBarWidth) : band;
   const bandOffset = (band - barThickness) / 2;
-  const radius = Math.min(barThickness / 2, 8);
+  const radius =
+    barRadius != null ? Math.max(0, barRadius) : Math.min(barThickness / 2, 8);
   const trackLength = isVertical ? innerHeight : innerWidth;
   const fitsInside = (segLen: number, text: string) => {
     const textPx = text.length * CATEGORY_CHAR_W + 8;
@@ -410,7 +471,7 @@ function BarChartInner({
   };
 
   return (
-    <div className={styles.inner}>
+    <div className={styles.inner} ref={containerRef}>
       <svg
         className={styles.svg}
         width={width}
@@ -577,6 +638,7 @@ function BarChartInner({
                             <Text
                               key={seg.seriesId}
                               className={styles.valueLabelOnBar}
+                              style={seg.labelColor ? { fill: seg.labelColor } : undefined}
                               x={isVertical ? barBandStart + barThickness / 2 : mid}
                               y={isVertical ? mid : barBandStart + barThickness / 2}
                               textAnchor="middle"
@@ -626,10 +688,13 @@ function BarChartInner({
                 top={innerHeight}
                 hideTicks
                 hideAxisLine={!showAxis}
+                tickValues={labels}
+                tickFormat={formatCategoryLabel}
                 tickLabelProps={() => ({
                   className: styles.tickLabel,
                   textAnchor: 'middle',
                   dy: '0.6em',
+                  style: categoryLabelSize ? { fontSize: categoryLabelSize } : undefined,
                 })}
               />
             ) : (
@@ -637,11 +702,14 @@ function BarChartInner({
                 scale={categoryScale}
                 hideAxisLine
                 hideTicks
+                tickValues={labels}
+                tickFormat={formatCategoryLabel}
                 tickLabelProps={() => ({
                   className: styles.tickLabel,
                   textAnchor: 'end',
                   dx: '-0.4em',
                   dy: '0.28em',
+                  style: categoryLabelSize ? { fontSize: categoryLabelSize } : undefined,
                 })}
               />
             )
@@ -680,25 +748,25 @@ function BarChartInner({
         </Group>
       </svg>
 
-      {tooltipOpen && tooltipData ? (
-        <div
+      {enableTooltip && tooltipOpen && tooltipData ? (
+        <TooltipInPortal
           className={styles.tooltip}
-          style={
-            {
-              left: tooltipLeft ?? 0,
-              top: tooltipTop ?? 0,
-            } as CSSProperties
-          }
+          left={tooltipLeft ?? 0}
+          top={tooltipTop ?? 0}
+          unstyled
+          applyPositionStyle
+          offsetLeft={0}
+          offsetTop={0}
         >
           <span className={cn('rc-label-sm', styles.tooltipLabel)}>
             {tooltipData.showSeries
-              ? `${tooltipData.category} · ${tooltipData.series}`
-              : tooltipData.category}
+              ? `${formatCategoryLabel(tooltipData.category)} · ${tooltipData.series}`
+              : formatCategoryLabel(tooltipData.category)}
           </span>
           <span className={cn('rc-body-xs', styles.tooltipValue)}>
             {formatValue(tooltipData.value)}
           </span>
-        </div>
+        </TooltipInPortal>
       ) : null}
     </div>
   );
@@ -714,6 +782,7 @@ export function BarChart({
   showGrid = true,
   showValues = false,
   showAxis = true,
+  showCategoryAxis,
   showTotals = false,
   showTrack = false,
   showLegend,
@@ -723,6 +792,10 @@ export function BarChart({
   formatValue,
   formatTotal,
   maxBarWidth,
+  barRadius,
+  categoryLabelSize,
+  formatCategoryLabel = (label) => label,
+  enableTooltip = true,
   className,
   ariaLabel,
   title,
@@ -782,11 +855,16 @@ export function BarChart({
                 showGrid={showGrid}
                 showValues={showValues}
                 showAxis={showAxis}
+                showCategoryAxis={showCategoryAxis}
                 showTotals={showTotals}
                 showTrack={showTrack}
                 formatValue={resolvedFormatValue}
                 formatTotal={resolvedFormatTotal}
                 maxBarWidth={maxBarWidth}
+                barRadius={barRadius}
+                categoryLabelSize={categoryLabelSize}
+                formatCategoryLabel={formatCategoryLabel}
+                enableTooltip={enableTooltip}
                 ariaLabel={resolvedLabel}
               />
             ) : null

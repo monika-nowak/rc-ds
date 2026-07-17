@@ -1,24 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatWithAI, type Reference, type ReferenceOption } from '../src/components/ChatWithAI';
-import { ArrowsOutSimple, ChartLine, Chats } from '@phosphor-icons/react';
+import {
+  ArrowsOutSimple,
+  CellSignalFull,
+  ChartLine,
+  Chats,
+  PresentationChart,
+} from '@phosphor-icons/react';
 import { Badge } from '../src/components/Badge';
 import { StatusIndicator } from '../src/components/StatusIndicator';
+import { Tooltip } from '../src/components/Tooltip';
 import { IconButton } from '../src/components/IconButton';
-import { Link } from '../src/components/Link';
 import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
 import type { ChatScope } from './Dashboard';
 import type { QuoteRequest } from './App';
-import { RECORDS, SIGNALS, TRENDS, type RecordEntry } from './data';
+import { RECORDS, SIGNALS, TRENDS, formatThemeLabel, type RecordEntry } from './data';
 import {
   buildAnswer,
   countTokens,
   defaultSuggestions,
-  sampleRecords,
   type Answer,
   type AnswerBlock,
   type DataRow,
   type DataView,
+  type EvidenceRecord,
 } from './aiEngine';
 import { generateAnswer, llmConfigured, type ChatTurn } from './llm';
 import {
@@ -41,9 +47,13 @@ import {
 import { Input } from '../src/components/Input';
 import { Select, type SelectEntry } from '../src/components/Select';
 import { Button } from '../src/components/Button';
+import { Popover } from '../src/components/Popover';
+import { WelcomeHero } from './WelcomeHero';
+import { SparkleGlyph } from './SparkleGlyph';
+import { ProofChart } from './ProofChart';
 import styles from './demo.module.css';
 
-type View = 'conversation' | 'scope' | 'history' | 'settings';
+type View = 'conversation' | 'history' | 'settings';
 type AssistantStatus = 'thinking' | 'streaming' | 'done';
 
 interface UserMessage {
@@ -90,6 +100,14 @@ const REFERENCE_OPTIONS: ReferenceOption[] = [
 const TYPE_INTERVAL_MS = 22;
 const THINKING_MS = 650;
 
+/** Time-of-day greeting for the welcome state. */
+function greetingForNow(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning!';
+  if (h < 18) return 'Good afternoon!';
+  return 'Good evening!';
+}
+
 /** Flatten an answer into plain text so it can be fed back as chat history. */
 function answerToText(answer: Answer): string {
   return answer.blocks
@@ -119,9 +137,108 @@ interface AskAiPanelProps {
   onScopeChange: (scope: ChatScope) => void;
   onClose: () => void;
   onOpenRecord?: (record: RecordEntry) => void;
+  /** Open a signal detail page from a clicked S<n> citation. */
+  onOpenSignal?: (signalId: string) => void;
+  /** Reveal a trend's section from a clicked T<n> citation. */
+  onOpenTrend?: (trendId: string) => void;
   expanded: boolean;
   onToggleExpanded: () => void;
   quote?: QuoteRequest | null;
+}
+
+/** Resolve a T<n>/S<n>/R<id> citation to a click handler, or undefined. */
+function refHandler(
+  ref: string,
+  handlers: {
+    onOpenRecord?: (record: RecordEntry) => void;
+    onOpenSignal?: (signalId: string) => void;
+    onOpenTrend?: (trendId: string) => void;
+  },
+): (() => void) | undefined {
+  const record = /^R(\d+)$/.exec(ref);
+  if (record) {
+    const id = Number(record[1]);
+    if (handlers.onOpenRecord && RECORDS[id]) return () => handlers.onOpenRecord!(RECORDS[id]);
+    return undefined;
+  }
+  const signal = /^S(\d+)$/.exec(ref);
+  if (signal) {
+    const match = SIGNALS.find((s) => s.shorthand === ref);
+    if (handlers.onOpenSignal && match) return () => handlers.onOpenSignal!(match.id);
+    return undefined;
+  }
+  const trend = /^T(\d+)$/.exec(ref);
+  if (trend) {
+    const target = TRENDS[Number(trend[1]) - 1];
+    if (handlers.onOpenTrend && target) return () => handlers.onOpenTrend!(target.id);
+    return undefined;
+  }
+  return undefined;
+}
+
+/** Blue for records, purple (AI) for signal/trend citations. */
+function refColor(ref: string): 'info' | 'lightPurple' {
+  return /^R\d+$/.test(ref) ? 'info' : 'lightPurple';
+}
+
+/** Reference-tag leading glyph, per Figma 2261:7448 (16px, type-specific). */
+function ScopeGlyph({ kind }: { kind: ChatScope['kind'] }) {
+  if (kind === 'signal') return <CellSignalFull size={16} weight="regular" />;
+  if (kind === 'trend') return <ChartLine size={16} weight="regular" />;
+  return <PresentationChart size={16} weight="regular" />;
+}
+
+/** Per-type leading glyph for a trend/signal citation chip (records get none). */
+function CitationGlyph({ refId }: { refId: string }) {
+  if (/^T\d+$/.test(refId)) return <ChartLine size={16} weight="regular" />;
+  if (/^S\d+$/.test(refId)) return <CellSignalFull size={16} weight="regular" />;
+  return null;
+}
+
+const RECORDS_PREVIEW = 4;
+
+type CompactRecord = Pick<RecordEntry, 'id' | 'quote' | 'specialty'>;
+
+/** Shared narrow record table used for backing records and verbatim evidence. */
+function CompactRecordsTable({
+  records,
+  onOpenRecord,
+  flat = false,
+}: {
+  records: CompactRecord[];
+  onOpenRecord?: (record: RecordEntry) => void;
+  /** Avoid a second card outline when rendered inside an expanded data row. */
+  flat?: boolean;
+}) {
+  return (
+    <div className={`${styles.recordsTableWrap} ${flat ? styles.recordsTableFlat : ''}`}>
+      <div className={`${styles.recordsTableHead} ${styles.recordsTableColumnsCompact}`}>
+        <span className={`rc-body-xs ${styles.recordsHeadCell}`}>ID</span>
+        <span className={`rc-body-xs ${styles.recordsHeadCell}`}>Verbatim</span>
+      </div>
+      {records.map((record) => {
+        const full = RECORDS[record.id];
+        return (
+          <button
+            key={record.id}
+            type="button"
+            className={`${styles.recordsTableRow} ${styles.recordsTableColumnsCompact} ${styles.recordsTableRowButton}`}
+            onClick={() => full && onOpenRecord?.(full)}
+          >
+            <span className={styles.recordsCell}>
+              <Badge appearance="subtle" color="info">
+                R{record.id}
+              </Badge>
+            </span>
+            <span className={`rc-body-xs ${styles.recordsCell}`}>
+              <span className={styles.recordsCellVerbatim}>{record.quote}</span>
+              <span className={`rc-body-xs ${styles.recordsCellSpecialty}`}>{record.specialty}</span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 function RecordsDetail({
@@ -131,43 +248,34 @@ function RecordsDetail({
   row: DataRow;
   onOpenRecord?: (record: RecordEntry) => void;
 }) {
-  const records = sampleRecords(row.label);
+  // Resolve to REAL records from the row's backing ids (no fabrication). The
+  // LLM path may omit ids — in that case we show a graceful note.
+  const records = (row.recordIds ?? [])
+    .map((id) => RECORDS[id])
+    .filter((record): record is RecordEntry => Boolean(record));
+  const shown = records.slice(0, RECORDS_PREVIEW);
+
+  if (shown.length === 0) {
+    return (
+      <div className={styles.records}>
+        <span className={`rc-body-xs ${styles.recordsNote}`}>
+          No linked records for this row.
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.records}>
       <span className={`rc-label-sm ${styles.recordsTitle}`}>Backing records</span>
 
-      <div className={styles.recordsTable}>
-        <div className={`${styles.recordsRow} ${styles.recordsHeadRow}`}>
-          <span className={`rc-label-sm ${styles.recordsColHead}`}>Record ID</span>
-          <span className={`rc-label-sm ${styles.recordsColHead}`}>Verbatim</span>
-          <span className={`rc-label-sm ${styles.recordsColHead}`}>Date</span>
-        </div>
-        {records.map((record) => (
-          <div key={record.id} className={styles.recordsRow}>
-            <Link
-              size="sm"
-              className={styles.recordIdLink}
-              onClick={() =>
-                onOpenRecord?.({
-                  id: Number(record.id),
-                  specialty: '',
-                  institution: '',
-                  date: record.date,
-                  quote: record.verbatim,
-                })
-              }
-            >
-              {record.id}
-            </Link>
-            <span className={`rc-body-sm ${styles.recordVerbatim}`}>{record.verbatim}</span>
-            <span className={`rc-body-sm ${styles.recordDate}`}>{record.date}</span>
-          </div>
-        ))}
-      </div>
+      {/* The Ask AI panel is substantially narrower than Signal detail, so
+          specialty lives beneath the verbatim and the date remains in record
+          detail instead of taking table width. */}
+      <CompactRecordsTable records={shown} onOpenRecord={onOpenRecord} flat />
 
       <span className={`rc-body-xs ${styles.recordsNote}`}>
-        Showing {records.length} sample {records.length === 1 ? 'record' : 'records'}
+        Showing {shown.length} of {records.length} {records.length === 1 ? 'record' : 'records'}
       </span>
     </div>
   );
@@ -204,6 +312,7 @@ function DataViewCard({
           </div>
           {data.rows.map((row) => {
             const isOpen = openRow === row.label;
+            const displayLabel = data.columns[0] === 'Theme' ? formatThemeLabel(row.label) : row.label;
             return (
               <div key={row.label} className={styles.dataRowGroup}>
                 <button
@@ -212,11 +321,11 @@ function DataViewCard({
                   aria-expanded={isOpen}
                   onClick={() => setOpenRow(isOpen ? null : row.label)}
                 >
-                  <span className={`rc-body-sm ${styles.dataCell}`}>
+                  <span className={`rc-body-xs ${styles.dataCell}`}>
                     <Icon name="caret-right" size={12} tone="tertiary" className={styles.dataCaret} />
-                    {row.label}
+                    {displayLabel}
                   </span>
-                  <span className={`rc-body-sm ${styles.dataValue}`}>{row.value}</span>
+                  <span className={`rc-body-xs ${styles.dataValue}`}>{row.value}</span>
                   <span className={styles.dataShare}>
                     <span className={styles.dataBarTrack}>
                       <span
@@ -224,7 +333,7 @@ function DataViewCard({
                         style={{ width: grown ? `${row.share}%` : 0 }}
                       />
                     </span>
-                    <span className={`rc-body-sm ${styles.dataPct}`}>{row.share}%</span>
+                    <span className={`rc-body-xs ${styles.dataPct}`}>{row.share}%</span>
                   </span>
                 </button>
                 {isOpen ? (
@@ -239,32 +348,72 @@ function DataViewCard({
         </div>
       </div>
 
+      {data.note ? (
+        <div className={styles.dataNote}>
+          <Icon name="info" size={14} tone="tertiary" />
+          <span className="rc-body-xs">{data.note}</span>
+        </div>
+      ) : null}
+
       <div className={styles.dataViewFoot}>
         <span className={styles.dataSource}>
           <span className={styles.dataSourceDot} aria-hidden />
           <span className="rc-body-xs">{data.source}</span>
-        </span>
-        <span className={styles.dataActions}>
-          <span className={styles.dataAction}>
-            <Icon name="magnifying-glass" size={14} tone="tertiary" />
-            <span className="rc-body-xs">Trace</span>
-          </span>
-          <span className={styles.dataAction}>
-            <Icon name="flag" size={14} tone="tertiary" />
-            <span className="rc-body-xs">Flag</span>
-          </span>
         </span>
       </div>
     </div>
   );
 }
 
+function EvidenceRecordsTable({
+  records,
+  onOpenRecord,
+}: {
+  records: EvidenceRecord[];
+  onOpenRecord?: (record: RecordEntry) => void;
+}) {
+  return (
+    <div className={styles.evidenceRecordsTable}>
+      <CompactRecordsTable records={records} onOpenRecord={onOpenRecord} />
+    </div>
+  );
+}
+
+function MagnitudeStrip({ stats }: { stats: { label: string; value: string }[] }) {
+  return (
+    <div className={styles.magnitudeStrip}>
+      {stats.map((stat) => (
+        <div key={stat.label} className={styles.magnitudeStat}>
+          <span className={`rc-heading-h7 ${styles.magnitudeValue}`}>{stat.value}</span>
+          <span className={`rc-body-xs ${styles.magnitudeLabel}`}>{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Screen-reader summary for the compact confidence chip (score + reason live in the tooltip). */
+function confidenceAriaLabel(confidence: {
+  label: string;
+  score?: number;
+  reason?: string;
+}): string {
+  const parts = [`Confidence: ${confidence.label}`];
+  if (confidence.score != null) parts.push(`${confidence.score} out of 100`);
+  if (confidence.reason) parts.push(confidence.reason);
+  return parts.join(' · ');
+}
+
 function AnswerView({
   message,
   onOpenRecord,
+  onOpenSignal,
+  onOpenTrend,
 }: {
   message: AssistantMessage;
   onOpenRecord?: (record: RecordEntry) => void;
+  onOpenSignal?: (signalId: string) => void;
+  onOpenTrend?: (trendId: string) => void;
 }) {
   const { answer, revealed, showData, showProof, showRefs, status } = message;
   const streaming = status === 'streaming';
@@ -322,6 +471,15 @@ function AnswerView({
 
   return (
     <div className={styles.answer} data-selectable-ask>
+      {answer.guardrail ? (
+        <div className={styles.guardrailHead}>
+          <Badge appearance="subtle" color="neutral">
+            {answer.guardrail.badge}
+          </Badge>
+          <span className={`rc-body-sm ${styles.guardrailReason}`}>{answer.guardrail.reason}</span>
+        </div>
+      ) : null}
+
       <div className={styles.answerContent}>
         {groups.map((group, groupIndex) =>
           group.kind === 'ul' ? (
@@ -337,8 +495,22 @@ function AnswerView({
           ),
         )}
 
+        {showData && answer.magnitude ? <MagnitudeStrip stats={answer.magnitude} /> : null}
+
+        {showData && answer.proofChart ? (
+          <ProofChart
+            type={answer.proofChart.type}
+            scope={answer.proofChart.scope}
+            compact
+          />
+        ) : null}
+
         {showData && answer.dataView ? (
           <DataViewCard data={answer.dataView} onOpenRecord={onOpenRecord} />
+        ) : null}
+
+        {showData && answer.records && answer.records.length > 0 ? (
+          <EvidenceRecordsTable records={answer.records} onOpenRecord={onOpenRecord} />
         ) : null}
 
         {showProof && answer.proof ? (
@@ -347,40 +519,103 @@ function AnswerView({
             <span className={`rc-body-sm ${styles.answerProofQuote}`}>{answer.proof.quote}</span>
           </div>
         ) : null}
+
+        {showProof && answer.disclaimer ? (
+          <div className={styles.disclaimer}>
+            <Icon name="warning" size={14} tone="warning" />
+            <span className={`rc-body-xs ${styles.disclaimerText}`}>{answer.disclaimer}</span>
+          </div>
+        ) : null}
       </div>
 
       {showFooter ? (
-        <div className={styles.answerFooter}>
-          <div className={styles.answerSources}>
-            {(answer.refs ?? []).map((ref) => {
-              const match = /^R(\d+)$/.exec(ref);
-              const id = match ? Number(match[1]) : Number.NaN;
-              const clickable = onOpenRecord && !Number.isNaN(id) && Boolean(RECORDS[id]);
-              return clickable ? (
-                <button
-                  key={ref}
-                  type="button"
-                  className={styles.recordRefButton}
-                  onClick={() => onOpenRecord(RECORDS[id])}
+        <>
+          <div className={styles.answerFooter}>
+            {hasRefs ? (
+              <div className={styles.answerSources}>
+                {(answer.refs ?? []).map((ref) => {
+                  const onClick = refHandler(ref, { onOpenRecord, onOpenSignal, onOpenTrend });
+
+                  // Records keep the existing blue accent Badge.
+                  if (/^R\d+$/.test(ref)) {
+                    const badge = (
+                      <Badge appearance="subtle" color={refColor(ref)}>
+                        {ref}
+                      </Badge>
+                    );
+                    return onClick ? (
+                      <button
+                        key={ref}
+                        type="button"
+                        className={styles.recordRefButton}
+                        onClick={onClick}
+                      >
+                        {badge}
+                      </button>
+                    ) : (
+                      <span key={ref}>{badge}</span>
+                    );
+                  }
+
+                  // Trend/Signal citations render as reference tags (Figma
+                  // 2261:7448): purple accent + type-specific leading glyph.
+                  const tagInner = (
+                    <>
+                      <span className={styles.citationTagIcon} aria-hidden>
+                        <CitationGlyph refId={ref} />
+                      </span>
+                      <span className={`rc-label-sm ${styles.citationTagLabel}`}>{ref}</span>
+                    </>
+                  );
+                  return onClick ? (
+                    <button key={ref} type="button" className={styles.citationTag} onClick={onClick}>
+                      {tagInner}
+                    </button>
+                  ) : (
+                    <span key={ref} className={styles.citationTag}>
+                      {tagInner}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : null}
+
+            <div className={styles.answerConfidenceRow}>
+              {answer.confidence ? (
+                <Tooltip
+                  placement="right"
+                  multiline
+                  content={
+                    <span className={styles.confidenceTip}>
+                      {answer.confidence.score != null ? (
+                        <span className={`rc-label-sm ${styles.confidenceTipScore}`}>
+                          {answer.confidence.score}/100
+                        </span>
+                      ) : null}
+                      {answer.confidence.reason ? (
+                        <span className={styles.confidenceTipReason}>{answer.confidence.reason}</span>
+                      ) : null}
+                    </span>
+                  }
                 >
-                  <Badge appearance="subtle" color="info">
-                    {ref}
-                  </Badge>
-                </button>
+                  <span
+                    className={styles.confidenceChip}
+                    tabIndex={0}
+                    aria-label={confidenceAriaLabel(answer.confidence)}
+                  >
+                    <StatusIndicator
+                      variant={answer.confidence.tone}
+                      label={answer.confidence.label}
+                    />
+                  </span>
+                </Tooltip>
               ) : (
-                <Badge key={ref} appearance="subtle" color="info">
-                  {ref}
-                </Badge>
-              );
-            })}
-          </div>
-          {answer.confidence ? (
-            <div className={styles.answerConfidence}>
-              <span className={`rc-label-md ${styles.answerConfidenceLabel}`}>Confidence:</span>
-              <StatusIndicator variant={answer.confidence.tone} label={answer.confidence.label} />
+                <span />
+              )}
+
             </div>
-          ) : null}
-        </div>
+          </div>
+        </>
       ) : null}
     </div>
   );
@@ -411,6 +646,7 @@ function buildMessagesFromConversation(
 
   const messages: Message[] = [];
   let lastAnswer: Answer | null = null;
+  const priorQuestions: string[] = [];
   for (const turn of turns) {
     const turnRefs = turn.references ?? (turn.reference ? [turn.reference] : undefined);
     // Newer turns store `text` with reference labels already inline; older turns
@@ -421,7 +657,8 @@ function buildMessagesFromConversation(
       !isComposed && refLabels.length > 0 ? `Regarding ${refLabels.join(' and ')}: ` : '';
     const composedText = `${refPhrase}${turn.text}`;
     const intent = turn.quote ? `${composedText} ${turn.quote}` : composedText;
-    const answer = buildAnswer(intent, conversation.scope);
+    const answer = buildAnswer(intent, conversation.scope, priorQuestions);
+    priorQuestions.push(turn.text);
     lastAnswer = answer;
     messages.push({
       id: nextId(),
@@ -479,6 +716,8 @@ export function AskAiPanel({
   onToggleExpanded,
   quote,
   onOpenRecord,
+  onOpenSignal,
+  onOpenTrend,
 }: AskAiPanelProps) {
   // When the panel is opened by a card's "Ask AI" (scopeRequest present), skip
   // restoring the last conversation and start fresh, scoped to that card.
@@ -486,6 +725,9 @@ export function AskAiPanel({
     scopeRequest ? null : loadInitialConversation(),
   );
   const [view, setView] = useState<View>('conversation');
+  // Controls the anchored scope Popover in the context bar (replaces the old
+  // full-page 'scope' view).
+  const [scopeMenuOpen, setScopeMenuOpen] = useState(false);
   const [value, setValue] = useState('');
   const [messages, setMessages] = useState<Message[]>(
     () => initialConversation?.messages ?? [],
@@ -587,7 +829,7 @@ export function AskAiPanel({
   // Entering the New chat (scope) or Conversations (history) views should start
   // at the very top, not the middle of the scroll container.
   useEffect(() => {
-    if (view === 'scope' || view === 'history') {
+    if (view === 'history') {
       const el = bodyRef.current;
       if (el) el.scrollTop = 0;
     }
@@ -631,13 +873,13 @@ export function AskAiPanel({
   );
 
   const persist = useCallback(
-    (finalMessages: Message[]) => {
+    (finalMessages: Message[], scopeOverride?: ChatScope) => {
       const users = finalMessages.filter((m): m is UserMessage => m.role === 'user');
       if (users.length === 0) return;
       const conversation: StoredConversation = {
         id: conversationIdRef.current,
         title: users[0].text,
-        scope,
+        scope: scopeOverride ?? scope,
         ts: Date.now(),
         turns: users.map((u) => ({
           text: u.text,
@@ -681,7 +923,12 @@ export function AskAiPanel({
 
           if (revealedCount >= total) {
             let delay = 0;
-            if (answer.dataView) {
+            if (
+              answer.dataView ||
+              answer.magnitude ||
+              answer.proofChart ||
+              (answer.records && answer.records.length > 0)
+            ) {
               delay += 240;
               const dataTimer = setTimeout(
                 () => updateLastAssistant((message) => ({ ...message, showData: true })),
@@ -689,7 +936,7 @@ export function AskAiPanel({
               );
               timers.current.push(dataTimer);
             }
-            if (answer.proof) {
+            if (answer.proof || answer.disclaimer) {
               delay += 300;
               const proofTimer = setTimeout(
                 () => updateLastAssistant((message) => ({ ...message, showProof: true })),
@@ -797,8 +1044,12 @@ export function AskAiPanel({
             streamAnswer(errorAnswer(message), 0);
           });
       } else {
-        // Deterministic demo engine.
-        const answer = buildAnswer(intentText, scope);
+        // Deterministic demo engine — pass prior user questions so the
+        // follow-up rail reacts to the thread and avoids repeats.
+        const priorQuestions = messagesRef.current
+          .filter((message) => message.role === 'user')
+          .map((message) => message.text);
+        const answer = buildAnswer(intentText, scope, priorQuestions);
         updateLastAssistant((message) => ({ ...message, answer }));
         streamAnswer(answer);
       }
@@ -815,7 +1066,10 @@ export function AskAiPanel({
     conversationIdRef.current = `c-${Date.now()}`;
     saveActiveConversationId(null);
     setSuggestions(defaultSuggestions(scope));
-    setView('scope');
+    setView('conversation');
+    // Land on the empty state with the scope picker CLOSED — the popover only
+    // opens when the user actually clicks the scope pill.
+    setScopeMenuOpen(false);
   };
 
   const chooseScope = (next: ChatScope) => {
@@ -840,8 +1094,23 @@ export function AskAiPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scopeRequest]);
 
-  // Clearing the scope pill resets the conversation back to the whole report.
-  const clearScope = () => chooseScope({ kind: 'whole', label: 'Whole report' });
+  // Rescope the CURRENT conversation WITHOUT clearing it (approved decision):
+  // update the scope, keep every existing message, and — if a conversation is
+  // already underway — persist the new scope against the same turns so history
+  // and reloads keep the new focus. An empty conversation just adopts the new
+  // scope; the scope-change effect refreshes the welcome suggestions. This is
+  // deliberately different from `chooseScope` (the card "Ask AI" flow), which
+  // starts a fresh conversation.
+  const rescope = (next: ChatScope) => {
+    setScopeMenuOpen(false);
+    onScopeChange(next);
+    if (messages.some((message) => message.role === 'user')) {
+      persist(messages, next);
+    }
+  };
+
+  // The scope pill's trailing X: clear back to the whole-report scope.
+  const clearScope = () => rescope({ kind: 'whole', label: 'Whole report' });
 
   const openHistoryItem = (conversation: StoredConversation) => {
     clearTimers();
@@ -859,30 +1128,26 @@ export function AskAiPanel({
   };
 
   const headerTitle =
-    view === 'scope'
-      ? 'New chat'
-      : view === 'history'
-        ? 'Conversations'
-        : view === 'settings'
-          ? 'LLM settings'
-          : 'Ask AI';
+    view === 'history'
+      ? 'Conversations'
+      : view === 'settings'
+        ? 'LLM settings'
+        : 'Ask AI';
   const headerSubtitle =
-    view === 'scope'
-      ? 'Choose a scope to begin'
-      : view === 'history'
-        ? 'Saved to this project'
-        : view === 'settings'
-          ? 'Bring your own key'
-          : isSignalScope
-            ? scope.label
-            : undefined;
+    view === 'history'
+      ? 'Saved to this project'
+      : view === 'settings'
+        ? 'Bring your own key'
+        : isSignalScope
+          ? scope.label
+          : undefined;
 
   return (
     <aside className={`${styles.panel} ${expanded ? styles.panelExpanded : ''}`} aria-label="Ask AI">
       <header className={styles.panelHeader}>
         {view === 'settings' ? (
           <IconButton variant="ghost" size="sm" label="Back" onClick={closeSettings}>
-            <Icon name="caret-left" size={18} tone="primary" />
+            <Icon name="caret-left" size={16} tone="primary" />
           </IconButton>
         ) : view !== 'history' ? (
           <IconButton
@@ -891,49 +1156,41 @@ export function AskAiPanel({
             label="Conversations"
             onClick={() => setView('history')}
           >
-            <Icon name="caret-left" size={18} tone="primary" />
+            <Icon name="caret-left" size={16} tone="primary" />
           </IconButton>
         ) : null}
-        <span className={styles.panelAiMark} aria-hidden>
+        <span
+          className={`${styles.panelAiMark} ${view === 'conversation' ? styles.panelAiMarkMesh : ''}`}
+          aria-hidden
+        >
           {view === 'history' ? (
             <Chats size={20} weight="regular" />
           ) : view === 'settings' ? (
             <Icon name="gear" size={20} tone="on-color" />
           ) : (
-            <Icon name="sparkle" size={20} tone="on-color" />
+            <SparkleGlyph size={20} className={styles.panelAiSparkle} />
           )}
         </span>
         <div className={styles.panelTitleBlock}>
-          <span className={`rc-heading-h9 ${styles.panelTitle}`}>{headerTitle}</span>
+          <span className={`rc-heading-h8 ${styles.panelTitle}`}>{headerTitle}</span>
           {headerSubtitle ? (
             <span className={`rc-body-xs ${styles.panelSubtitle}`}>{headerSubtitle}</span>
           ) : null}
         </div>
         <div className={styles.panelHeaderActions}>
-          {view !== 'settings' ? (
-            llmAvailable ? (
-              <button
-                type="button"
-                className={`rc-label-sm ${styles.modeToggle} ${useLLM ? styles.modeToggleLive : ''}`}
-                onClick={() => setUseLLM((value) => !value)}
-                title={
-                  useLLM
-                    ? 'Live model answers — click to switch to demo answers'
-                    : 'Demo answers — click to switch to the live model'
-                }
-              >
-                {useLLM ? 'Live' : 'Demo'}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className={`rc-label-sm ${styles.connectPill}`}
-                onClick={openSettings}
-                title="Connect your own LLM to get live answers"
-              >
-                Connect LLM
-              </button>
-            )
+          {view !== 'settings' && llmAvailable ? (
+            <button
+              type="button"
+              className={`rc-label-sm ${styles.modeToggle} ${useLLM ? styles.modeToggleLive : ''}`}
+              onClick={() => setUseLLM((value) => !value)}
+              title={
+                useLLM
+                  ? 'Live model answers — click to switch to demo answers'
+                  : 'Demo answers — click to switch to the live model'
+              }
+            >
+              {useLLM ? 'Live' : 'Demo'}
+            </button>
           ) : null}
           <IconButton
             variant="ghost"
@@ -941,79 +1198,79 @@ export function AskAiPanel({
             label="LLM settings"
             onClick={openSettings}
           >
-            <Icon name="gear" size={18} tone="primary" />
+            <Icon name="gear" size={16} tone="primary" />
           </IconButton>
           <IconButton variant="ghost" size="sm" label="New chat" onClick={startNewChat}>
-            <Icon name="plus" size={18} tone="primary" />
+            <Icon name="plus" size={16} tone="primary" />
           </IconButton>
           <IconButton variant="ghost" size="sm" label="Expand" onClick={onToggleExpanded}>
-            <ArrowsOutSimple size={18} weight="regular" />
+            <ArrowsOutSimple size={16} weight="regular" />
           </IconButton>
           <IconButton variant="ghost" size="sm" label="Close" onClick={onClose}>
-            <Icon name="x" size={18} tone="primary" />
+            <Icon name="x" size={16} tone="primary" />
           </IconButton>
         </div>
       </header>
 
+      {view === 'conversation' ? (
+        <div className={styles.scopeBar}>
+          <span className={`rc-body-sm ${styles.scopeBarLabel}`}>Chat scoped to:</span>
+          <span className={styles.scopePill}>
+            <Popover
+              open={scopeMenuOpen}
+              onOpenChange={setScopeMenuOpen}
+              placement="bottom"
+              align="start"
+              caret={false}
+              content={
+                <div className={styles.scopeMenu}>
+                  <ScopePicker onPick={rescope} />
+                </div>
+              }
+            >
+              <button
+                type="button"
+                className={styles.scopePillTrigger}
+                aria-label={`Change chat scope (currently ${scope.label})`}
+              >
+                <span className={styles.scopePillGlyph} aria-hidden>
+                  <ScopeGlyph kind={scope.kind} />
+                </span>
+                <span className={`rc-label-md ${styles.scopePillLabel}`}>{scope.label}</span>
+              </button>
+            </Popover>
+            {scope.kind !== 'whole' ? (
+              <button
+                type="button"
+                className={styles.scopePillClear}
+                aria-label="Clear scope — back to whole report"
+                onClick={clearScope}
+              >
+                <Icon name="x" size={16} tone="ai" />
+              </button>
+            ) : null}
+          </span>
+        </div>
+      ) : null}
+
       <div className={styles.panelBody} ref={bodyRef}>
         {view === 'settings' ? (
           <LlmSettings onSave={handleSaveConfig} onClear={handleClearConfig} />
-        ) : view === 'scope' ? (
-          <ScopePicker onPick={chooseScope} />
         ) : view === 'history' ? (
           <History conversations={conversations} onOpen={openHistoryItem} />
         ) : messages.length === 0 ? (
           <div className={styles.emptyState}>
-            <div className={styles.scopedTo}>
-              <span className="rc-body-sm">Conversation scoped to:</span>
-              <span className={styles.scopeChipGroup}>
-                <button
-                  type="button"
-                  className={`rc-label-md ${styles.scopeChip}`}
-                  onClick={() => setView('scope')}
-                  aria-label={`Change conversation context (currently ${scope.label})`}
-                >
-                  {isSignalScope ? (
-                    <span className="rc-label-sm">{scope.shorthand}</span>
-                  ) : (
-                    <ChartLine size={12} weight="regular" />
-                  )}
-                  {scope.label}
-                </button>
-                {scope.kind !== 'whole' ? (
-                  <IconButton
-                    variant="aiGhost"
-                    size="badge"
-                    label="Clear conversation context"
-                    onClick={clearScope}
-                  >
-                    <Icon name="x" size={12} tone="ai" />
-                  </IconButton>
-                ) : null}
-              </span>
-            </div>
-            <p className={`rc-body-sm ${styles.emptyHelper}`}>
-              Ask a question below, or use a suggestion. Reference signals, trends or records anytime
-              with <strong>@</strong>.
-            </p>
-            <div className={styles.emptyConnect}>
-              {llmAvailable ? (
-                <span className={`rc-body-xs ${styles.emptyConnectNote}`}>
-                  {useLLM ? 'Live answers on' : 'Demo answers'} · manage your key in{' '}
-                  <button type="button" className={styles.inlineLink} onClick={openSettings}>
-                    LLM settings
-                  </button>
+            <div className={styles.welcomeIntro}>
+              <WelcomeHero />
+              <div className={styles.welcomeText}>
+                <span className={`rc-heading-h6 ${styles.welcomeGreeting}`}>{greetingForNow()}</span>
+                <span className={`rc-body-sm ${styles.welcomeSubtitle}`}>
+                  Ask a question below, or use a suggestion.
+                  <br />
+                  Reference signals, trends or records anytime with{' '}
+                  <span className={styles.welcomeAt}>@</span>.
                 </span>
-              ) : (
-                <Button
-                  variant="aiSecondary"
-                  size="sm"
-                  iconLeft={<Icon name="sparkle" size={16} tone="ai" />}
-                  onClick={openSettings}
-                >
-                  Connect your LLM
-                </Button>
-              )}
+              </div>
             </div>
           </div>
         ) : (
@@ -1043,6 +1300,8 @@ export function AskAiPanel({
                   key={message.id}
                   message={message}
                   onOpenRecord={onOpenRecord}
+                  onOpenSignal={onOpenSignal}
+                  onOpenTrend={onOpenTrend}
                 />
               ),
             )}
@@ -1097,7 +1356,7 @@ export function AskAiPanel({
             onReferencesChange={setReferences}
             referenceOptions={REFERENCE_OPTIONS}
             loading={generating}
-            placeholder="Ask a follow-up. Type @ to reference or select any text to ask about"
+            placeholder="Ask anything... Type @ to reference."
             contextSlot={
               attachedQuote ? (
                 <div className={styles.composerQuote}>
@@ -1213,13 +1472,6 @@ function LlmSettings({
 function ScopePicker({ onPick }: { onPick: (scope: ChatScope) => void }) {
   return (
     <>
-      <div className={styles.pickerIntro}>
-        <span className={`rc-heading-h7 ${styles.pickerHeading}`}>Where do you want to start?</span>
-        <span className={`rc-body-sm ${styles.pickerSub}`}>
-          Pick a scope to focus the conversation or start broad with the whole report.
-        </span>
-      </div>
-
       <button
         type="button"
         className={styles.scopeRow}
@@ -1235,7 +1487,7 @@ function ScopePicker({ onPick }: { onPick: (scope: ChatScope) => void }) {
       </button>
 
       {TRENDS.map((trend, trendIndex) => (
-        <div key={trend.id} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div key={trend.id} className={styles.scopeGroup}>
           <button
             type="button"
             className={styles.scopeRow}

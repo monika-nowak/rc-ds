@@ -1,13 +1,14 @@
 import { useContext, type ReactNode } from 'react';
 import { Icon, type CuratedIconName, type IconTone } from '../../icons';
 import { cn } from '../../lib/cn';
+import { Badge, type BadgeColor } from '../Badge';
 import { Select, type SelectEntry } from '../Select';
 import { MappingRowGroupContext } from './MappingRowGroupContext';
 import styles from './MappingRow.module.css';
 
 export type MappingRowState = 'mapped' | 'unmapped';
 
-/** Semantic tone for the validation status pill. */
+/** Semantic tone for the validation status badge. */
 export type MappingRowStatusTone = 'error' | 'warning' | 'success' | 'neutral';
 
 export interface MappingRowStatus {
@@ -35,24 +36,72 @@ export interface MappingRowMappingProps extends MappingRowBaseProps {
 
 export interface MappingRowValidationProps extends MappingRowBaseProps {
   variant: 'validation';
-  /** Status pill shown after the connector (e.g. "Missing", "Wrong name"). */
+  /** Status badge shown after the connector (e.g. "Missing", "Wrong name"). */
   status: MappingRowStatus;
   /** Descriptive message; pass `<strong>` for emphasized key terms. */
   message: ReactNode;
 }
 
-export type MappingRowProps = MappingRowMappingProps | MappingRowValidationProps;
+export interface MappingRowResolvedProps extends MappingRowBaseProps {
+  variant: 'resolved';
+  /** Mapped target field name shown after the connector. */
+  targetField: string;
+  /** Match confidence as a percentage (0–100). */
+  matchPercent: number;
+}
 
-/** Visual mapping for each status tone: leading icon, icon tone, and pill class. */
-const statusToneMeta: Record<
-  MappingRowStatusTone,
-  { icon: CuratedIconName; iconTone: IconTone; className: string }
-> = {
-  error: { icon: 'warning', iconTone: 'error', className: styles.pillError },
-  warning: { icon: 'warning', iconTone: 'warning', className: styles.pillWarning },
-  success: { icon: 'check-circle', iconTone: 'success', className: styles.pillSuccess },
-  neutral: { icon: 'info', iconTone: 'secondary', className: styles.pillNeutral },
+export type MappingRowProps =
+  | MappingRowMappingProps
+  | MappingRowValidationProps
+  | MappingRowResolvedProps;
+
+const statusBadgeColor: Record<MappingRowStatusTone, BadgeColor> = {
+  error: 'error',
+  warning: 'warning',
+  success: 'success',
+  neutral: 'neutral',
 };
+
+const statusBadgeIcon: Record<MappingRowStatusTone, CuratedIconName> = {
+  error: 'warning',
+  warning: 'warning',
+  success: 'check-circle',
+  neutral: 'info',
+};
+
+const statusIconTone: Record<MappingRowStatusTone, IconTone> = {
+  error: 'error',
+  warning: 'warning',
+  success: 'success',
+  neutral: 'secondary',
+};
+
+function FieldBadge({
+  label,
+  variant = 'source',
+  className,
+  'aria-label': ariaLabel,
+}: {
+  label: string;
+  variant?: 'source' | 'target';
+  className?: string;
+  'aria-label'?: string;
+}) {
+  return (
+    <Badge
+      appearance="subtle"
+      color="neutral"
+      className={cn(
+        styles.fieldBadge,
+        variant === 'source' ? styles.fieldBadgeSource : styles.fieldBadgeTarget,
+        className,
+      )}
+      aria-label={ariaLabel}
+    >
+      {label}
+    </Badge>
+  );
+}
 
 function SourceChip({
   sourceField,
@@ -63,15 +112,31 @@ function SourceChip({
   unmapped?: boolean;
   compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <FieldBadge
+        label={sourceField}
+        variant="source"
+        aria-label={`Source column ${sourceField}`}
+      />
+    );
+  }
+
   return (
     <div
-      className={cn(styles.source, unmapped && styles.sourceUnmapped, compact && styles.sourceCompact)}
+      className={cn(styles.source, unmapped && styles.sourceUnmapped)}
       aria-label={`Source column ${sourceField}`}
     >
-      <span className={cn('rc-label-md', styles.sourceLabel)}>
-        {sourceField}
-      </span>
+      <span className={cn('rc-label-md', styles.sourceLabel)}>{sourceField}</span>
     </div>
+  );
+}
+
+function RowArrow({ className }: { className?: string }) {
+  return (
+    <span className={cn(styles.rowArrow, className)} aria-hidden>
+      <Icon name="arrow-right" size={16} color="var(--rc-border-subtle-03)" />
+    </span>
   );
 }
 
@@ -83,20 +148,96 @@ function Connector() {
   );
 }
 
+function MatchBadge({ matchPercent }: { matchPercent: number }) {
+  return (
+    <Badge
+      appearance="subtle"
+      color="success"
+      className={styles.matchBadge}
+      iconLeft={
+        <Icon name="check-circle" size={16} tone="success" weight="fill" aria-hidden />
+      }
+      aria-label={`${matchPercent}% match`}
+    >
+      {matchPercent}%
+    </Badge>
+  );
+}
+
+function StatusBadge({ status }: { status: MappingRowStatus }) {
+  return (
+    <Badge
+      appearance="subtle"
+      color={statusBadgeColor[status.tone]}
+      className={cn(styles.valueSlot, styles.statusBadge)}
+      iconLeft={
+        <Icon
+          name={statusBadgeIcon[status.tone]}
+          size={16}
+          tone={statusIconTone[status.tone]}
+          aria-hidden
+        />
+      }
+    >
+      {status.label}
+    </Badge>
+  );
+}
+
 export function MappingRow(props: MappingRowProps) {
   const { sourceField, className, id } = props;
-  const inGroup = useContext(MappingRowGroupContext);
+  const group = useContext(MappingRowGroupContext);
+  const inGroup = group.inGroup;
+  const listLayout = inGroup && group.layout === 'list';
+
+  if (props.variant === 'resolved') {
+    const { targetField, matchPercent } = props;
+
+    return (
+      <div
+        className={cn(listLayout ? styles.listRow : styles.resolvedRoot, className)}
+        id={id}
+        role={inGroup ? 'listitem' : undefined}
+      >
+        <SourceChip sourceField={sourceField} compact />
+        <RowArrow />
+        <FieldBadge
+          label={targetField}
+          variant="target"
+          className={styles.valueSlot}
+          aria-label={`Mapped to ${targetField}`}
+        />
+        {listLayout ? (
+          <>
+            <span className={styles.listTrailing} aria-hidden />
+            <MatchBadge matchPercent={matchPercent} />
+          </>
+        ) : (
+          <MatchBadge matchPercent={matchPercent} />
+        )}
+      </div>
+    );
+  }
 
   if (props.variant === 'validation') {
     const { status, message } = props;
-    const tone = statusToneMeta[status.tone];
 
-    // Each validation row is a self-contained bordered card laid out as
-    // [ chip ] [ arrow ] [ status badge ] [ message ]. Inside a group it becomes
-    // a subgrid so chips / arrows / badges / messages align across rows while
-    // every row keeps its own card border. The status badge is equal-width
-    // across rows (min-width standalone, stretches to the shared column in a
-    // group) so all badges line up in a clean column.
+    if (listLayout) {
+      return (
+        <div
+          className={cn(styles.listRow, className)}
+          id={id}
+          role={inGroup ? 'listitem' : undefined}
+        >
+          <SourceChip sourceField={sourceField} compact />
+          <RowArrow />
+          <StatusBadge status={status} />
+          <span className={cn('rc-body-sm', styles.message)}>{message}</span>
+          <span className={styles.listTrailing} aria-hidden />
+        </div>
+      );
+    }
+
     return (
       <div
         className={cn(styles.validationRoot, inGroup && styles.validationRowGrouped, className)}
@@ -104,13 +245,8 @@ export function MappingRow(props: MappingRowProps) {
         role={inGroup ? 'listitem' : undefined}
       >
         <SourceChip sourceField={sourceField} compact />
-        <span className={styles.validationArrow} aria-hidden>
-          <Icon name="arrow-right" size={16} color="var(--rc-border-subtle-03)" />
-        </span>
-        <span className={cn(styles.pill, tone.className)}>
-          <Icon name={tone.icon} size={16} tone={tone.iconTone} aria-hidden />
-          <span className={cn('rc-label-md', styles.pillLabel)}>{status.label}</span>
-        </span>
+        <RowArrow />
+        <StatusBadge status={status} />
         <span className={cn('rc-body-sm', styles.message)}>{message}</span>
       </div>
     );

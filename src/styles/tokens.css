@@ -62,8 +62,8 @@
   --rc-border-subtle-02: #bfbec0;
   --rc-border-subtle-03: #a09ea2;
   --rc-border-subtle-selected-01: #bfbec0;
-  --rc-border-subtle-selected-02: #eaeaeb;
-  --rc-border-subtle-selected-03: #a09ea2;
+  --rc-border-subtle-selected-02: #a09ea2;
+  --rc-border-subtle-selected-03: #757277;
   --rc-border-strong-01: #151316;
   --rc-border-interactive: #151316;
   --rc-border-inverse: #151316;
@@ -117,6 +117,49 @@
   --rc-support-success: #15803d;
   --rc-support-warning: #f59e0b;
   --rc-support-info: #4500f9;
+
+  /* Accent surfaces (tags, badges, chips, pills)
+     Subtle = soft background + readable text; strong/on = emphasis fill + text on it.
+     Each references an existing primitive so components stop reaching into raw palette vars. */
+  --rc-background-accent-neutral: var(--rc-neutral-50);
+  --rc-background-accent-success: var(--rc-green-100);
+  --rc-background-accent-warning: var(--rc-amber-100);
+  --rc-background-accent-error: var(--rc-orange-100);
+  --rc-background-accent-info: var(--rc-blue-100);
+  --rc-background-accent-purple: var(--rc-purple-100);
+  --rc-background-accent-light-purple: var(--rc-light-purple-100);
+  /* subtle hover — one step darker (tone/200), for interactive tags */
+  --rc-background-accent-neutral-hover: var(--rc-neutral-100);
+  --rc-background-accent-success-hover: var(--rc-green-200);
+  --rc-background-accent-warning-hover: var(--rc-amber-200);
+  --rc-background-accent-error-hover: var(--rc-orange-200);
+  --rc-background-accent-info-hover: var(--rc-blue-200);
+  --rc-background-accent-purple-hover: var(--rc-purple-200);
+  --rc-background-accent-light-purple-hover: var(--rc-light-purple-200);
+
+  --rc-text-accent-neutral: var(--rc-neutral-800);
+  --rc-text-accent-success: var(--rc-green-800);
+  --rc-text-accent-warning: var(--rc-amber-800);
+  --rc-text-accent-error: var(--rc-orange-800);
+  --rc-text-accent-info: var(--rc-blue-800);
+  --rc-text-accent-purple: var(--rc-purple-800);
+  --rc-text-accent-light-purple: var(--rc-light-purple-800);
+
+  --rc-background-accent-neutral-strong: var(--rc-neutral-300);
+  --rc-background-accent-success-strong: var(--rc-green-500);
+  --rc-background-accent-warning-strong: var(--rc-amber-300);
+  --rc-background-accent-error-strong: var(--rc-orange-500);
+  --rc-background-accent-info-strong: var(--rc-blue-500);
+  --rc-background-accent-purple-strong: var(--rc-purple-500);
+  --rc-background-accent-light-purple-strong: var(--rc-light-purple-400);
+
+  --rc-text-accent-neutral-on: var(--rc-text-on-color);
+  --rc-text-accent-success-on: var(--rc-green-950);
+  --rc-text-accent-warning-on: var(--rc-amber-950);
+  --rc-text-accent-error-on: var(--rc-orange-950);
+  --rc-text-accent-info-on: var(--rc-text-on-color);
+  --rc-text-accent-purple-on: var(--rc-text-on-color);
+  --rc-text-accent-light-purple-on: var(--rc-light-purple-900);
 
   --rc-focus-default: #151316;
   --rc-focus-inverse: #ffffff;

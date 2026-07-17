@@ -23,15 +23,12 @@
   overflow: visible;
 }
 
-/* Bars — fill is set inline (supports CSS-variable tokens); radius + hover here. */
+/* Bars — fill is set inline (supports CSS-variable tokens); radius here.
+   No hover opacity/state: proof charts label every value on-screen, and a
+   dim-on-hover affordance reads as noise rather than interaction. */
 .bar {
   rx: var(--rc-radius-sm);
   cursor: default;
-  transition: opacity 120ms ease-in-out;
-}
-
-.bar:hover {
-  opacity: 0.82;
 }
 
 /* Stacked-bar segments — corners are rounded via a per-row clip path, so the
@@ -39,11 +36,6 @@
    rounded. */
 .segment {
   cursor: default;
-  transition: opacity 120ms ease-in-out;
-}
-
-.segment:hover {
-  opacity: 0.82;
 }
 
 /* Full-width background track behind bars — subtle, non-interactive. */
@@ -96,10 +88,11 @@
   pointer-events: none;
 }
 
-/* Bold row total, drawn at the end of a stacked bar. */
+/* Bold row total, drawn at the end of a stacked bar — same size as on-bar
+   / end-of-bar value labels so every number in the chart reads as one scale. */
 .totalLabel {
   font-family: var(--rc-font-sans);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.01em;
   fill: var(--rc-chart-total-label);

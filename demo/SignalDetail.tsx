@@ -1,17 +1,19 @@
 import {
+  CellSignalFull,
+  ChartLine,
+  ClipboardText,
   Database,
   FirstAidKit,
-  Heartbeat,
   Hospital,
-  Sparkle,
   Tag,
-  TrendUp,
+  Target,
 } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import type { ComponentType, ReactNode } from 'react';
 import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
 import { Badge } from '../src/components/Badge';
 import { Button } from '../src/components/Button';
+import { Card } from '../src/components/Card';
 import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
 import {
@@ -23,6 +25,9 @@ import {
   type Signal,
   type StatIcon,
 } from './data';
+import type { ChatScope } from './Dashboard';
+import { ProofChart, THEME_BAR_SUBTITLE } from './ProofChart';
+import { selectProofPattern } from './proofPatterns';
 import styles from './demo.module.css';
 
 const STAT_ICONS: Record<StatIcon, ComponentType<PhosphorIconProps>> = {
@@ -50,17 +55,19 @@ interface SignalStat {
 function SignalStatCard({ stat }: { stat: SignalStat }) {
   const StatIconCmp = STAT_ICONS[stat.icon];
   return (
-    <article className={`${styles.statCard} ${styles.statCardStandalone}`}>
-      <div className={styles.statBody}>
-        <span className={styles.statIcon}>
-          <StatIconCmp size={16} weight="regular" />
-        </span>
-        <div className={styles.statText}>
-          <span className="rc-heading-h6">{stat.value}</span>
-          <span className="rc-body-sm">
-            <strong style={{ color: 'var(--rc-text-primary)' }}>{stat.emphasis}</strong>{' '}
-            <span style={{ color: 'var(--rc-text-secondary)' }}>{stat.label}</span>
+    <article className={styles.statCardStandalone}>
+      <div className={styles.statMeasure}>
+        <div className={styles.statBody}>
+          <span className={styles.statIcon}>
+            <StatIconCmp size={16} weight="regular" />
           </span>
+          <div className={styles.statText}>
+            <span className="rc-heading-h6">{stat.value}</span>
+            <span className="rc-body-sm">
+              <strong style={{ color: 'var(--rc-text-primary)' }}>{stat.emphasis}</strong>{' '}
+              <span style={{ color: 'var(--rc-text-secondary)' }}>{stat.label}</span>
+            </span>
+          </div>
         </div>
       </div>
     </article>
@@ -259,15 +266,26 @@ export function SignalDetail({
   const visibleRecords = allRecords.slice(0, visibleCount);
   const hasMore = visibleCount < allRecords.length;
 
+  // "Shown When": deterministically pick the chart that best proves this
+  // signal from its own real records. Every value is tallied via analytics.ts.
+  const proofScope: ChatScope = {
+    kind: 'signal',
+    label: `Signal ${signal.seq}`,
+    shorthand: signal.shorthand,
+  };
+  const proofPattern = selectProofPattern(proofScope);
+
   return (
     <div className={styles.signalPage}>
       <section className={styles.signalHero}>
-        <span className={`rc-heading-h6 ${styles.signalKicker}`}>Signal {signal.seq}</span>
-        <h1 className={styles.signalTitle}>{signal.title}</h1>
-        <div className={styles.signalBadgeRow}>
-          <Badge appearance="subtle" color="neutral">
-            {signal.category}
-          </Badge>
+        <div className={styles.signalHeroInner}>
+          <span className={`rc-heading-h6 ${styles.signalKicker}`}>Signal {signal.seq}</span>
+          <h1 className={styles.signalTitle}>{signal.title}</h1>
+          <div className={styles.signalBadgeRow}>
+            <Badge appearance="subtle" color="neutral">
+              {signal.category}
+            </Badge>
+          </div>
         </div>
       </section>
 
@@ -286,16 +304,18 @@ export function SignalDetail({
           <div className={styles.sectionRow}>
             <section className={styles.signalSection}>
               <SectionHeader
-                icon={<FirstAidKit size={20} weight="regular" />}
+                icon={<ClipboardText size={16} weight="regular" />}
                 title="What HCPs Report"
+                boxed
               />
               <p className={`rc-body-md ${styles.sectionBody}`}>{signal.report}</p>
             </section>
 
             <section className={styles.signalSection}>
               <SectionHeader
-                icon={<Sparkle size={20} weight="regular" />}
-                title="What This Suggests"
+                icon={<ChartLine size={16} weight="regular" />}
+                title="Interpretation"
+                boxed
               />
               <p className={`rc-body-md ${styles.sectionBody}`}>{signal.description}</p>
             </section>
@@ -303,8 +323,9 @@ export function SignalDetail({
 
           <section className={styles.signalSection}>
             <SectionHeader
-              icon={<Heartbeat size={20} weight="regular" />}
-              title="So What – Strategic Relevance"
+              icon={<Target size={16} weight="regular" />}
+              title="Strategic Relevance"
+              boxed
             />
             <div className={styles.relevanceList}>
               {splitSoWhat(signal.soWhat).map((point, i) => (
@@ -319,13 +340,26 @@ export function SignalDetail({
           </section>
 
           {proof ? (
-            <section className={styles.signalSection}>
+            <section className={`${styles.signalSection} ${styles.signalProofSection}`}>
               <SectionHeader
-                icon={<TrendUp size={18} weight="regular" />}
-                title="Signal proof"
+                icon={<CellSignalFull size={16} weight="regular" />}
+                title="Signal proofs"
                 boxed
               />
-              <div className={styles.proofCard}>
+              {proofPattern === 'A3' ? (
+                <Card layout="stacked" density="roomy" elevated={false}>
+                  <ProofChart
+                    type={proofPattern}
+                    scope={proofScope}
+                    embedded
+                    embeddedCaption={THEME_BAR_SUBTITLE}
+                    embeddedTitle={false}
+                  />
+                </Card>
+              ) : (
+                <ProofChart type={proofPattern} scope={proofScope} showHeader />
+              )}
+              <div className={`${styles.proofCard} ${styles.signalProofCard}`}>
                 <p className={styles.proofQuote}>{proof.quote}</p>
                 <div className={styles.proofMeta}>
                   <button
@@ -350,8 +384,9 @@ export function SignalDetail({
 
           <div className={styles.recordsBlock}>
             <SectionHeader
-              icon={<Database size={20} weight="regular" />}
+              icon={<Database size={16} weight="regular" />}
               title="Records in this signal"
+              boxed
             />
             <span className={`rc-body-sm ${styles.recordsCount}`}>
               Showing {visibleRecords.length} of {recordTotal} records

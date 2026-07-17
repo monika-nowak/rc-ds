@@ -35,60 +35,60 @@
 
 /* Emphasis */
 .emphasis.neutral {
-  background: var(--rc-neutral-300);
-  color: var(--rc-text-on-color);
+  background: var(--rc-background-accent-neutral-strong);
+  color: var(--rc-text-accent-neutral-on);
 }
 .emphasis.success {
-  background: var(--rc-green-500);
-  color: var(--rc-green-950);
+  background: var(--rc-background-accent-success-strong);
+  color: var(--rc-text-accent-success-on);
 }
 .emphasis.warning {
-  background: var(--rc-amber-300);
-  color: var(--rc-amber-950);
+  background: var(--rc-background-accent-warning-strong);
+  color: var(--rc-text-accent-warning-on);
 }
 .emphasis.error {
-  background: var(--rc-orange-500);
-  color: var(--rc-orange-950);
+  background: var(--rc-background-accent-error-strong);
+  color: var(--rc-text-accent-error-on);
 }
 .emphasis.info {
-  background: var(--rc-blue-500);
-  color: var(--rc-text-on-color);
+  background: var(--rc-background-accent-info-strong);
+  color: var(--rc-text-accent-info-on);
 }
 .emphasis.purple {
-  background: var(--rc-purple-500);
-  color: var(--rc-text-on-color);
+  background: var(--rc-background-accent-purple-strong);
+  color: var(--rc-text-accent-purple-on);
 }
 .emphasis.lightPurple {
-  background: var(--rc-light-purple-400);
-  color: var(--rc-light-purple-900);
+  background: var(--rc-background-accent-light-purple-strong);
+  color: var(--rc-text-accent-light-purple-on);
 }
 
 /* Subtle */
 .subtle.neutral {
-  background: var(--rc-neutral-50);
-  color: var(--rc-neutral-800);
+  background: var(--rc-background-accent-neutral);
+  color: var(--rc-text-accent-neutral);
 }
 .subtle.success {
-  background: var(--rc-green-100);
-  color: var(--rc-green-800);
+  background: var(--rc-background-accent-success);
+  color: var(--rc-text-accent-success);
 }
 .subtle.warning {
-  background: var(--rc-amber-100);
-  color: var(--rc-amber-800);
+  background: var(--rc-background-accent-warning);
+  color: var(--rc-text-accent-warning);
 }
 .subtle.error {
-  background: var(--rc-orange-100);
-  color: var(--rc-orange-800);
+  background: var(--rc-background-accent-error);
+  color: var(--rc-text-accent-error);
 }
 .subtle.info {
-  background: var(--rc-blue-100);
-  color: var(--rc-blue-800);
+  background: var(--rc-background-accent-info);
+  color: var(--rc-text-accent-info);
 }
 .subtle.purple {
-  background: var(--rc-purple-100);
-  color: var(--rc-purple-800);
+  background: var(--rc-background-accent-purple);
+  color: var(--rc-text-accent-purple);
 }
 .subtle.lightPurple {
-  background: var(--rc-light-purple-100);
-  color: var(--rc-light-purple-800);
+  background: var(--rc-background-accent-light-purple);
+  color: var(--rc-text-accent-light-purple);
 }

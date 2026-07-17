@@ -1,4 +1,5 @@
 import type { MouseEvent } from 'react';
+import { CellSignalFull, ChartLine } from '@phosphor-icons/react';
 import { Icon } from '../../icons';
 import { IconButton } from '../IconButton';
 import { cn } from '../../lib/cn';
@@ -24,9 +25,13 @@ export function ReferenceTag({
     onRemove();
   };
 
+  // Type-specific leading glyph (Figma 2261:7448): trend → chart-line,
+  // signal → cell-signal-full. Uses currentColor (the tag's AI-purple text).
+  const Glyph = reference.kind === 'trend' ? ChartLine : CellSignalFull;
+
   return (
     <span className={cn(styles.referenceTag, className)}>
-      <Icon name="cell-signal-full" size={16} tone="ai" aria-hidden />
+      <Glyph size={16} weight="regular" className={styles.referenceTagGlyph} aria-hidden />
       <span className={cn('rc-label-sm', styles.referenceTagLabel)}>{reference.label}</span>
       <IconButton
         type="button"

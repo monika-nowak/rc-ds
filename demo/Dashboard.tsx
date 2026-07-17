@@ -1,4 +1,14 @@
-import { Database, FirstAidKit, Hospital, Tag, TrendUp } from '@phosphor-icons/react';
+import {
+  ChartBar,
+  CellSignalFull,
+  ChartBarHorizontal,
+  ChartLine,
+  Database,
+  FirstAidKit,
+  Hospital,
+  Tag,
+  TrendUp,
+} from '@phosphor-icons/react';
 import type { ComponentType } from 'react';
 import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
 import { AppHeader } from '../src/components/AppHeader';
@@ -10,10 +20,13 @@ import { Card } from '../src/components/Card';
 import { Divider } from '../src/components/Divider';
 import { Logo } from '../src/components/Logo';
 import { Icon } from '../src/icons';
+import { ProjectProof } from './ProjectProof';
+import { ProofChart } from './ProofChart';
 import {
   NOTABLE_SIGNALS,
   STATS,
   TRENDS,
+  formatThemeLabel,
   signalStrength,
   type Signal,
   type StatIcon,
@@ -37,6 +50,7 @@ export interface ChatScope {
 interface DashboardProps {
   onAsk: (scope: ChatScope) => void;
   onOpenSignal: (signal: Signal) => void;
+  onOpenTrend: (trend: (typeof TRENDS)[number]) => void;
 }
 
 function StatCard({ stat }: { stat: (typeof STATS)[number] }) {
@@ -47,19 +61,20 @@ function StatCard({ stat }: { stat: (typeof STATS)[number] }) {
       elevated={false}
       showStats={false}
       showDescription={false}
-      className={styles.statCard}
       style={{ padding: 'var(--rc-spacing-6)' }}
     >
-      <div className={styles.statBody}>
-        <span className={styles.statIcon}>
-          <StatIconCmp size={16} weight="regular" />
-        </span>
-        <div className={styles.statText}>
-          <span className="rc-heading-h6">{stat.value}</span>
-          <span className="rc-body-sm">
-            <strong style={{ color: 'var(--rc-text-primary)' }}>{stat.emphasis}</strong>{' '}
-            <span style={{ color: 'var(--rc-text-secondary)' }}>{stat.label}</span>
+      <div className={styles.statMeasure}>
+        <div className={styles.statBody}>
+          <span className={styles.statIcon}>
+            <StatIconCmp size={16} weight="regular" />
           </span>
+          <div className={styles.statText}>
+            <span className="rc-heading-h6">{stat.value}</span>
+            <span className="rc-body-sm">
+              <strong style={{ color: 'var(--rc-text-primary)' }}>{stat.emphasis}</strong>{' '}
+              <span style={{ color: 'var(--rc-text-secondary)' }}>{stat.label}</span>
+            </span>
+          </div>
         </div>
       </div>
     </Card>
@@ -125,11 +140,90 @@ function SignalCard({
   );
 }
 
+function TrendTwoCard({ trend }: { trend: (typeof TRENDS)[number] }) {
+  const themes = trend.themeBreakdown ?? [];
+  const maxThemeRecords = Math.max(1, ...themes.map((theme) => theme.records));
+
+  return (
+    <Card
+      variant="trend"
+      hoverable
+      className={styles.trendTwoCard}
+      showTitle={false}
+      showDescription={false}
+      showDivider={false}
+      showConsiderations={false}
+    >
+      <div className={styles.trendTwoContent}>
+        <div className={styles.trendTwoHeader}>
+          <h3 className="rc-heading-h5">{trend.title}</h3>
+          <p className="rc-body-md">{trend.description}</p>
+        </div>
+        <Divider />
+
+        <div className={styles.trendTwoColumns}>
+          <section className={styles.trendTwoThemes} aria-label="Which themes carry this trend">
+            <div className={styles.trendTwoSectionHeader}>
+              <ChartBarHorizontal size={16} weight="regular" aria-hidden />
+              <span className="rc-label-lg">Which themes carry this trend</span>
+            </div>
+            <div className={styles.trendTwoThemeBody}>
+              <p className={`rc-label-md ${styles.trendTwoSubhead}`}>Records per theme</p>
+              <div className={styles.trendTwoThemeRows}>
+                {themes.map((theme) => (
+                  <div key={theme.label} className={styles.trendTwoThemeRow}>
+                    <span className={`rc-body-sm ${styles.trendTwoThemeLabel}`}>
+                      {formatThemeLabel(theme.label)}
+                    </span>
+                    <div className={styles.trendTwoThemeValue}>
+                      <span className={styles.trendTwoThemeTrack}>
+                        <span
+                          className={styles.trendTwoThemeBar}
+                          style={{ width: `${(theme.records / maxThemeRecords) * 100}%` }}
+                        />
+                      </span>
+                      <span className="rc-label-md">{theme.records}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {trend.themeCoverageNote ? (
+                <div className={styles.trendTwoCoverage}>
+                  <Icon name="info" size={16} tone="tertiary" aria-hidden />
+                  <span className="rc-body-xs">{trend.themeCoverageNote}</span>
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          <Divider orientation="vertical" className={styles.trendTwoDivider} />
+
+          <section className={styles.trendTwoConsiderations} aria-label="Strategic considerations">
+            <div className={styles.trendTwoSectionHeader}>
+              <TrendUp size={16} weight="regular" aria-hidden />
+              <span className="rc-label-lg">Strategic considerations</span>
+            </div>
+            <ul className={styles.trendTwoConsiderationList}>
+              {trend.considerations.slice(0, 2).map((consideration) => (
+                <li key={consideration}>
+                  <Icon name="arrow-elbow-down-right" size={16} tone="secondary" aria-hidden />
+                  <span className="rc-body-sm">{consideration}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function ReportHeader({
-  signalLabel,
+  detailLabel,
   onBack,
 }: {
-  signalLabel?: string;
+  /** Current detail page label, e.g. "Signal 1" or "Trend 1". */
+  detailLabel?: string;
   onBack?: () => void;
 }) {
   const breadcrumbItems: BreadcrumbTrailItem[] = [
@@ -137,14 +231,14 @@ export function ReportHeader({
     {
       id: 'report',
       label: 'MSL Insights – March 2026',
-      isCurrent: !signalLabel,
-      onClick: signalLabel ? onBack : undefined,
+      isCurrent: !detailLabel,
+      onClick: detailLabel ? onBack : undefined,
     },
   ];
 
-  if (signalLabel) {
+  if (detailLabel) {
     breadcrumbItems.push({ kind: 'back', id: 'back', label: 'Back to report', onClick: onBack });
-    breadcrumbItems.push({ id: 'signal', label: signalLabel, isCurrent: true });
+    breadcrumbItems.push({ id: 'detail', label: detailLabel, isCurrent: true });
   }
 
   return (
@@ -184,20 +278,22 @@ export function ReportHeader({
   );
 }
 
-export function Dashboard({ onAsk, onOpenSignal }: DashboardProps) {
+export function Dashboard({ onAsk, onOpenSignal, onOpenTrend }: DashboardProps) {
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroMeta}>
-          <Icon name="calendar" size={16} tone="secondary" />
-          <span className={`rc-body-sm ${styles.heroMetaMuted}`}>Generated:</span>
-          <span className={`rc-body-sm ${styles.heroMetaStrong}`}>9 June 2026, 12:36</span>
-        </div>
-        <h1 className={styles.heroTitle}>MSL Insights – March 2026</h1>
-        <div className={styles.heroMeta}>
-          <Icon name="database" size={16} tone="secondary" />
-          <span className={`rc-body-sm ${styles.heroMetaMuted}`}>Data source:</span>
-          <span className={`rc-label-md ${styles.heroMetaStrong}`}>MSL Records · March 2026</span>
+        <div className={styles.heroContent}>
+          <div className={styles.heroMeta}>
+            <Icon name="calendar" size={16} tone="secondary" />
+            <span className={`rc-body-sm ${styles.heroMetaMuted}`}>Generated:</span>
+            <span className={`rc-body-sm ${styles.heroMetaStrong}`}>9 June 2026, 12:36</span>
+          </div>
+          <h1 className={styles.heroTitle}>MSL Insights – March 2026</h1>
+          <div className={styles.heroMeta}>
+            <Icon name="database" size={16} tone="secondary" />
+            <span className={`rc-body-sm ${styles.heroMetaMuted}`}>Data source:</span>
+            <span className={`rc-label-md ${styles.heroMetaStrong}`}>MSL Records · March 2026</span>
+          </div>
         </div>
       </section>
 
@@ -208,66 +304,128 @@ export function Dashboard({ onAsk, onOpenSignal }: DashboardProps) {
           ))}
         </div>
 
-        <div className={styles.trendGroup}>
+        <section className={styles.projectProofSection} aria-labelledby="project-proof-title">
           <div className={styles.sectionHeader}>
-            <TrendUp size={20} weight="regular" color="var(--rc-text-primary)" />
-            <span className={`rc-heading-h8 ${styles.sectionHeaderTitle}`}>Key trends</span>
+            <span className={styles.sectionFeaturedIcon} aria-hidden>
+              <ChartBar size={16} weight="regular" />
+            </span>
+            <span id="project-proof-title" className={`rc-heading-h7 ${styles.sectionHeaderTitle}`}>
+              Where the conversation concentrated
+            </span>
+            <Divider className={styles.sectionRule} />
+          </div>
+          <ProjectProof />
+        </section>
+
+        <section className={styles.trendsSection} aria-labelledby="key-trends-title">
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionFeaturedIcon} aria-hidden>
+              <ChartLine size={16} weight="regular" />
+            </span>
+            <span id="key-trends-title" className={`rc-heading-h7 ${styles.sectionHeaderTitle}`}>
+              Key trends
+            </span>
             <Divider className={styles.sectionRule} />
           </div>
 
-          {TRENDS.map((trend) => (
-            <div key={trend.id} className={styles.trendGroup}>
-              <span className={`rc-heading-h7 ${styles.trendLabel}`}>{trend.label}</span>
+          <div className={styles.trendList}>
+            {TRENDS.map((trend) => (
+              <section key={trend.id} id={trend.id} className={styles.trendGroup}>
+                <span className={`rc-heading-h7 ${styles.trendLabel}`}>{trend.label}</span>
 
-              <div className={styles.cardWrap}>
-                <Card
-                  variant="trend"
-                  hoverable
-                  title={trend.title}
-                  description={trend.description}
-                  considerationsLabel="Strategic considerations"
-                  considerations={trend.considerations.slice(0, 2)}
-                />
-                <button
-                  type="button"
-                  className={styles.askSparkle}
-                  aria-label={`Ask AI about ${trend.label}`}
-                  onClick={() => onAsk({ kind: 'trend', label: trend.label, shorthand: trend.label.replace('Trend ', 'T') })}
-                >
-                  <Icon name="sparkle" size={14} tone="ai" />
-                </button>
-              </div>
+                <div className={styles.trendContent}>
+                  <div
+                    className={`${styles.cardWrap} ${styles.trendCardHit}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => onOpenTrend(trend)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onOpenTrend(trend);
+                      }
+                    }}
+                  >
+                    {trend.id === 'trend-2' ? (
+                      <TrendTwoCard trend={trend} />
+                    ) : (
+                      <Card
+                        variant="trend"
+                        hoverable
+                        title={trend.title}
+                        description={trend.description}
+                        considerationsLabel="Strategic considerations"
+                        considerations={trend.considerations.slice(0, 2)}
+                        extraContent={
+                          <ProofChart
+                            type="A3"
+                            scope={{
+                              kind: 'trend',
+                              label: trend.label,
+                              shorthand: trend.label.replace('Trend ', 'T'),
+                            }}
+                            embedded
+                          />
+                        }
+                      />
+                    )}
+                    <button
+                      type="button"
+                      className={styles.askSparkle}
+                      aria-label={`Ask AI about ${trend.label}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onAsk({
+                          kind: 'trend',
+                          label: trend.label,
+                          shorthand: trend.label.replace('Trend ', 'T'),
+                        });
+                      }}
+                    >
+                      <Icon name="sparkle" size={14} tone="ai" />
+                    </button>
+                  </div>
 
-              <div className={styles.signalsHeader}>
-                <Icon name="arrow-elbow-down-right" size={16} tone="secondary" />
-                <span className={`rc-heading-h8 ${styles.signalsHeaderTitle}`}>Signals</span>
-                <span className={`rc-heading-h8 ${styles.signalsHeaderCount}`}>({trend.signalCount})</span>
-              </div>
+                  <div className={styles.signalsHeader}>
+                    <Icon name="arrow-elbow-down-right" size={16} tone="secondary" />
+                    <span className={`rc-heading-h8 ${styles.signalsHeaderTitle}`}>Signals</span>
+                    <span className={`rc-heading-h8 ${styles.signalsHeaderCount}`}>({trend.signalCount})</span>
+                  </div>
 
-              <div className={styles.signalGrid}>
-                {trend.signals.map((signal) => (
-                  <SignalCard
-                    key={`${trend.id}-${signal.id}`}
-                    signal={signal}
-                    onAsk={onAsk}
-                    onOpenSignal={onOpenSignal}
-                  />
-                ))}
-              </div>
+                  <div className={styles.signalGrid}>
+                    {trend.signals.map((signal) => (
+                      <SignalCard
+                        key={`${trend.id}-${signal.id}`}
+                        signal={signal}
+                        onAsk={onAsk}
+                        onOpenSignal={onOpenSignal}
+                      />
+                    ))}
+                  </div>
 
-              {trend.signals.length > 3 ? (
-                <Button variant="secondary" size="sm" className={styles.showAll}>
-                  Show all signals
-                </Button>
-              ) : null}
-            </div>
-          ))}
-        </div>
+                  {trend.signals.length > 3 ? (
+                    <Button variant="secondary" size="sm" className={styles.showAll}>
+                      Show all signals
+                    </Button>
+                  ) : null}
+                </div>
+              </section>
+            ))}
+          </div>
+        </section>
 
-        <div className={styles.notableGroup}>
+        <section className={styles.notableGroup} aria-labelledby="notable-signals-title">
           <div className={styles.sectionHeader}>
-            <span className={`rc-heading-h7 ${styles.sectionHeaderTitle}`}>Notable signals</span>
-            <Icon name="info" size={20} tone="tertiary" />
+            <span className={styles.sectionFeaturedIcon} aria-hidden>
+              <CellSignalFull size={16} weight="regular" />
+            </span>
+            <span className={styles.sectionHeaderTitleWithInfo}>
+              <span id="notable-signals-title" className={`rc-heading-h7 ${styles.sectionHeaderTitle}`}>
+                Notable signals
+              </span>
+              <Icon name="question" size={16} tone="tertiary" aria-label="About notable signals" />
+            </span>
+            <Divider className={styles.sectionRule} />
           </div>
           <div className={styles.signalGrid}>
             {NOTABLE_SIGNALS.map((signal) => (
@@ -279,7 +437,7 @@ export function Dashboard({ onAsk, onOpenSignal }: DashboardProps) {
               />
             ))}
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );

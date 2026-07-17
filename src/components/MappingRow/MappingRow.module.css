@@ -48,12 +48,94 @@
   height: 48px;
 }
 
-/* ── Validation variant ─────────────────────────────────────────────
-   Each validation row is a self-contained bordered card laid out as a grid:
-   [ chip ] [ arrow ] [ status badge ] [ message ]. */
+/* ── DS Badge overrides for field labels ──────────────────────────── */
+.fieldBadge {
+  --mapping-row-badge-height: 24px;
+
+  height: var(--mapping-row-badge-height);
+  min-height: var(--mapping-row-badge-height);
+  max-width: 100%;
+  padding: 0 var(--rc-spacing-3);
+  background: var(--rc-layer-03);
+  color: var(--rc-text-primary);
+}
+
+.fieldBadge > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fieldBadgeSource > span:last-child {
+  font: 700 14px/16px var(--rc-font-sans);
+  letter-spacing: 0.01em;
+  color: var(--rc-text-primary);
+}
+
+.fieldBadgeTarget > span:last-child {
+  font: 400 14px/16px var(--rc-font-sans);
+  letter-spacing: 0.01em;
+  color: var(--rc-text-secondary);
+}
+
+.statusBadge {
+  width: 100%;
+  gap: var(--rc-spacing-1);
+  padding-left: var(--rc-spacing-3);
+  padding-right: var(--rc-spacing-3);
+}
+
+.statusBadge > span:first-child {
+  width: 16px;
+  height: 16px;
+}
+
+.statusBadge > span:first-child :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.matchBadge {
+  gap: var(--rc-spacing-1);
+  padding-left: var(--rc-spacing-2);
+  padding-right: var(--rc-spacing-2);
+  margin-left: auto;
+}
+
+.matchBadge > span:first-child {
+  width: 16px;
+  height: 16px;
+}
+
+.matchBadge > span:first-child :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.matchBadge > span:last-child {
+  font: 700 14px/16px var(--rc-font-sans);
+  letter-spacing: 0.01em;
+}
+
+/* Third column — target field badge or status badge. */
+.valueSlot {
+  width: 100%;
+  min-width: calc(var(--rc-spacing-16) * 2);
+  justify-self: stretch;
+}
+
+.rowArrow {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Validation variant ───────────────────────────────────────────── */
 .validationRoot {
   display: grid;
-  /* chip · arrow · status badge · message. */
   grid-template-columns: max-content max-content max-content 1fr;
   align-items: center;
   column-gap: var(--rc-spacing-2);
@@ -69,92 +151,63 @@
   align-self: center;
 }
 
-/* Inside a group, share the group's column tracks (subgrid) while keeping the
-   per-row card border, so chips / arrows / badges / messages align across rows. */
 .validationRowGrouped {
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
 }
 
-/* Compact chip for validation rows — smaller than the mapping field chip,
-   with a subtle gray fill (matches the Figma "Validation Row" chip). */
-.sourceCompact {
-  flex: initial;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-height: 24px;
-  height: 24px;
-  padding: 0 var(--rc-spacing-3);
-  border-color: transparent;
-  background: var(--rc-layer-03);
-}
-
-.sourceCompact .sourceLabel {
-  line-height: 16px;
-}
-
-/* Arrow icon between the chip and the status badge. */
-.validationArrow {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-}
-
-/* Status badge — equal-width across rows. Standalone rows use a min-width sized
-   to fit the longest expected label so short labels pad out to match; the
-   icon + label stay centered. */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  gap: var(--rc-spacing-1);
-  min-height: 24px;
-  height: 24px;
-  min-width: calc(var(--rc-spacing-16) * 2); /* ~128px — fits the longest label */
-  padding: 0 var(--rc-spacing-3);
-  border-radius: var(--rc-radius-sm);
-  justify-self: start;
-}
-
-.pillLabel {
-  line-height: 16px;
-  white-space: nowrap;
-}
-
-/* Inside a group the badge stretches to fill its shared grid column so every
-   badge is identical and left + right edges line up across rows. */
-.validationRowGrouped .pill {
-  width: 100%;
-  justify-self: stretch;
-}
-
-.pillError {
-  background: var(--rc-background-support-error);
-  color: var(--rc-text-error);
-}
-
-.pillWarning {
-  background: var(--rc-background-support-warning);
-  color: var(--rc-text-warning);
-}
-
-.pillSuccess {
-  background: var(--rc-background-support-success);
-  color: var(--rc-text-success);
-}
-
-.pillNeutral {
-  background: var(--rc-neutral-50);
-  color: var(--rc-text-secondary);
-}
-
 .message {
   min-width: 0;
   color: var(--rc-text-helper);
+}
+
+/* ── Resolved variant ─────────────────────────────────────────────── */
+.resolvedRoot {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--rc-spacing-3);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-layer-01);
+}
+
+.resolvedRoot > * {
+  align-self: center;
+}
+
+.resolvedRoot .valueSlot {
+  width: auto;
+  min-width: calc(var(--rc-spacing-16) * 2);
+}
+
+/* ── List layout rows ─────────────────────────────────────────────── */
+.listRow {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  min-height: 56px;
+  padding: var(--rc-spacing-3);
+  background: var(--rc-layer-01);
+}
+
+.listRow > * {
+  align-self: center;
+}
+
+.listRow .message {
+  min-width: 0;
+}
+
+.listRow .matchBadge {
+  margin-left: 0;
+  justify-self: end;
+}
+
+.listTrailing {
+  display: block;
+  min-width: 0;
 }

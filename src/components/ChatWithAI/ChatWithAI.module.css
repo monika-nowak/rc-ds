@@ -107,13 +107,22 @@
   z-index: 1;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
   height: 24px;
-  padding: 4px;
+  padding: 4px var(--rc-spacing-2);
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-button-ai-secondary);
-  color: var(--rc-text-ai);
+  background: var(--rc-background-accent-purple);
+  color: var(--rc-text-accent-purple);
+}
+
+.referenceTagGlyph {
+  flex-shrink: 0;
+  color: var(--rc-icon-ai);
+}
+
+.referenceTag:hover {
+  background: var(--rc-background-accent-purple-hover);
 }
 
 .referenceTagLabel {

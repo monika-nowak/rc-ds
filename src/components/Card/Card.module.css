@@ -76,6 +76,12 @@
   width: 100%;
 }
 
+/* Embedded content slot at the bottom of the stacked body (e.g. a proof chart).
+   The stackedContent column gap already spaces it from the section above. */
+.extraContent {
+  width: 100%;
+}
+
 .signalBadges {
   display: flex;
   flex-wrap: wrap;
@@ -160,7 +166,7 @@
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
-  color: var(--rc-text-secondary);
+  color: var(--rc-text-primary);
 }
 
 .considerationsHeaderIcon {
@@ -169,7 +175,7 @@
 
 .considerationsLabel {
   margin: 0;
-  color: var(--rc-text-secondary);
+  color: var(--rc-text-primary);
 }
 
 .considerationsList {

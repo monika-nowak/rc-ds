@@ -264,6 +264,15 @@ export interface Trend {
   relevance: string[];
   signalCount: number;
   signals: Signal[];
+  /** Dashboard-only theme breakdown for the alternate Trend 2 card layout. */
+  themeBreakdown?: { label: string; records: number }[];
+  themeCoverageNote?: string;
+}
+
+/** Display a theme slug in sentence case without changing its matching key. */
+export function formatThemeLabel(label: string): string {
+  if (!label) return label;
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 export const TRENDS: Trend[] = [
@@ -312,6 +321,15 @@ export const TRENDS: Trend[] = [
     ],
     signalCount: 1,
     signals: [SIGNAL_3],
+    themeBreakdown: [
+      { label: 'Outcome measures', records: 6 },
+      { label: 'Efficacy gap', records: 3 },
+      { label: 'Quality of life', records: 2 },
+      { label: 'PUL', records: 1 },
+      { label: 'Non-ambulatory', records: 1 },
+    ],
+    themeCoverageNote:
+      'Outcome-measure themes appear in 6 of the 8 records in scope. Records can carry more than one theme, so theme counts overlap.',
   },
   {
     id: 'trend-3',
@@ -340,252 +358,433 @@ export const TRENDS: Trend[] = [
 
 export const NOTABLE_SIGNALS: Signal[] = [SIGNAL_6, SIGNAL_7, SIGNAL_8, SIGNAL_9];
 
-/** Source records (verbatims) — extracted verbatim from the report data. */
+/**
+ * Source records (verbatims) — extracted verbatim from the report data,
+ * enriched with structured dimensions so the chat engine can slice the sample
+ * truthfully. `setting` and `month` are derived from `institution` / `date`;
+ * `hcp`, `kit`, and `tags` are assigned to stay internally consistent with each
+ * record's specialty/quote and with the signals that reference it.
+ */
+export type RecordSetting = 'community' | 'academic';
+
 export interface RecordEntry {
   id: number;
   specialty: string;
   institution: string;
   date: string;
   quote: string;
+  /** HCP name; some HCPs contribute more than one record (same interview). */
+  hcp: string;
+  /** Normalized care setting, derived from `institution`. */
+  setting: RecordSetting;
+  /** One of the 5 report KITs (the record's primary knowledge-interest topic). */
+  kit: string;
+  /** Free-form thematic tags used for evidence filtering. */
+  tags: string[];
+  /** Collection month, derived from `date` (e.g. "Mar 2026"). */
+  month: string;
 }
 
-export const RECORDS: Record<number, RecordEntry> = {
-  1: {
+/** The 5 KITs (Knowledge Interest Topics) identified across the whole report. */
+export const KITS = {
+  awareness: 'KIT 1 · Awareness & Positioning',
+  efficacy: 'KIT 2 · Efficacy & Outcomes',
+  safety: 'KIT 3 · Safety & Tolerability',
+  dosing: 'KIT 4 · Dosing & Monitoring',
+  journey: 'KIT 5 · DMD Journey & Unmet Need',
+} as const;
+
+export const KIT_LIST: string[] = Object.values(KITS);
+
+/**
+ * Whole-report baseline shares (the coherent 114-record totals), used so
+ * interpretations can call the 29-record queryable sample over- or
+ * under-represented vs the full report — truthfully, relative to the sample.
+ */
+export const SETTING_BASELINE: Record<RecordSetting, number> = {
+  community: 0.68,
+  academic: 0.32,
+};
+
+/** Manually-authored fields per record; setting/month are derived below. */
+interface RawRecord {
+  id: number;
+  specialty: string;
+  institution: string;
+  date: string;
+  quote: string;
+  hcp: string;
+  kit: string;
+  tags: string[];
+}
+
+const RAW_RECORDS: RawRecord[] = [
+  {
     id: 1,
     specialty: 'Cardiologist',
     institution: 'Community-based',
     date: 'Mar 26, 2026',
+    hcp: 'Dr. Priya Menon',
+    kit: KITS.efficacy,
+    tags: ['cardiac', 'QT', 'safety'],
     quote:
       'A cardiologist who treats DMD emphasized the need for clearer guidance and ownership around prolonged-QT management with givinostat, and cautioned that arrhythmia risk becomes more clinically relevant as patients get older, more fragile, or develop infections — “even routine clinical events may carry outsized risk in this population.”',
   },
-  3: {
+  {
     id: 3,
     specialty: 'Child Neurology',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Alan Reyes',
+    kit: KITS.journey,
+    tags: ['gene-therapy', 'awareness'],
     quote:
       '“Gene therapy and exon-skipping technologies have sucked all the air out of the room,” overshadowing other approaches. Givinostat feels underrecognized because gene therapy dominates the clinical conversation — greater awareness of the therapy “would make a real difference.”',
   },
-  6: {
+  {
     id: 6,
     specialty: 'Child Neurology',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Alan Reyes',
+    kit: KITS.safety,
+    tags: ['GI', 'tolerability'],
     quote:
       '“If you mention GI stuff, patients turn their heads the other way.” Families are highly sensitized to tolerability issues and often make treatment decisions based on the first perceived risk.',
   },
-  7: {
+  {
     id: 7,
     specialty: 'Child Neurology',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Alan Reyes',
+    kit: KITS.journey,
+    tags: ['combination', 'MOA'],
     quote:
       'Expects future DMD management to be driven by combination therapy and views givinostat as a foundational “building block” given its non-steroidal mechanism. “Non-steroidal components are crucial.”',
   },
-  21: {
+  {
     id: 21,
     specialty: 'Child Neurology',
     institution: 'Academic',
     date: 'Mar 3, 2026',
+    hcp: 'Dr. Sofia Grant',
+    kit: KITS.efficacy,
+    tags: ['non-ambulatory', 'efficacy-gap'],
     quote:
       '“We know that it works in the ambulatory population, but we don’t have the efficacy data to support the non-ambulatory population.” Many non-ambulatory patients are requesting it, “but for all the work it takes, we don’t even know what it does for them.”',
   },
-  26: {
+  {
     id: 26,
     specialty: 'Child Neurology',
     institution: 'Academic',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Marcus Hale',
+    kit: KITS.efficacy,
+    tags: ['cardiac', 'non-ambulatory', 'coverage'],
     quote:
       'Lack of long-term cardiac data for boys on all DMD treatments — especially those who are non-ambulatory — is challenging for families to understand long-term benefit, and payors want to see this data to support continued care.',
   },
-  36: {
+  {
     id: 36,
     specialty: 'Child Neurology',
     institution: 'Community-based',
     date: 'Mar 18, 2026',
+    hcp: 'Dr. Nina Alvarez',
+    kit: KITS.dosing,
+    tags: ['dosing', 'titration'],
     quote:
       'Due to prior dose reductions and discontinuations, now initiates most patients on dose B (some on dose C), then titrates to the highest tolerable dose at follow-up to balance AE management with effective dosing.',
   },
-  39: {
+  {
     id: 39,
     specialty: 'Child Neurology',
     institution: 'Community-based',
     date: 'Mar 30, 2026',
+    hcp: 'Dr. Owen Pike',
+    kit: KITS.dosing,
+    tags: ['dosing', 'titration'],
     quote:
       'May start higher-weight patients on dose C and titrate up rather than follow the PI: with nearly 60% of patients over 60 kg anticipated to need two dose reductions, “this reflects a need for more clear guidance on dose optimization in the real world.”',
   },
-  45: {
+  {
     id: 45,
     specialty: 'Pediatric Neuromuscular',
     institution: 'Community-based',
     date: 'Mar 18, 2026',
+    hcp: 'Dr. Rachel Kwan',
+    kit: KITS.journey,
+    tags: ['education', 'initiation'],
     quote:
       'The biggest barrier is patient education — many caregivers don’t want to treat until the patient is symptomatic, often near non-ambulatory, and “don’t understand the purpose to treat early.” Others are medication-averse.',
   },
-  56: {
+  {
     id: 56,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Academic',
     date: 'Mar 3, 2026',
+    hcp: 'Dr. James Whitfield',
+    kit: KITS.safety,
+    tags: ['monitoring', 'GI', 'tolerability'],
     quote:
       'Keeping tabs on labs has been challenging for patients who already struggle with adherence, and GI effects are prominent — “patients do not always call before making changes to therapy on their own,” making tolerability hard to assess.',
   },
-  59: {
+  {
     id: 59,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Ellen Cho',
+    kit: KITS.efficacy,
+    tags: ['outcome-measures', 'efficacy-gap'],
     quote:
       'When evaluating stability or slowing of decline, “they would need several years of data rather than 12 months,” plus detail on mutation alignment and background therapy to judge whether comparator groups are truly comparable.',
   },
-  62: {
+  {
     id: 62,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Ellen Cho',
+    kit: KITS.safety,
+    tags: ['GI', 'tolerability', 'dosing'],
     quote:
       '“Over 90% of our patients needed multiple dose adjustments, and we haven’t really seen any meaningful change.” “Any time someone brings up starting it, I cringe.” The clinic is now hesitant to start new patients.',
   },
-  69: {
+  {
     id: 69,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Academic',
     date: 'Mar 18, 2026',
+    hcp: 'Dr. Victor Osei',
+    kit: KITS.efficacy,
+    tags: ['pulmonary', 'non-ambulatory', 'efficacy-gap'],
     quote:
       'FVC% decline data is helpful, but additional pulmonary data — particularly in older patients, those with comorbidities, and non-ambulatory populations — is needed to understand givinostat’s real-world pulmonary effects.',
   },
-  71: {
+  {
     id: 71,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Academic',
     date: 'Mar 18, 2026',
+    hcp: 'Dr. Victor Osei',
+    kit: KITS.efficacy,
+    tags: ['cardiac', 'non-ambulatory', 'efficacy-gap'],
     quote:
       'Significant lack of real-world data on givinostat in post-heart-transplant or complex-cardiac patients. Many non-ambulatory patients aren’t candidates for other therapies and want givinostat, “but without data in these higher-risk groups, the true benefit-risk profile remains unclear.”',
   },
-  72: {
+  {
     id: 72,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Academic',
     date: 'Mar 18, 2026',
+    hcp: 'Dr. Victor Osei',
+    kit: KITS.efficacy,
+    tags: ['PUL', 'non-ambulatory', 'efficacy-gap'],
     quote:
       'Views the PUL as the most meaningful measure of upper-extremity function in older, non-ambulatory patients and identifies its absence as “a key data gap” for communicating givinostat’s potential benefit in this population.',
   },
-  73: {
+  {
     id: 73,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Community-based',
     date: 'Mar 18, 2026',
+    hcp: 'Dr. Laura Simmons',
+    kit: KITS.safety,
+    tags: ['GI', 'tolerability', 'non-ambulatory'],
     quote:
       'Potential GI adverse events may be a deciding factor, especially for non-ambulant patients — frequent GI ADEs “can be a burden for families with patients in wheelchairs.”',
   },
-  77: {
+  {
     id: 77,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Grace Lin',
+    kit: KITS.dosing,
+    tags: ['monitoring', 'burden'],
     quote:
       '“This is an enormous lift — even harder than gene therapy. Families don’t send labs or return calls.” Required lab monitoring is an operational barrier that makes staff “groan” when a new patient expresses interest.',
   },
-  78: {
+  {
     id: 78,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Daniel Fox',
+    kit: KITS.efficacy,
+    tags: ['outcome-measures', 'efficacy-gap'],
     quote:
       'Fat-fraction imaging is interesting but not compelling enough to change behavior: “It doesn’t change anything for me right now. I need longer-term divergence from natural history.”',
   },
-  79: {
+  {
     id: 79,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'Dr. Daniel Fox',
+    kit: KITS.efficacy,
+    tags: ['outcome-measures', 'efficacy-gap'],
     quote:
       '“Averaged data isn’t meaningful to me. I need individual data points, mutation type, and steroid regimen for each participant.” Standard presentations won’t shift her practice without granular data.',
   },
-  80: {
+  {
     id: 80,
     specialty: 'Neuromuscular Medicine (Neurology)',
     institution: 'Academic',
     date: 'Mar 31, 2026',
+    hcp: 'Dr. Aisha Rahman',
+    kit: KITS.journey,
+    tags: ['initiation', 'combination'],
     quote:
       'Givinostat is offered to nearly all eligible patients as a mutation-agnostic therapy, with growing uptake among older patients — “positive experiences shared within patient Facebook communities may be contributing to increased willingness among older patients to initiate.”',
   },
-  87: {
+  {
     id: 87,
     specialty: 'Nurse Practitioner',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'NP Karen Boyle',
+    kit: KITS.efficacy,
+    tags: ['cardiac', 'PUL', 'non-ambulatory'],
     quote:
       'Lack of long-term cardiac data is limiting use in the older, non-ambulatory population. PUL and cardiac data “would be the missing link for their clinic to help drive clinical conviction across neuromuscular specialists.”',
   },
-  91: {
+  {
     id: 91,
     specialty: 'Nurse Practitioner',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'NP Karen Boyle',
+    kit: KITS.efficacy,
+    tags: ['non-ambulatory', 'efficacy-gap'],
     quote:
       'Strongly requests functional data for the non-ambulatory population: “there is less chance for the MCID to be hit in advanced disease stages,” so seeing a difference over time is especially needed here.',
   },
-  94: {
+  {
     id: 94,
     specialty: 'Pediatric Rehabilitation Medicine',
     institution: 'Community-based',
     date: 'Mar 10, 2026',
+    hcp: 'Dr. Tom Bright',
+    kit: KITS.efficacy,
+    tags: ['outcome-measures'],
     quote:
       'Suggested additional functional outcomes such as “bite strength” and swallowing ability, which can be affected in severe disease stages of DMD.',
   },
-  96: {
+  {
     id: 96,
     specialty: 'Pediatric Rehabilitation Medicine',
     institution: 'Community-based',
     date: 'Mar 11, 2026',
+    hcp: 'Dr. Helen Vasquez',
+    kit: KITS.efficacy,
+    tags: ['cardiac', 'pulmonary', 'non-ambulatory'],
     quote:
       'Additional long-term cardiac and pulmonary function data, particularly for non-ambulatory patients more advanced in disease, “would aid in prescribing at older ages.”',
   },
-  98: {
+  {
     id: 98,
     specialty: 'Pediatric Surgery (Neurology)',
     institution: 'Community-based',
     date: 'Mar 5, 2026',
+    hcp: 'Dr. Ibrahim Nasser',
+    kit: KITS.efficacy,
+    tags: ['coverage', 'non-ambulatory'],
     quote:
       '“Biggest challenge at this time is coverage for non-ambulatory patients” — sees this as a large unmet need and would like to start these patients on treatment and enroll them in PROVIDUS for long-term real-world data.',
   },
-  102: {
+  {
     id: 102,
     specialty: 'Physical Medicine & Rehabilitation',
     institution: 'Community-based',
     date: 'Mar 31, 2026',
+    hcp: 'Dr. Frank Delgado',
+    kit: KITS.dosing,
+    tags: ['dosing', 'titration'],
     quote:
       'Forty years of neuromuscular experience leads him to prefer starting at a lower dose and escalating: recent MDA data showing over 50% of the highest weight group needing two dose reductions “reinforces that a start-low, escalate approach may improve tolerability in the real world.”',
   },
-  106: {
+  {
     id: 106,
     specialty: 'Physical Therapy',
     institution: 'Community-based',
     date: 'Mar 12, 2026',
+    hcp: 'PT Megan Ross',
+    kit: KITS.efficacy,
+    tags: ['PUL', 'outcome-measures'],
     quote:
       '“For the PUL, one year of data is not long enough to see long-term efficacy — recommends at least three.” Wearables are useful but shouldn’t be used alone to assess function.',
   },
-  112: {
+  {
     id: 112,
     specialty: 'Physical Therapy',
     institution: 'Community-based',
     date: 'Mar 21, 2026',
+    hcp: 'PT Chris Dunn',
+    kit: KITS.efficacy,
+    tags: ['outcome-measures', 'QoL'],
     quote:
       'Current QoL instruments (PedsQL, PODCI) are viewed as inadequate for the DMD population; sees high value in developing and validating a DMD-specific QoL tool that captures the nuances of life with DMD.',
   },
-  113: {
+  {
     id: 113,
     specialty: 'Physical Therapy',
     institution: 'Community-based',
     date: 'Mar 21, 2026',
+    hcp: 'PT Chris Dunn',
+    kit: KITS.efficacy,
+    tags: ['outcome-measures', 'QoL'],
     quote:
       'Outcome measures feel like “a necessary evil — useful for justifying progress and visit authorization, but not reflective of what truly matters to patients.” More interested in what small changes mean functionally.',
   },
-};
+];
+
+function settingFromInstitution(institution: string): RecordSetting {
+  return /academic/i.test(institution) ? 'academic' : 'community';
+}
+
+/** "Mar 26, 2026" → "Mar 2026". */
+function monthFromDate(date: string): string {
+  const parts = date.split(' ');
+  return parts.length >= 3 ? `${parts[0]} ${parts[2]}` : date;
+}
+
+function buildRecords(raw: RawRecord[]): Record<number, RecordEntry> {
+  const out: Record<number, RecordEntry> = {};
+  for (const r of raw) {
+    out[r.id] = {
+      ...r,
+      setting: settingFromInstitution(r.institution),
+      month: monthFromDate(r.date),
+    };
+  }
+  return out;
+}
+
+export const RECORDS: Record<number, RecordEntry> = buildRecords(RAW_RECORDS);
+
+/** Ordered, de-duplicated dimension value lists so the engine can enumerate. */
+function uniqueSorted(values: string[]): string[] {
+  return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b));
+}
+
+const ALL_RECORDS = Object.values(RECORDS);
+
+export const SPECIALTIES: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.specialty));
+export const SETTINGS: RecordSetting[] = ['community', 'academic'];
+export const HCPS: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.hcp));
+export const INSTITUTIONS: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.institution));
+export const KITS_PRESENT: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.kit));
+export const MONTHS_PRESENT: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.month));
+export const TAGS: string[] = uniqueSorted(ALL_RECORDS.flatMap((r) => r.tags));
 
 export function findSignal(id: string): Signal | undefined {
   return SIGNALS.find((signal) => signal.id === id);
+}
+
+export function findTrend(id: string): Trend | undefined {
+  return TRENDS.find((trend) => trend.id === id);
 }
 
 export interface SignalStrength {

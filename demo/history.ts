@@ -83,6 +83,9 @@ export function saveActiveConversationId(id: string | null): void {
 
 export interface DemoSession {
   signalId: string | null;
+  trendId: string | null;
+  /** Dashboard viewport position to restore when returning from a detail page. */
+  dashboardScrollY: number;
   chatOpen: boolean;
   expanded: boolean;
   scope: ChatScope;
@@ -93,7 +96,15 @@ export function loadSession(): DemoSession | null {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as DemoSession;
+    const parsed = JSON.parse(raw) as Partial<DemoSession>;
+    return {
+      signalId: parsed.signalId ?? null,
+      trendId: parsed.trendId ?? null,
+      dashboardScrollY: typeof parsed.dashboardScrollY === 'number' ? parsed.dashboardScrollY : 0,
+      chatOpen: Boolean(parsed.chatOpen),
+      expanded: Boolean(parsed.expanded),
+      scope: parsed.scope ?? { kind: 'whole', label: 'Whole report' },
+    };
   } catch {
     return null;
   }

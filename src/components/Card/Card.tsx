@@ -172,6 +172,12 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
   category?: string;
   considerationsLabel?: string;
   considerations?: string[];
+  /**
+   * Extra content rendered inside the card frame, at the bottom of the stacked
+   * body (below considerations). Use for embedded, in-card content such as a
+   * proof chart. Backward compatible: omitted → nothing rendered.
+   */
+  extraContent?: ReactNode;
   createdLabel?: string;
   createdDate?: string;
   authorName?: string;
@@ -435,6 +441,7 @@ export function Card({
   category,
   considerationsLabel,
   considerations = [],
+  extraContent,
   createdLabel,
   createdDate,
   authorName,
@@ -644,6 +651,15 @@ export function Card({
         {visibleConsiderations.length > 0 ? (
           <ConsiderationsSection label={considerationsLabel} items={visibleConsiderations} />
         ) : null}
+
+        {/* Second divider before embedded content (e.g. trend proof chart) —
+            matches Figma Card 2334:6729: header | considerations | chart. */}
+        {extraContent &&
+        (visibleConsiderations.length > 0 || visibleStats.length > 0 || showTitleBlock) ? (
+          <Divider />
+        ) : null}
+
+        {extraContent ? <div className={styles.extraContent}>{extraContent}</div> : null}
       </div>
 
       {categoryFooter ? <div className={styles.footer}>{categoryFooter}</div> : null}

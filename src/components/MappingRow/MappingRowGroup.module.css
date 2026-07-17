@@ -8,6 +8,23 @@
   width: 100%;
 }
 
+/* Flat list for review screens — resolved rows mixed with validation issues.
+   Shared columns: chip · arrow · value slot (128px) · message · match %. */
+.list {
+  display: grid;
+  grid-template-columns: max-content 16px calc(var(--rc-spacing-16) * 2) 1fr max-content;
+  column-gap: var(--rc-spacing-2);
+  row-gap: 0;
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-sm);
+  overflow: hidden;
+  background: var(--rc-layer-01);
+}
+
+.list > :not(:first-child) {
+  border-top: 1px solid var(--rc-border-subtle-01);
+}
+
 /* "Validation Context" — error-tinted panel that groups related validation rows
    (matches the Figma "Validation Context" container). */
 .context {
