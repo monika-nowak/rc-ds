@@ -2261,13 +2261,8 @@ button.citationTag:hover {
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-6);
-  /* Align only the Signal text to the capped page column. The hero itself
-     retains its original vertical padding and rhythm. */
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - var(--rc-content-max, 1200px)) / 2)
-  );
-  transition: padding 220ms ease;
+  /* Signal uses the wider page grid, shared with its main content. */
+  padding-inline: var(--rc-page-px, 96px);
 }
 
 .signalKicker {
@@ -2289,15 +2284,10 @@ button.citationTag:hover {
 .signalMain {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
   gap: 64px;
-  padding-block: 0 64px;
-  /* Share the hero's capped content-column alignment. */
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - var(--rc-content-max, 1200px)) / 2)
-  );
-  transition: padding 220ms ease;
+  padding-block: 0 96px;
+  /* Keep Signal on the wide page grid; it does not use the content cap. */
+  padding-inline: var(--rc-page-px, 96px);
 }
 
 .scoringCol {
@@ -2313,7 +2303,6 @@ button.citationTag:hover {
 
 .signalContent {
   flex: 1 1 0;
-  max-width: var(--rc-content-max, 1000px);
   min-width: 0;
   padding-top: 64px;
   display: flex;
