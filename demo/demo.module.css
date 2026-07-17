@@ -2331,11 +2331,29 @@ button.citationTag:hover {
    Keep its content measure aligned with the dashboard's 1000px column. */
 .trendMain {
   flex-direction: column;
+  align-items: center;
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1000px)) / 2)
+  );
 }
 
 .trendMain .signalContent {
   width: 100%;
   max-width: var(--rc-content-max, 1000px);
+}
+
+/* Trend has no left Strength rail, so its hero follows the dashboard's
+   full-bleed background + centered content-column pattern. */
+.trendHero {
+  padding-inline: 0;
+}
+
+.trendHeroContent {
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-content-max, 1000px)) / 2)
+  );
 }
 
 /* Stack only when the main column cannot fit Strength + a usable content rail.

@@ -206,14 +206,14 @@ export function TrendDetail({
 
   return (
     <div className={styles.signalPage}>
-      <section className={styles.signalHero}>
-        <div className={styles.heroContent}>
+      <section className={`${styles.signalHero} ${styles.trendHero}`}>
+        <div className={`${styles.heroContent} ${styles.trendHeroContent}`}>
           <span className={`rc-heading-h6 ${styles.signalKicker}`}>{trend.label}</span>
           <h1 className={styles.signalTitle}>{trend.title}</h1>
         </div>
       </section>
 
-      {/* Full-width content — Figma trend details has no scoring sidebar. */}
+      {/* Single centred content column — trend details have no scoring sidebar. */}
       <div className={`${styles.signalMain} ${styles.trendMain}`}>
         <div className={styles.signalContent}>
           <div className={styles.signalStatGrid}>
