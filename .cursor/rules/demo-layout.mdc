@@ -20,6 +20,21 @@ touches these areas, preserve them exactly.
 - `.appMain` is a CSS container: `container: main / inline-size`. Layouts react
   to the **main-area width** (which shrinks when the Ask AI chat docks), not the
   viewport. Always use `@container main (...)`, never `@media`, for these.
+- A container query CANNOT restyle its own container element. Do NOT write
+  `@container main { .appMain { --rc-page-px: ... } }` — it silently does
+  nothing. Set responsive vars on descendant page roots instead
+  (`.page`, `.signalPage`).
+
+## Narrow-width margins (chat open) — GLOBAL
+
+- At `@container main (max-width: 1100px)` the page roots drop
+  `--rc-page-px` to **64px**:
+  `@container main (max-width: 1100px) { .page, .signalPage { --rc-page-px: 64px } }`.
+  This tightens side margins on **dashboard, trend, AND signal** together
+  (all derive padding from `--rc-page-px`). Do NOT re-add per-element
+  `--rc-page-px: 64px` on `.signalMain`/`.signalHero` — it's covered by the
+  `.signalPage` cascade.
+- Full width (chat closed): margins stay 96px, content centered at 1000px.
 
 ## Content width parity
 
