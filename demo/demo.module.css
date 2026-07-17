@@ -2248,6 +2248,8 @@ button.citationTag:hover {
 .signalPage {
   min-height: 100vh;
   background: var(--rc-background-canvas);
+  /* Wider than the dashboard: two-column layout (scoring sidebar + content). */
+  --rc-signal-max: 1200px;
 }
 
 .signalHero {
@@ -2261,8 +2263,11 @@ button.citationTag:hover {
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-6);
-  /* Signal uses the wider page grid, shared with its main content. */
-  padding-inline: var(--rc-page-px, 96px);
+  /* Align hero text with the Signal 1200px content column. */
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-signal-max, 1200px)) / 2)
+  );
 }
 
 .signalKicker {
@@ -2286,8 +2291,11 @@ button.citationTag:hover {
   align-items: flex-start;
   gap: 64px;
   padding-block: 0 96px;
-  /* Keep Signal on the wide page grid; it does not use the content cap. */
-  padding-inline: var(--rc-page-px, 96px);
+  /* Original Signal measure: 1200px cap (wider than dashboard), shared with hero. */
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - var(--rc-signal-max, 1200px)) / 2)
+  );
 }
 
 .scoringCol {
