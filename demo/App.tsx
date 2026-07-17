@@ -193,7 +193,9 @@ export function App() {
       <div className={styles.appBody}>
         <div
           data-selectable-ask
-          className={`${styles.appMain} ${chatOpen || activeRecord ? styles.appMainCompact : ''}`}
+          className={`${styles.appMain} ${
+            chatOpen ? styles.appMainChatOpen : activeRecord ? styles.appMainCompact : ''
+          }`}
         >
           {activeSignal ? (
             <SignalDetail signal={activeSignal} onOpenRecord={(record) => openRecord(record, false)} />
