@@ -2356,13 +2356,15 @@ button.citationTag:hover {
   );
 }
 
-/* Stack only when the actual main area cannot fit the 335px Strength card
-   beside a minimally readable content rail. The query accounts for both the
-   viewport and any docked panel without treating chat as a special layout.
-   In this narrow mode Strength sits full-width on top and the content fills
-   the whole main area at a tighter 64px inset — no 1000px cap or centering
-   gap that would leave an empty right band. */
-@container main (max-width: 800px) {
+/* Stack unless the main area has genuinely comfortable room for the 335px
+   Strength sidebar + 64px gap + a readable content rail (~700px). That needs
+   roughly 1100px, so anything narrower — notably the main area with the chat
+   panel docked — stacks. The query reads the actual main-area width (which
+   shrinks when chat opens), not the viewport. In this narrow mode Strength
+   sits full-width on top and the content fills the whole main area at a
+   tighter 64px inset — no 1000px cap or centering gap that would leave an
+   empty right band. */
+@container main (max-width: 1100px) {
   .signalHero {
     --rc-page-px: 64px;
   }
