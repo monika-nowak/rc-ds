@@ -2303,6 +2303,8 @@ button.citationTag:hover {
 
 .signalContent {
   flex: 1 1 0;
+  /* Match homepage/Trend content column width; Strength sidebar stays outside this cap. */
+  max-width: var(--rc-content-max, 1000px);
   min-width: 0;
   padding-top: 64px;
   display: flex;
