@@ -2261,8 +2261,11 @@ button.citationTag:hover {
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-6);
-  /* Page padding only — same left edge as the Signal Strength + content row. */
-  padding-inline: var(--rc-page-px, 96px);
+  /* Align with the left edge of the centered Strength + content group. */
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - (335px + 64px + var(--rc-content-max, 1000px))) / 2)
+  );
 }
 
 .signalKicker {
@@ -2286,8 +2289,11 @@ button.citationTag:hover {
   align-items: flex-start;
   gap: 64px;
   padding-block: 0 96px;
-  /* Page padding only so the right column can use remaining width beside Strength. */
-  padding-inline: var(--rc-page-px, 96px);
+  /* Center Strength (335) + gap (64) + content-max (1000) as one group. */
+  padding-inline: max(
+    var(--rc-page-px, 96px),
+    calc((100% - (335px + 64px + var(--rc-content-max, 1000px))) / 2)
+  );
 }
 
 .scoringCol {
