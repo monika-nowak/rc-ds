@@ -29,13 +29,6 @@
   --rc-page-px: 48px;
 }
 
-/* The docked AI panel is a deliberate two-column page mode, not merely a
-   viewport resize. Signal detail uses this state to move Strength above the
-   content rail instead of leaving it as a narrow competing sidebar. */
-.appMainChatOpen {
-  --rc-page-px: 48px;
-}
-
 /* ---- Page shell ---- */
 .page {
   min-height: 100vh;
@@ -2363,10 +2356,10 @@ button.citationTag:hover {
   );
 }
 
-/* Stack when the actual main area cannot fit the 335px Strength card plus a
-   readable content rail. The main-area container accounts for the docked chat
-   panel, while a wide page without chat keeps the two-column composition. */
-@container main (max-width: 1040px) {
+/* Stack only when the actual main area cannot fit the 335px Strength card
+   beside a minimally readable content rail. The query accounts for both the
+   viewport and any docked panel without treating chat as a special layout. */
+@container main (max-width: 800px) {
   .signalMain {
     padding-block: 48px 96px;
   }
@@ -2383,26 +2376,6 @@ button.citationTag:hover {
   .signalContent {
     padding-top: 0;
   }
-}
-
-.appMainChatOpen .signalMain {
-  padding-block: 48px 96px;
-}
-
-.appMainChatOpen .signalMainInner {
-  flex-direction: column;
-  gap: 32px;
-}
-
-.appMainChatOpen .scoringCol {
-  flex: 1 1 auto;
-  width: 100%;
-  padding-top: 0;
-  position: static;
-}
-
-.appMainChatOpen .signalContent {
-  padding-top: 0;
 }
 
 /* Scoring card */
