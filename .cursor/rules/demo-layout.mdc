@@ -84,6 +84,10 @@ touches these areas, preserve them exactly.
 - Section rhythm: 48px header → first item; 24px item → card; 48px between
   trend groups; 24px header → cards for Notable signals / ProjectProof.
 - `ProjectProof` lives on the dashboard after the stat cards, before Key trends.
+- Stat cards (Dashboard `StatCard`, Signal `SignalStatCard`, Trend
+  `TrendStatCard`) render the label as **exactly 2 block lines**: emphasis word
+  on line 1, secondary text on line 2. This keeps every card the same line
+  count/height. Do NOT collapse back to a single inline label.
 
 ## Charts
 
