@@ -2261,12 +2261,8 @@ button.citationTag:hover {
   display: flex;
   flex-direction: column;
   gap: var(--rc-spacing-6);
-  /* Match Dashboard/Trend content column left edge (horizontal only). */
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - var(--rc-content-max, 1200px)) / 2)
-  );
-  transition: padding 220ms ease;
+  /* Page padding only — same left edge as the Signal Strength + content row. */
+  padding-inline: var(--rc-page-px, 96px);
 }
 
 .signalKicker {
@@ -2290,12 +2286,8 @@ button.citationTag:hover {
   align-items: flex-start;
   gap: 64px;
   padding-block: 0 96px;
-  /* Same shared --rc-content-max column as Dashboard and Trend. */
-  padding-inline: max(
-    var(--rc-page-px, 96px),
-    calc((100% - var(--rc-content-max, 1200px)) / 2)
-  );
-  transition: padding 220ms ease;
+  /* Page padding only so the right column can use remaining width beside Strength. */
+  padding-inline: var(--rc-page-px, 96px);
 }
 
 .scoringCol {
@@ -2311,7 +2303,6 @@ button.citationTag:hover {
 
 .signalContent {
   flex: 1 1 0;
-  max-width: var(--rc-content-max, 1000px);
   min-width: 0;
   padding-top: 64px;
   display: flex;
