@@ -50,12 +50,9 @@
   --rc-layer-active-01: #eaeaeb;
   --rc-layer-selected-01: #eaeaeb;
 
-  --rc-field-01: #fafafa;
-  --rc-field-02: #ffffff;
-  --rc-field-03: #fafafa;
-  --rc-field-hover-01: #eaeaeb;
-  --rc-field-hover-02: #fafafa;
-  --rc-field-hover-03: #eaeaeb;
+  --rc-field-disabled: #fafafa;
+  --rc-field-default: #ffffff;
+  --rc-field-hover: #fafafa;
 
   --rc-border-subtle-00: #fafafa;
   --rc-border-subtle-01: #eaeaeb;

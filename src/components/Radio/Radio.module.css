@@ -32,7 +32,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   flex-shrink: 0;
   pointer-events: none;
 }
@@ -71,7 +71,7 @@
 }
 
 .input:disabled + .circle {
-  background: var(--rc-field-01);
+  background: var(--rc-field-disabled);
   border-color: var(--rc-border-disabled);
 }
 

@@ -1,0 +1,89 @@
+---
+description: How to choose surface color tokens in this DS — field vs layer, and the layer elevation model. Follow when styling any component surface/background.
+globs:
+  - src/**
+  - demo/**
+alwaysApply: false
+---
+
+# Surface tokens: `field` vs `layer` (Carbon-style)
+
+This DS follows the IBM Carbon surface model (`field-*`, `layer-01/02/03`,
+`background-canvas`). Use these rules to decide which surface token to apply.
+
+## The one question
+
+**"Does the user type or pick a value inside this element?"**
+
+- **YES → `field`** — it's a form-control surface.
+- **NO → `layer`** — it's a container / chrome / overlay surface.
+
+## `field` — interactive control surfaces
+
+Use for the background of value-entry / selection controls:
+inputs, textareas, selects/triggers, search boxes, checkboxes, radios,
+date-picker triggers, choice tags.
+
+Tokens are named by **state**, not by number:
+
+| State | Token | Value |
+|-------|-------|-------|
+| default | `--rc-field-default` | `#ffffff` |
+| disabled | `--rc-field-disabled` | `#fafafa` |
+| hover | `--rc-field-hover` | `#fafafa` |
+
+Rule: form controls hover with `field-hover`, NOT `layer-hover-01`.
+
+Note: hover is intentionally the light one-step-from-white shade (`#fafafa`),
+matching the white `field-default`. It equals the disabled surface value —
+that's expected; the two are told apart by border + text color, not fill.
+
+### Accepted exception — neutral buttons
+Tertiary `Button` (incl. ai-tertiary) and `IconButton` intentionally use
+`field-default` (hover `field-hover`) as their neutral control surface. This is a
+deliberate extension of the `field` family to "neutral, bordered, interactive
+control", not just value-input. Do NOT move these to `layer`.
+
+## `layer` — container / chrome / overlay surfaces + elevation
+
+Use for anything raised above the page background: cards, app header, side nav,
+banners, menus, popovers, dropdown/select lists, calendars, panels, list rows.
+
+| State | Token | Value |
+|-------|-------|-------|
+| base surface | `--rc-layer-01` | `#ffffff` |
+| nested in layer-01 | `--rc-layer-02` | `#fafafa` |
+| nested deeper / strong neutral | `--rc-layer-03` | `#eaeaeb` |
+| hover (menu/list/card items) | `--rc-layer-hover-01` | `#fafafa` |
+| selected item | `--rc-layer-selected-01` | `#eaeaeb` |
+| active/pressed item | `--rc-layer-active-01` | `#eaeaeb` |
+
+### Elevation model
+The `layer` number encodes **nesting depth**, not an arbitrary shade:
+
+- `background-canvas` (`#fafafa`) = the page background. It is **not a surface** —
+  never place bare content directly on it; put a `layer` surface first.
+- First container on canvas → `layer-01`.
+- Container nested inside a `layer-01` surface → `layer-02`.
+- Nested again / needs a stronger neutral fill (e.g. a badge, an icon box) →
+  `layer-03`.
+
+## Quick decision table
+
+| Designing… | Token |
+|---|---|
+| input / textarea / select / search / checkbox / radio | `field-default` (disabled `field-disabled`, hover `field-hover`) |
+| tertiary button / icon button | `field-default` (hover `field-hover`) |
+| card / nav / modal / popover / dropdown / panel | `layer-01` |
+| container inside a card | `layer-02` |
+| deeper nesting / strong neutral (badge, icon box) | `layer-03` |
+| hover on a menu/list/card item | `layer-hover-01` |
+| selected list/menu item | `layer-selected-01` |
+| page background | `background-canvas` |
+
+## Don'ts
+- Don't hover a form control with `layer-hover-01` (use `field-hover`).
+- Don't put bare content on `background-canvas` — raise it onto a `layer`.
+- Don't pick `layer-02`/`layer-03` by "which grey looks right" — pick by nesting
+  depth.
+- Don't hardcode hex (`#fff`, `#fafafa`, `#eaeaeb`) for surfaces — use the token.

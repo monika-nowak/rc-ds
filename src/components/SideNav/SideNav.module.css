@@ -49,7 +49,7 @@
 
 .itemActive,
 .itemActive:hover {
-  background: var(--rc-background-selected-hover);
+  background: var(--rc-layer-selected-01);
 }
 
 .itemIcon {

@@ -82,13 +82,13 @@
 }
 
 .tertiary {
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   border-color: var(--rc-border-subtle-02);
   color: var(--rc-text-primary);
 }
 
 .tertiary:hover:not(:disabled) {
-  background: var(--rc-layer-hover-01);
+  background: var(--rc-field-hover);
 }
 
 .ghost {
@@ -132,7 +132,7 @@
 }
 
 .aiTertiary {
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   border-color: var(--rc-border-ai);
   color: var(--rc-text-ai);
 }

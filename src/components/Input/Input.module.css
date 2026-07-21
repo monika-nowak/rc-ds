@@ -33,7 +33,7 @@
   padding: calc((var(--rc-height-md) - 20px - 2px) / 2) var(--rc-spacing-3);
   border: 1px solid var(--rc-border-subtle-02);
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   color: var(--rc-text-primary);
   outline: none;
   transition: border-color 120ms ease, background-color 120ms ease;
@@ -83,7 +83,7 @@
 }
 
 .input:disabled {
-  background: var(--rc-field-01);
+  background: var(--rc-field-disabled);
   border-color: var(--rc-border-disabled);
   color: var(--rc-text-disabled);
   cursor: not-allowed;

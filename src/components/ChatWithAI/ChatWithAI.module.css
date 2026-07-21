@@ -18,7 +18,7 @@
 }
 
 .frameDisabled {
-  background: var(--rc-field-01);
+  background: var(--rc-layer-02);
   box-shadow: none;
 }
 

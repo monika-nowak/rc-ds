@@ -57,7 +57,7 @@
   padding: 0 var(--rc-spacing-3);
   border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   font: 400 14px/20px var(--rc-font-sans);
   color: var(--rc-text-primary);
 }
@@ -125,7 +125,7 @@
   padding: 0 8px;
   border: 1px solid var(--rc-border-subtle-01);
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   font: 500 10px/12px var(--rc-font-sans);
   color: var(--rc-text-primary);
   cursor: pointer;

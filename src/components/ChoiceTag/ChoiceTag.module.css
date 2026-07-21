@@ -13,7 +13,7 @@
   padding: 3px 8px;
   border: 1px solid var(--rc-border-subtle-02);
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-field-02);
+  background: var(--rc-field-default);
   color: var(--rc-text-secondary);
   white-space: nowrap;
   cursor: pointer;
@@ -41,7 +41,7 @@
 
 .tag:disabled {
   border-color: var(--rc-border-disabled);
-  background: var(--rc-field-01);
+  background: var(--rc-field-disabled);
   color: var(--rc-text-disabled);
   cursor: not-allowed;
 }

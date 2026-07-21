@@ -11,6 +11,7 @@
 
 .cardChecked {
   border-color: var(--rc-border-strong-01);
+  background: var(--rc-layer-selected-01);
 }
 
 .cardExpanded {

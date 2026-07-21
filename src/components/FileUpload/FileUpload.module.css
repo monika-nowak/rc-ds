@@ -6,7 +6,7 @@
   max-width: 900px;
   padding: var(--rc-spacing-1);
   border-radius: var(--rc-radius-md);
-  background: var(--rc-neutral-50);
+  background: var(--rc-layer-03);
 }
 
 .fileRow {
