@@ -1,5 +1,5 @@
 /** Icon keys map to Phosphor icons (some are outside the curated DS set). */
-export type StatIcon = 'database' | 'first-aid-kit' | 'hospital' | 'tag';
+export type StatIcon = 'database' | 'first-aid-kit' | 'hospital' | 'tag' | 'cell-signal-full';
 
 export interface Stat {
   value: string;
@@ -778,6 +778,424 @@ export const INSTITUTIONS: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.inst
 export const KITS_PRESENT: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.kit));
 export const MONTHS_PRESENT: string[] = uniqueSorted(ALL_RECORDS.map((r) => r.month));
 export const TAGS: string[] = uniqueSorted(ALL_RECORDS.flatMap((r) => r.tags));
+
+/* ------------------------------------------------------------------ *
+ * Expanded dashboard headline metrics (Figma RC-Designs 2638:4830).
+ * The Figma mock uses placeholder numbers (2,182 records, 12 HCPs,
+ * 45 institutions, evenly-split tiers). We keep the layout but ground
+ * every number in this project's real data:
+ *  - Records card  → whole-report record total (STATS) + the four
+ *    largest evidence-gap signals with their real record counts.
+ *  - HCPs card     → whole-report HCP total (STATS) + engagement tiers of
+ *    the analyzed HCPs, derived from how many records each one drives.
+ *  - Institutions  → whole-report institution total (STATS) + the
+ *    academic / community record share (SETTING_BASELINE).
+ * ------------------------------------------------------------------ */
+
+/** Color ramp a segmented metric bar draws from (Figma 2641:7331). */
+export type MetricPalette = 'blue' | 'blueTiers';
+
+export type MetricSegmentTone = 'strong' | 'mid' | 'soft';
+
+export interface MetricBar {
+  label: string;
+  value: number;
+}
+
+export interface MetricSegment {
+  label: string;
+  percent: number;
+  tone: MetricSegmentTone;
+  /** Absolute count shown in the legend (thin bars only). */
+  count?: number;
+}
+
+interface MetricCardBase {
+  icon: StatIcon;
+  value: string;
+  /** Optional "of N" denominator shown after the value (Figma 2687:13173). */
+  total?: string;
+  emphasis: string;
+  label: string;
+  caption: string;
+}
+
+export interface RecordsMetricCard extends MetricCardBase {
+  kind: 'bars';
+  bars: MetricBar[];
+  /** Optional unit suffix appended to every bar value (e.g. "HCPs" → "10 HCPs"). */
+  valueUnit?: string;
+}
+
+/**
+ * "Signals + avg strength" card (Figma 2703:9479, Trend Details left column).
+ * A header row plus an "Avg strength" label/value and the gradient strength
+ * meter reused from the Signal-details ScoringCard.
+ */
+export interface SignalsMetricCard extends MetricCardBase {
+  kind: 'signals';
+  /** Average strength, 0..1 — meter fill + knob position. */
+  strength: number;
+  /** Formatted average (e.g. "0.80"). */
+  strengthLabel: string;
+  /** Tier tone for the avg-strength colour (strong = orange …). */
+  strengthTone: SignalStrength['tone'];
+}
+
+export interface SegmentMetricCard extends MetricCardBase {
+  kind: 'segments';
+  /** Color ramp: HCP tiers = 3-step blue, institutions = 2-step blue (Figma 2641:7331). */
+  palette: MetricPalette;
+  /** thin: 6px bar + count/percent legend. filled: labelled bar + label legend. */
+  barStyle: 'thin' | 'filled';
+  segments: MetricSegment[];
+}
+
+export interface DashboardMetrics {
+  records: RecordsMetricCard;
+  hcps: SegmentMetricCard;
+  institutions: SegmentMetricCard;
+}
+
+/**
+ * Bucket a record set's HCPs into engagement tiers by how many records each one
+ * drives — a real influence proxy (Tier 1 = most engaged, Tier 3 = single
+ * record). The project has no explicit tier field, so this is derived here.
+ * Defaults to the whole sample; pass a subset (e.g. a signal's records) to scope
+ * the tiers to that slice.
+ */
+export function hcpTierMix(records: RecordEntry[] = ALL_RECORDS): MetricSegment[] {
+  const counts = new Map<string, number>();
+  for (const record of records) {
+    counts.set(record.hcp, (counts.get(record.hcp) ?? 0) + 1);
+  }
+  const tiers = { t1: 0, t2: 0, t3: 0 };
+  for (const n of counts.values()) {
+    if (n >= 3) tiers.t1 += 1;
+    else if (n === 2) tiers.t2 += 1;
+    else tiers.t3 += 1;
+  }
+  const total = counts.size || 1;
+  const pct = (n: number) => Math.round((n / total) * 100);
+  return [
+    { label: 'Tier 1', tone: 'strong', count: tiers.t1, percent: pct(tiers.t1) },
+    { label: 'Tier 2', tone: 'mid', count: tiers.t2, percent: pct(tiers.t2) },
+    { label: 'Tier 3', tone: 'soft', count: tiers.t3, percent: pct(tiers.t3) },
+  ];
+}
+
+/**
+ * Records grouped by specialty (`record.specialty`), as a full partition of a
+ * headline total. The top `top` specialties are kept as their own bars; every
+ * remaining specialty collapses into a single "+{N} others" bar (N = number of
+ * remaining specialties).
+ *
+ * The real specialty distribution of the given `records` is scaled to `target`
+ * using largest-remainder rounding — integer values that sum EXACTLY to
+ * `target`. Sorted by record count descending. Defaults: the whole sample, and
+ * `target` = the sample's own record count (i.e. no scaling). Pass a signal's
+ * records + its headline record total to scope the bars to that signal.
+ */
+export function specialtyBars(
+  records: RecordEntry[] = ALL_RECORDS,
+  target?: number,
+  top = 3,
+): MetricBar[] {
+  const counts = new Map<string, number>();
+  for (const record of records) {
+    counts.set(record.specialty, (counts.get(record.specialty) ?? 0) + 1);
+  }
+  const ranked = Array.from(counts.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+
+  // Keep `top` specialties as their own bars. If exactly one specialty would be
+  // left over, show it directly rather than as an awkward "+1 others" bar.
+  const keepIndividually = ranked.length - top === 1 ? top + 1 : top;
+  const tail = ranked.slice(keepIndividually);
+  const grouped: MetricBar[] = [...ranked.slice(0, keepIndividually)];
+  if (tail.length > 0) {
+    grouped.push({
+      label: `+${tail.length} others`,
+      value: tail.reduce((sum, row) => sum + row.value, 0),
+    });
+  }
+
+  // Scale the real distribution to the headline total (defaults to no scaling).
+  const sampleTotal = grouped.reduce((sum, row) => sum + row.value, 0) || 1;
+  const goal = target ?? sampleTotal;
+  const exact = grouped.map((row) => (row.value / sampleTotal) * goal);
+  const floored = exact.map((n) => Math.floor(n));
+  const remainder = goal - floored.reduce((sum, n) => sum + n, 0);
+  exact
+    .map((n, i) => ({ i, frac: n - Math.floor(n) }))
+    .sort((a, b) => b.frac - a.frac)
+    .slice(0, Math.max(0, remainder))
+    .forEach(({ i }) => (floored[i] += 1));
+
+  return grouped.map((row, i) => ({ label: row.label, value: floored[i] }));
+}
+
+export const DASHBOARD_METRICS: DashboardMetrics = {
+  records: {
+    kind: 'bars',
+    icon: STATS[0].icon,
+    value: STATS[0].value,
+    emphasis: STATS[0].emphasis,
+    label: STATS[0].label,
+    caption: 'Records by specialty',
+    bars: specialtyBars(ALL_RECORDS, Number.parseInt(STATS[0].value, 10)),
+  },
+  hcps: {
+    kind: 'segments',
+    icon: STATS[1].icon,
+    value: STATS[1].value,
+    emphasis: STATS[1].emphasis,
+    label: STATS[1].label,
+    caption: 'HCPs by engagement tier',
+    palette: 'blueTiers',
+    barStyle: 'thin',
+    segments: hcpTierMix(ALL_RECORDS),
+  },
+  institutions: {
+    kind: 'segments',
+    icon: STATS[2].icon,
+    value: STATS[2].value,
+    emphasis: STATS[2].emphasis,
+    label: STATS[2].label,
+    caption: 'Institutions by care setting',
+    palette: 'blue',
+    barStyle: 'filled',
+    segments: [
+      {
+        label: 'Academic / KOL',
+        tone: 'strong',
+        percent: Math.round(SETTING_BASELINE.academic * 100),
+      },
+      {
+        label: 'Community',
+        tone: 'soft',
+        percent: Math.round(SETTING_BASELINE.community * 100),
+      },
+    ],
+  },
+};
+
+/**
+ * Per-signal version of the three headline metric cards (same shapes the
+ * Dashboard feeds its shared card views, so both surfaces render identically).
+ * Every distribution is computed from the signal's own backing records
+ * (`signal.recs` → `RECORDS`); the headline value / "of N" denominators stay
+ * consistent with the signal's stated stats and the whole-report totals used
+ * elsewhere in the app (e.g. the signal cards on the dashboard).
+ */
+export function signalMetrics(signal: Signal): DashboardMetrics {
+  const records = signal.recs.map((id) => RECORDS[id]).filter(Boolean);
+  // Stated headline total can exceed the tagged records; scale the real
+  // specialty distribution up to it so the bars sum to the headline number.
+  const recordTotal = Number.parseInt(signal.records, 10) || records.length;
+
+  // Whole-report denominators (match the "X of Y" framing used on the
+  // dashboard signal cards): distinct records / HCPs across the full sample.
+  const wholeRecords = ALL_RECORDS.length;
+  const wholeHcps = new Set(ALL_RECORDS.map((r) => r.hcp)).size;
+
+  // Caption representation: distinct specialties actually in scope, of the total.
+  const scopeSpecialties = new Set(records.map((r) => r.specialty)).size;
+  const totalSpecialties = SPECIALTIES.length;
+
+  // Care-setting split from the signal's own records (percent sums to 100).
+  const settingTotal = records.length || 1;
+  const academic = records.filter((r) => r.setting === 'academic').length;
+  const academicPct = Math.round((academic / settingTotal) * 100);
+  const communityPct = 100 - academicPct;
+
+  // Institutions: distinct institutions in scope, of the whole-report total —
+  // matches the Figma "X of Y institutions represented" framing (2687:13173).
+  const scopeInstitutions = new Set(records.map((r) => r.institution)).size;
+  const totalInstitutions = INSTITUTIONS.length;
+
+  return {
+    records: {
+      kind: 'bars',
+      icon: 'database',
+      value: signal.records,
+      total: String(wholeRecords),
+      emphasis: 'records',
+      label: 'analyzed',
+      caption: `Records by specialty (${scopeSpecialties} of ${totalSpecialties} represented)`,
+      // The tall Signal-details Records frame fits more rows than the dashboard,
+      // so surface up to 5 specialties before collapsing the rest into "others".
+      bars: specialtyBars(records, recordTotal, 5),
+    },
+    hcps: {
+      kind: 'segments',
+      icon: 'first-aid-kit',
+      value: signal.hcps,
+      total: String(wholeHcps),
+      emphasis: 'HCPs',
+      label: 'contributing',
+      caption: 'HCPs by engagement tier',
+      palette: 'blueTiers',
+      barStyle: 'thin',
+      segments: hcpTierMix(records),
+    },
+    institutions: {
+      kind: 'segments',
+      icon: 'hospital',
+      value: String(scopeInstitutions),
+      total: String(totalInstitutions),
+      emphasis: 'institutions',
+      label: 'represented',
+      caption: 'Institutions by care setting',
+      palette: 'blue',
+      barStyle: 'filled',
+      segments: [
+        { label: 'Academic / KOL', tone: 'strong', percent: academicPct },
+        { label: 'Community', tone: 'soft', percent: communityPct },
+      ],
+    },
+  };
+}
+
+/**
+ * Specialties ranked by the number of DISTINCT HCPs practising in each (Figma
+ * 2703:9479, Trend Details specialties card). Unlike `specialtyBars` (which
+ * counts records and scales to a headline), these bars carry the real distinct-
+ * HCP count per specialty — no scaling. The top `top` specialties are kept as
+ * their own bars; the rest collapse into a "+{N} others" bar whose value is the
+ * count of distinct HCPs across all remaining specialties (a union, so an HCP
+ * spanning two tail specialties is not double-counted). Sorted by HCP count desc.
+ */
+export function specialtyHcpBars(records: RecordEntry[] = ALL_RECORDS, top = 7): MetricBar[] {
+  const bySpecialty = new Map<string, Set<string>>();
+  for (const record of records) {
+    let hcps = bySpecialty.get(record.specialty);
+    if (!hcps) {
+      hcps = new Set<string>();
+      bySpecialty.set(record.specialty, hcps);
+    }
+    hcps.add(record.hcp);
+  }
+
+  const ranked = Array.from(bySpecialty.entries())
+    .map(([label, hcps]) => ({ label, value: hcps.size, hcps }))
+    .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+
+  // Keep `top` specialties individually. If exactly one would be left over, show
+  // it directly rather than as an awkward "+1 others" bar.
+  const keepIndividually = ranked.length - top === 1 ? top + 1 : top;
+  const tail = ranked.slice(keepIndividually);
+  const bars: MetricBar[] = ranked
+    .slice(0, keepIndividually)
+    .map((row) => ({ label: row.label, value: row.value }));
+
+  if (tail.length > 0) {
+    const union = new Set<string>();
+    for (const row of tail) {
+      for (const hcp of row.hcps) union.add(hcp);
+    }
+    bars.push({ label: `+${tail.length} others`, value: union.size });
+  }
+
+  return bars;
+}
+
+export interface TrendMetrics {
+  signals: SignalsMetricCard;
+  hcps: SegmentMetricCard;
+  institutions: SegmentMetricCard;
+  specialties: RecordsMetricCard;
+}
+
+/**
+ * Trend version of the rich metric cards (Figma 2703:9479). The trend's records
+ * are the union of its signals' backing records (`signal.recs` → `RECORDS`), and
+ * every distribution is derived from that set. Denominators use whole-report
+ * totals; the specialties card counts DISTINCT HCPs per specialty (not records).
+ * The Signals card carries the mean of the trend signals' strength scores.
+ */
+export function trendMetrics(trend: Trend): TrendMetrics {
+  const recIds = Array.from(new Set(trend.signals.flatMap((signal) => signal.recs)));
+  const records = recIds.map((id) => RECORDS[id]).filter(Boolean);
+
+  // Whole-report denominators.
+  const totalSignals = SIGNALS.length;
+  const wholeHcps = new Set(ALL_RECORDS.map((r) => r.hcp)).size;
+  const totalInstitutions = INSTITUTIONS.length;
+  const totalSpecialties = SPECIALTIES.length;
+
+  // In-scope distinct counts.
+  const scopeHcps = new Set(records.map((r) => r.hcp)).size;
+  const scopeInstitutions = new Set(records.map((r) => r.institution)).size;
+  const scopeSpecialties = new Set(records.map((r) => r.specialty)).size;
+
+  // Average strength across the trend's signals (mean of parsed scores).
+  const scores = trend.signals
+    .map((signal) => Number.parseFloat(signal.strengthLabel))
+    .filter((n) => !Number.isNaN(n));
+  const avg = scores.length ? scores.reduce((sum, n) => sum + n, 0) / scores.length : 0;
+
+  // Care-setting split from the trend's records (percent sums to 100).
+  const settingTotal = records.length || 1;
+  const academic = records.filter((r) => r.setting === 'academic').length;
+  const academicPct = Math.round((academic / settingTotal) * 100);
+  const communityPct = 100 - academicPct;
+
+  return {
+    signals: {
+      kind: 'signals',
+      icon: 'cell-signal-full',
+      value: String(trend.signalCount),
+      total: String(totalSignals),
+      emphasis: 'Signals',
+      label: 'in this trend',
+      caption: 'Average signal strength',
+      strength: Math.max(0, Math.min(1, avg)),
+      strengthLabel: avg.toFixed(2),
+      strengthTone: signalStrength(avg).tone,
+    },
+    hcps: {
+      kind: 'segments',
+      icon: 'first-aid-kit',
+      value: String(scopeHcps),
+      total: String(wholeHcps),
+      emphasis: 'HCPs',
+      label: 'contributing',
+      caption: 'HCPs by engagement tier',
+      palette: 'blueTiers',
+      barStyle: 'thin',
+      segments: hcpTierMix(records),
+    },
+    institutions: {
+      kind: 'segments',
+      icon: 'hospital',
+      value: String(scopeInstitutions),
+      total: String(totalInstitutions),
+      emphasis: 'institutions',
+      label: 'represented',
+      caption: 'Institutions by care setting',
+      palette: 'blue',
+      barStyle: 'filled',
+      segments: [
+        { label: 'Academic / KOL', tone: 'strong', percent: academicPct },
+        { label: 'Community', tone: 'soft', percent: communityPct },
+      ],
+    },
+    specialties: {
+      kind: 'bars',
+      icon: 'database',
+      value: String(scopeSpecialties),
+      total: String(totalSpecialties),
+      emphasis: 'specialties',
+      label: 'represented',
+      // Figma 2703:9480 shows no caption line for this card — header then bars.
+      caption: '',
+      valueUnit: 'HCPs',
+      bars: specialtyHcpBars(records, 7),
+    },
+  };
+}
 
 export function findSignal(id: string): Signal | undefined {
   return SIGNALS.find((signal) => signal.id === id);

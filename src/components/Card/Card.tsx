@@ -2,6 +2,12 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { TrendUp } from '@phosphor-icons/react';
 import { Icon } from '../../icons';
 import { cn } from '../../lib/cn';
+import {
+  ROLE_BADGE,
+  STRENGTH_BADGE,
+  strengthToneFromLabel,
+  type SignalStrengthTone,
+} from '../../lib/signalBadge';
 import { Avatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { Divider } from '../Divider';
@@ -27,6 +33,17 @@ export type CardStatsAppearance = CardStatsSpacing;
 export interface CardStat {
   value: string;
   label: string;
+  /**
+   * Optional denominator rendered as "of {total}" between the value and label
+   * (compact stats only). Matches the Figma stat pattern "19 of 300 Records".
+   */
+  total?: string;
+  /**
+   * Optional leading icon rendered before the value (compact stats only).
+   * Matches the Figma signal-stat pattern (16px icon, e.g. database → Records,
+   * first-aid-kit → HCPs). Pass a sized icon element, e.g. `<Database size={16} />`.
+   */
+  icon?: ReactNode;
 }
 
 type VisibilityKey =
@@ -168,6 +185,8 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
   description?: string;
   stats?: CardStat[];
   strengthLabel?: string;
+  /** Drives strength badge colour (Strong/Moderate/Weak). Falls back to the label. */
+  strengthTone?: SignalStrengthTone;
   leadLabel?: string;
   category?: string;
   considerationsLabel?: string;
@@ -317,15 +336,35 @@ function CardStats({
   const isCompact = spacing === 'compact';
   const statsClass = isCompact ? styles.statsCompact : styles.stats;
   const statClass = isCompact ? styles.statCompact : styles.stat;
+  // Compact (signal) stats per Figma 2673:5486 / 2673:4567: bold value (primary),
+  // optional "of {total}" denominator (regular, tertiary), bold unit label.
+  // Default stats keep the original 18px value / regular label.
+  const valueClass = isCompact ? 'rc-label-lg' : 'rc-heading-h7';
+  const labelClass = isCompact ? 'rc-label-md' : 'rc-body-sm';
 
   return (
     <div className={statsClass}>
-      {stats.map((stat) => (
-        <div key={`${stat.label}-${stat.value}`} className={statClass}>
-          <span className={cn('rc-heading-h7', styles.statValue)}>{stat.value}</span>
-          <span className={cn('rc-body-sm', styles.statLabel)}>{stat.label}</span>
-        </div>
-      ))}
+      {stats.map((stat) => {
+        const text = (
+          <>
+            <span className={cn(valueClass, styles.statValue)}>{stat.value}</span>
+            {stat.total ? (
+              <span className={cn('rc-body-sm', styles.statOf)}>of {stat.total}</span>
+            ) : null}
+            <span className={cn(labelClass, styles.statLabel)}>{stat.label}</span>
+          </>
+        );
+        return (
+          <div key={`${stat.label}-${stat.value}`} className={statClass}>
+            {isCompact && stat.icon ? (
+              <span className={styles.statIcon} aria-hidden>
+                {stat.icon}
+              </span>
+            ) : null}
+            {isCompact ? <span className={styles.statText}>{text}</span> : text}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -342,11 +381,13 @@ function DefaultProjectBadge({ label = 'Badge' }: { label?: string }) {
 
 function SignalBadges({
   strengthLabel,
+  strengthTone,
   leadLabel,
   showStrengthBadge,
   showLeadBadge,
 }: {
   strengthLabel?: string;
+  strengthTone?: SignalStrengthTone;
   leadLabel?: string;
   showStrengthBadge: boolean;
   showLeadBadge: boolean;
@@ -356,23 +397,23 @@ function SignalBadges({
 
   if (!showStrength && !showLead) return null;
 
+  const tone = strengthTone ?? (strengthLabel ? strengthToneFromLabel(strengthLabel) : 'strong');
+  const strength = STRENGTH_BADGE[tone];
+
   return (
     <div className={styles.signalBadges}>
       {showStrength ? (
         <Badge
-          appearance="emphasis"
-          color="purple"
-          iconLeft={<Icon name="cell-signal-full" size={12} tone="on-color" aria-hidden />}
+          appearance={strength.appearance}
+          color={strength.color}
+          icon={strength.icon}
+          iconTone={strength.iconTone}
         >
-          {strengthLabel}
+          {strengthLabel ?? strength.label}
         </Badge>
       ) : null}
       {showLead ? (
-        <Badge
-          appearance="subtle"
-          color="lightPurple"
-          iconLeft={<Icon name="flag" size={12} tone="ai" aria-hidden />}
-        >
+        <Badge appearance={ROLE_BADGE.lead.appearance} color={ROLE_BADGE.lead.color} icon={ROLE_BADGE.lead.icon}>
           {leadLabel}
         </Badge>
       ) : null}
@@ -437,6 +478,7 @@ export function Card({
   description,
   stats = [],
   strengthLabel,
+  strengthTone,
   leadLabel,
   category,
   considerationsLabel,
@@ -592,6 +634,7 @@ export function Card({
     !customHeader && (visibility.showStrengthBadge || visibility.showLeadBadge) ? (
       <SignalBadges
         strengthLabel={strengthLabel}
+        strengthTone={strengthTone}
         leadLabel={leadLabel}
         showStrengthBadge={visibility.showStrengthBadge}
         showLeadBadge={visibility.showLeadBadge}

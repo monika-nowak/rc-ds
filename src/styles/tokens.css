@@ -91,8 +91,15 @@
   --rc-icon-error: #ff5001;
   --rc-icon-warning: #d97706;
   --rc-icon-success: #15803d;
+  --rc-icon-orange: #ff5001;
   --rc-icon-info: #4500f9;
   --rc-icon-ai: #8752fa;
+  /* Icon on subtle accent surfaces — matches the accent TEXT color (-800), so a
+     leading glyph reads the same as the label (tags, badges, chips, pills).
+     Distinct from the -500 accents above (--rc-icon-ai, --rc-icon-info). */
+  --rc-icon-accent-purple: var(--rc-purple-800);
+  --rc-icon-accent-blue: var(--rc-blue-800);
+  --rc-icon-accent-orange: var(--rc-orange-800);
 
   --rc-text-warning: #b45309;
   --rc-text-success: #166534;
@@ -122,7 +129,9 @@
   --rc-background-accent-success: var(--rc-green-100);
   --rc-background-accent-warning: var(--rc-amber-100);
   --rc-background-accent-error: var(--rc-orange-100);
+  --rc-background-accent-orange: var(--rc-orange-100);
   --rc-background-accent-info: var(--rc-blue-100);
+  --rc-background-accent-blue: var(--rc-blue-100);
   --rc-background-accent-purple: var(--rc-purple-100);
   --rc-background-accent-light-purple: var(--rc-light-purple-100);
   /* subtle hover — one step darker (tone/200), for interactive tags */
@@ -130,15 +139,19 @@
   --rc-background-accent-success-hover: var(--rc-green-200);
   --rc-background-accent-warning-hover: var(--rc-amber-200);
   --rc-background-accent-error-hover: var(--rc-orange-200);
+  --rc-background-accent-orange-hover: var(--rc-orange-200);
   --rc-background-accent-info-hover: var(--rc-blue-200);
+  --rc-background-accent-blue-hover: var(--rc-blue-200);
   --rc-background-accent-purple-hover: var(--rc-purple-200);
   --rc-background-accent-light-purple-hover: var(--rc-light-purple-200);
 
-  --rc-text-accent-neutral: var(--rc-neutral-800);
+  --rc-text-accent-neutral: var(--rc-neutral-400);
   --rc-text-accent-success: var(--rc-green-800);
   --rc-text-accent-warning: var(--rc-amber-800);
   --rc-text-accent-error: var(--rc-orange-800);
+  --rc-text-accent-orange: var(--rc-orange-800);
   --rc-text-accent-info: var(--rc-blue-800);
+  --rc-text-accent-blue: var(--rc-blue-800);
   --rc-text-accent-purple: var(--rc-purple-800);
   --rc-text-accent-light-purple: var(--rc-light-purple-800);
 
@@ -146,7 +159,9 @@
   --rc-background-accent-success-strong: var(--rc-green-500);
   --rc-background-accent-warning-strong: var(--rc-amber-300);
   --rc-background-accent-error-strong: var(--rc-orange-500);
+  --rc-background-accent-orange-strong: var(--rc-orange-500);
   --rc-background-accent-info-strong: var(--rc-blue-500);
+  --rc-background-accent-blue-strong: var(--rc-blue-500);
   --rc-background-accent-purple-strong: var(--rc-purple-500);
   --rc-background-accent-light-purple-strong: var(--rc-light-purple-400);
 
@@ -154,7 +169,9 @@
   --rc-text-accent-success-on: var(--rc-green-950);
   --rc-text-accent-warning-on: var(--rc-amber-950);
   --rc-text-accent-error-on: var(--rc-orange-950);
+  --rc-text-accent-orange-on: var(--rc-orange-950);
   --rc-text-accent-info-on: var(--rc-text-on-color);
+  --rc-text-accent-blue-on: var(--rc-text-on-color);
   --rc-text-accent-purple-on: var(--rc-text-on-color);
   --rc-text-accent-light-purple-on: var(--rc-light-purple-900);
 

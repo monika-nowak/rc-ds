@@ -10,7 +10,7 @@
 
 .withIcon {
   gap: 6px;
-  padding-left: 6px;
+  padding-left: 8px;
 }
 
 .icon {
@@ -50,9 +50,17 @@
   background: var(--rc-background-accent-error-strong);
   color: var(--rc-text-accent-error-on);
 }
+.emphasis.orange {
+  background: var(--rc-background-accent-orange-strong);
+  color: var(--rc-text-accent-orange-on);
+}
 .emphasis.info {
   background: var(--rc-background-accent-info-strong);
   color: var(--rc-text-accent-info-on);
+}
+.emphasis.blue {
+  background: var(--rc-background-accent-blue-strong);
+  color: var(--rc-text-accent-blue-on);
 }
 .emphasis.purple {
   background: var(--rc-background-accent-purple-strong);
@@ -80,9 +88,17 @@
   background: var(--rc-background-accent-error);
   color: var(--rc-text-accent-error);
 }
+.subtle.orange {
+  background: var(--rc-background-accent-orange);
+  color: var(--rc-text-accent-orange);
+}
 .subtle.info {
   background: var(--rc-background-accent-info);
   color: var(--rc-text-accent-info);
+}
+.subtle.blue {
+  background: var(--rc-background-accent-blue);
+  color: var(--rc-text-accent-blue);
 }
 .subtle.purple {
   background: var(--rc-background-accent-purple);

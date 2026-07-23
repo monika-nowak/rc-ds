@@ -23,7 +23,7 @@ const meta = {
     appearance: { control: 'select', options: ['emphasis', 'subtle'] },
     color: {
       control: 'select',
-      options: ['neutral', 'success', 'warning', 'error', 'info', 'purple', 'lightPurple'],
+      options: ['neutral', 'success', 'warning', 'error', 'orange', 'info', 'blue', 'purple', 'lightPurple'],
     },
     showIcon: { control: 'boolean', name: 'Icon' },
     icon: {
@@ -99,7 +99,9 @@ const BADGE_COLORS = [
   'success',
   'warning',
   'error',
+  'orange',
   'info',
+  'blue',
   'purple',
   'lightPurple',
 ] as const;
@@ -109,7 +111,9 @@ const COLOR_LABELS: Record<(typeof BADGE_COLORS)[number], string> = {
   success: 'Success',
   warning: 'Warning',
   error: 'Error',
+  orange: 'Orange',
   info: 'Info',
+  blue: 'Blue',
   purple: 'Purple',
   lightPurple: 'Light Purple',
 };

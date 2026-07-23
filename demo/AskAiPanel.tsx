@@ -8,6 +8,7 @@ import {
   PresentationChart,
 } from '@phosphor-icons/react';
 import { Badge } from '../src/components/Badge';
+import { Tag } from '../src/components/Tag';
 import { StatusIndicator } from '../src/components/StatusIndicator';
 import { Tooltip } from '../src/components/Tooltip';
 import { IconButton } from '../src/components/IconButton';
@@ -176,23 +177,11 @@ function refHandler(
   return undefined;
 }
 
-/** Blue for records, purple (AI) for signal/trend citations. */
-function refColor(ref: string): 'info' | 'lightPurple' {
-  return /^R\d+$/.test(ref) ? 'info' : 'lightPurple';
-}
-
 /** Reference-tag leading glyph, per Figma 2261:7448 (16px, type-specific). */
 function ScopeGlyph({ kind }: { kind: ChatScope['kind'] }) {
   if (kind === 'signal') return <CellSignalFull size={16} weight="regular" />;
   if (kind === 'trend') return <ChartLine size={16} weight="regular" />;
   return <PresentationChart size={16} weight="regular" />;
-}
-
-/** Per-type leading glyph for a trend/signal citation chip (records get none). */
-function CitationGlyph({ refId }: { refId: string }) {
-  if (/^T\d+$/.test(refId)) return <ChartLine size={16} weight="regular" />;
-  if (/^S\d+$/.test(refId)) return <CellSignalFull size={16} weight="regular" />;
-  return null;
 }
 
 const RECORDS_PREVIEW = 4;
@@ -299,7 +288,7 @@ function DataViewCard({
   return (
     <div className={styles.dataView}>
       <div className={styles.dataViewHead}>
-        <Icon name="arrows-left-right" size={16} tone="ai" />
+        <Icon name="arrows-left-right" size={16} color="var(--rc-text-tertiary)" />
         <span className={`rc-label-md ${styles.dataViewHeadText}`}>Data view</span>
       </div>
 
@@ -312,7 +301,7 @@ function DataViewCard({
           </div>
           {data.rows.map((row) => {
             const isOpen = openRow === row.label;
-            const displayLabel = data.columns[0] === 'Theme' ? formatThemeLabel(row.label) : row.label;
+            const displayLabel = data.columns[0] === 'Insight tag' ? formatThemeLabel(row.label) : row.label;
             return (
               <div key={row.label} className={styles.dataRowGroup}>
                 <button
@@ -536,45 +525,16 @@ function AnswerView({
                 {(answer.refs ?? []).map((ref) => {
                   const onClick = refHandler(ref, { onOpenRecord, onOpenSignal, onOpenTrend });
 
-                  // Records keep the existing blue accent Badge.
-                  if (/^R\d+$/.test(ref)) {
-                    const badge = (
-                      <Badge appearance="subtle" color={refColor(ref)}>
-                        {ref}
-                      </Badge>
-                    );
-                    return onClick ? (
-                      <button
-                        key={ref}
-                        type="button"
-                        className={styles.recordRefButton}
-                        onClick={onClick}
-                      >
-                        {badge}
-                      </button>
-                    ) : (
-                      <span key={ref}>{badge}</span>
-                    );
-                  }
-
-                  // Trend/Signal citations render as reference tags (Figma
-                  // 2261:7448): purple accent + type-specific leading glyph.
-                  const tagInner = (
-                    <>
-                      <span className={styles.citationTagIcon} aria-hidden>
-                        <CitationGlyph refId={ref} />
-                      </span>
-                      <span className={`rc-label-sm ${styles.citationTagLabel}`}>{ref}</span>
-                    </>
-                  );
-                  return onClick ? (
-                    <button key={ref} type="button" className={styles.citationTag} onClick={onClick}>
-                      {tagInner}
-                    </button>
-                  ) : (
-                    <span key={ref} className={styles.citationTag}>
-                      {tagInner}
-                    </span>
+                  // One unified reference chip (Figma 2286-4322) for ALL source
+                  // types — same shape, radius, padding and label typography, no
+                  // leading glyph. Only the COLOR differs: trend/signal (T…/S…)
+                  // are purple; records (R…) get the blue variant. Clickable
+                  // <button> when a handler resolves; plain <span> otherwise.
+                  const isRecord = /^R\d+$/.test(ref);
+                  return (
+                    <Tag key={ref} color={isRecord ? 'blue' : 'purple'} onClick={onClick}>
+                      {ref}
+                    </Tag>
                   );
                 })}
               </div>
@@ -1246,7 +1206,7 @@ export function AskAiPanel({
                 aria-label="Clear scope — back to whole report"
                 onClick={clearScope}
               >
-                <Icon name="x" size={16} tone="ai" />
+                <Icon name="x" size={16} tone="accentPurple" />
               </button>
             ) : null}
           </span>

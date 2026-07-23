@@ -99,7 +99,8 @@
 .hero {
   /* Extra top padding (64 + 56 nav) so content clears the overlapping nav. */
   padding-block: 120px 64px;
-  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
+  /* Figma 2641:7310: purple-300 (top) → purple-100 (bottom). */
+  background: linear-gradient(180deg, var(--rc-purple-300) 0%, var(--rc-purple-100) 100%);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
 
@@ -186,6 +187,12 @@
   gap: var(--rc-spacing-1);
 }
 
+/* Trailing count next to a section title, e.g. "All signals (9)". */
+.sectionHeaderCount {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
 .sectionRule {
   flex: 1;
   margin: 0;
@@ -247,6 +254,100 @@
   outline: 2px solid var(--rc-border-focus, var(--rc-purple-500));
   outline-offset: 2px;
   border-radius: var(--rc-radius-md);
+}
+
+/* Dashboard trend card (Figma RC-Designs 2641:7495): stacked header →
+   strategic considerations → divider → whole-report reach row. */
+.trendCard {
+  cursor: pointer;
+  /* Figma 2673:4965: subtle white → light-purple-50 vertical gradient. */
+  background: linear-gradient(
+    180deg,
+    var(--rc-white-1000) 0%,
+    var(--rc-light-purple-50) 100%
+  );
+}
+
+.trendCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-8);
+  width: 100%;
+}
+
+.trendCardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.trendCardHeader h3,
+.trendCardHeader p {
+  margin: 0;
+}
+
+.trendCardHeader h3 {
+  color: var(--rc-text-primary);
+}
+
+.trendCardHeader p {
+  color: var(--rc-text-secondary);
+}
+
+.trendCardConsiderations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-6);
+}
+
+/* Reach row — "X of Y HCPs / Institutions / Specialties". */
+.trendCardStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-8);
+  width: 100%;
+}
+
+.trendCardStat {
+  display: flex;
+  flex: 1 1 200px;
+  min-width: 0;
+  align-items: flex-start;
+  gap: var(--rc-spacing-4);
+}
+
+.trendCardStatIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rc-radius-sm);
+  /* Figma 2673:4965: light-purple box (#f6eaff) with light-purple-strong icon (#cd83ff). */
+  background: var(--rc-background-accent-light-purple);
+  color: var(--rc-background-accent-light-purple-strong);
+}
+
+.trendCardStatIcon svg {
+  display: block;
+}
+
+.trendCardStatText {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--rc-spacing-1);
+  min-width: 0;
+}
+
+.trendCardStatOf {
+  color: var(--rc-text-tertiary);
+}
+
+.trendCardStatUnit {
+  color: var(--rc-text-secondary);
+  white-space: nowrap;
 }
 
 /* Trend 2 follows its dedicated Figma composition: two equal panels within
@@ -427,18 +528,43 @@
   border-radius: var(--rc-radius-sm);
   background: var(--rc-purple-100);
   cursor: pointer;
-  transition: background 120ms ease;
+  /* Hidden by default; revealed on card hover/focus (see below). Kept in the
+     DOM (not display:none) so screen readers still expose the action. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease, background 120ms ease;
+}
+
+/* Reveal the AI button when the enclosing card is hovered or contains keyboard
+   focus, and keep it shown while the button itself is focused. */
+.signalCell:hover .askSparkle,
+.signalCell:focus-within .askSparkle,
+.trendCardHit:hover .askSparkle,
+.trendCardHit:focus-within .askSparkle,
+.askSparkle:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .askSparkle:hover {
   background: var(--rc-purple-200);
 }
 
+/* Signals subsection (Figma 2641:7561): ↳ header + signal-card row + "Show all"
+   button, indented 48px under the full-width trend card and sharing one 16px
+   vertical rhythm. The whole block is indented together (not the card). */
+.signalsSubsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  width: 100%;
+  padding-left: var(--rc-spacing-12);
+}
+
 .signalsHeader {
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
-  padding-left: 48px;
 }
 
 .signalsHeaderTitle {
@@ -453,7 +579,7 @@
   display: grid;
   /* 280px floor caps the row at 3 cards within the 1000px content container. */
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--rc-spacing-4);
+  gap: var(--rc-spacing-6);
 }
 
 .signalCell {
@@ -521,7 +647,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--rc-radius-sm);
-  background: var(--rc-purple-50);
+  background: var(--rc-background-accent-purple);
   color: var(--rc-icon-ai);
 }
 
@@ -549,6 +675,240 @@
   color: var(--rc-text-secondary);
 }
 
+/* Expanded dashboard metric cards (Figma RC-Designs 2638:4830).
+   Left records card sits beside a stacked column of HCP + institution
+   cards; wraps to a single column when the main area gets narrow. */
+.metricGrid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  /* Figma 2673:4809: 24px gap between metric cards. */
+  gap: var(--rc-spacing-6);
+}
+
+.metricColumn {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  /* Figma 2673:4846: 24px gap between the stacked right-column cards. */
+  gap: var(--rc-spacing-6);
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-4);
+  padding: var(--rc-spacing-6);
+  background: var(--rc-layer-01);
+  border: 1px solid var(--rc-border-subtle-01);
+  border-radius: var(--rc-radius-md);
+}
+
+.metricCardWide {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-3);
+}
+
+.metricHeadline {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rc-spacing-2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.metricHeadlineText {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rc-spacing-1);
+}
+
+.metricCaption {
+  margin: 0;
+  color: var(--rc-text-tertiary);
+}
+
+/* Trend "Signals + avg strength" card (Figma 2703:9479): an "Avg strength"
+   label/value row above the gradient strength meter. */
+.metricStrengthBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+}
+
+.metricStrengthRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-2);
+}
+
+.metricStrengthLabel {
+  color: var(--rc-text-tertiary);
+}
+
+/* Metric header text hierarchy (Figma 2638:4830 / 2641:7414):
+   value = primary (inherited), emphasis = secondary, label = tertiary. */
+.metricEmphasis {
+  color: var(--rc-text-secondary);
+}
+
+.metricLabel {
+  color: var(--rc-text-tertiary);
+}
+
+/* "of N" denominator (Figma 2687:13173 "of 2,182"): tertiary, sits between the
+   value and the emphasis word. Dashboard cards omit it (no `total`). */
+.metricOf {
+  color: var(--rc-text-tertiary);
+}
+
+/* Records → horizontal evidence-gap bars */
+.metricBars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-3);
+}
+
+/* Trend Details specialties card is a tall card: give the bar rows a bit more
+   breathing room than the compact 12px default — a moderate fixed gap, not a
+   full-height stretch. */
+.metricBarsFill {
+  gap: var(--rc-spacing-5);
+}
+
+.metricBarRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-1);
+}
+
+.metricBarMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rc-spacing-2);
+}
+
+.metricBarLabel {
+  color: var(--rc-text-secondary);
+}
+
+.metricBarValue {
+  color: var(--rc-text-tertiary);
+}
+
+.metricBarTrack {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--rc-layer-active-01);
+  overflow: hidden;
+}
+
+.metricBarFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 6px;
+  background: var(--rc-background-accent-light-purple-strong);
+}
+
+/* HCPs / institutions → segmented bars */
+.metricSegmentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rc-spacing-2);
+}
+
+.metricSegmentBarThin {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+}
+
+.metricSegmentBarThin > span {
+  height: 6px;
+}
+
+.metricSegmentBarFilled {
+  display: flex;
+  width: 100%;
+  min-height: 32px;
+}
+
+.metricSegmentFilled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--rc-spacing-2);
+  min-width: 0;
+}
+
+.metricSegmentOnColor {
+  color: var(--rc-text-on-color);
+}
+
+.metricSegmentOnLayer {
+  color: var(--rc-text-primary);
+}
+
+.metricLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rc-spacing-2) var(--rc-spacing-4);
+}
+
+.metricLegendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+/* HCP-tier legend (thin bar) packs marker → label → count → % tighter than the
+   institutions legend, matching Figma 2641:7331 (4px vs 8px item rhythm). */
+.metricLegendThin .metricLegendItem {
+  gap: var(--rc-spacing-1);
+}
+
+.metricLegendDash {
+  color: var(--rc-text-tertiary);
+}
+
+/* Thin vertical rule between a tier's count and its share (Figma line 29). */
+.metricLegendDivider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 12px;
+  background: var(--rc-border-subtle-01);
+}
+
+.metricLegendDot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+}
+
+.metricLegendLabel {
+  color: var(--rc-text-secondary);
+}
+
+.metricLegendCount {
+  color: var(--rc-text-secondary);
+}
+
+.metricLegendPercent {
+  color: var(--rc-text-tertiary);
+}
+
 .showAll {
   align-self: flex-start;
 }
@@ -557,6 +917,13 @@
   display: flex;
   flex-direction: column;
   /* Figma (2334:6387): Notable signals header → cards = 24px. */
+  gap: var(--rc-spacing-6);
+}
+
+/* All-signals index: mirrors the section-header → content rhythm above. */
+.allSignalsSection {
+  display: flex;
+  flex-direction: column;
   gap: var(--rc-spacing-6);
 }
 
@@ -1171,6 +1538,12 @@
   padding: 4px var(--rc-spacing-2);
   border-radius: var(--rc-radius-sm);
   background: var(--rc-background-accent-purple);
+  transition: background-color 120ms ease;
+}
+
+/* Hover the whole pill (both inner buttons share it) — matches the Tag hover. */
+.scopePill:hover {
+  background: var(--rc-background-accent-purple-hover);
 }
 
 .scopePillTrigger {
@@ -1188,7 +1561,8 @@
 .scopePillGlyph {
   display: inline-flex;
   align-items: center;
-  color: var(--rc-icon-ai);
+  /* Match the purple-800 label (was --rc-icon-ai / purple-500). */
+  color: var(--rc-icon-accent-purple);
 }
 
 .scopePillLabel {
@@ -1202,7 +1576,8 @@
   padding: 0;
   border: none;
   background: none;
-  color: var(--rc-icon-ai);
+  /* Clear-X matches the purple-800 label (was --rc-icon-ai / purple-500). */
+  color: var(--rc-icon-accent-purple);
   cursor: pointer;
   border-radius: var(--rc-radius-sm);
 }
@@ -1218,45 +1593,9 @@
   outline-offset: 2px;
 }
 
-/* Trend/Signal citation chips — reference-tag styling (Figma 2261:7448): purple
-   accent surface, type-specific leading glyph, bold purple label. Records keep
-   their blue Badge instead. Works as a <button> (clickable) or a <span>. */
-.citationTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px var(--rc-spacing-2) 2px var(--rc-spacing-1);
-  border: none;
-  border-radius: var(--rc-radius-sm);
-  background: var(--rc-background-accent-purple);
-  color: var(--rc-text-accent-purple);
-  font-family: inherit;
-  cursor: pointer;
-  transition: background-color 120ms ease;
-}
-
-button.citationTag:hover {
-  background: var(--rc-background-accent-purple-hover);
-}
-
-.citationTag:focus {
-  outline: none;
-}
-
-.citationTag:focus-visible {
-  outline: 2px solid var(--rc-focus-default);
-  outline-offset: 2px;
-}
-
-.citationTagIcon {
-  display: inline-flex;
-  align-items: center;
-  color: var(--rc-icon-ai);
-}
-
-.citationTagLabel {
-  color: var(--rc-text-accent-purple);
-}
+/* The unified answer-source reference chip (Figma 2286-4322) now lives in the
+   DS `Tag` component (`src/components/Tag/`). Its former `.refTag` / `.refTagBlue`
+   / `.refTagLabel` rules were removed after migrating AskAiPanel to `<Tag>`. */
 
 .emptyHelper {
   max-width: 340px;
@@ -1569,17 +1908,23 @@ button.citationTag:hover {
   animation: rc-fade-in 260ms ease;
 }
 
+/* Neutral group-header treatment mirroring `.signalsGroupHeader` (the "Trend N"
+   band in the All-signals table): layer-02 surface, spacing-3/6 rhythm, subtle
+   bottom rule, tertiary icon + label. */
 .dataViewHead {
   display: flex;
   align-items: center;
   gap: var(--rc-spacing-2);
-  padding: var(--rc-spacing-2) var(--rc-spacing-4);
-  background: var(--rc-purple-100);
+  /* Vertical rhythm mirrors `.signalsGroupHeader` (12px), but the LEFT inset is
+     kept at spacing-4 (16px) so the "Data view" title lines up with the table
+     body below (`.dataViewBody` also pads spacing-4). */
+  padding: var(--rc-spacing-3) var(--rc-spacing-4);
+  background: var(--rc-layer-02);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
 
 .dataViewHeadText {
-  color: var(--rc-text-ai);
+  color: var(--rc-text-tertiary);
 }
 
 .dataViewBody {
@@ -2268,7 +2613,10 @@ button.citationTag:hover {
   padding-block: 120px 64px;
   /* Same page padding as .signalMain so hero + group share one centering rail. */
   padding-inline: var(--rc-page-px, 96px);
-  background: linear-gradient(180deg, #beafff 0%, #ece9ff 100%);
+  /* Detail-view headers (Trend/Signal Details) use a LIGHT-PURPLE gradient to
+     distinguish them from the home hero's purple gradient. Analogous stops to
+     home (300 → 100). Separate class from .hero so the two diverge. */
+  background: linear-gradient(180deg, var(--rc-light-purple-300) 0%, var(--rc-light-purple-100) 100%);
   border-bottom: 1px solid var(--rc-border-subtle-01);
 }
 
@@ -2378,11 +2726,12 @@ button.citationTag:hover {
    tighter 64px inset — no 1000px cap or centering gap that would leave an
    empty right band. */
 @container main (max-width: 1100px) {
-  /* Global reduced page inset: dashboard (.page), trend + signal (.signalPage)
-     all derive padding from --rc-page-px via the centering formula, so dropping
-     it here tightens margins to 64px on every page when the main area is narrow
-     (e.g. chat open). Set on the page roots because a container query cannot
-     restyle its own container element (.appMain). */
+  /* Medium-narrow tier: dashboard (.page), trend + signal (.signalPage) all
+     derive padding from --rc-page-px via the centering formula, so dropping it
+     here tightens margins to 64px once the main area stops being full-width.
+     The tighter 48px is reserved for genuinely narrow main widths (see the
+     max-width: 1000px block below, e.g. Ask AI chat docked). Set on the page
+     roots because a container query cannot restyle its own container (.appMain). */
   .page,
   .signalPage {
     --rc-page-px: 64px;
@@ -2411,6 +2760,17 @@ button.citationTag:hover {
     width: 100%;
     max-width: none;
     padding-top: 0;
+  }
+}
+
+/* Tight page inset (48px) only when the main area is genuinely narrow — i.e.
+   narrower than the medium 64px tier above. In practice this fires when the
+   Ask AI chat panel is docked (which shrinks .appMain well below 1000px), not
+   merely when the browser window is a bit under 1100px with the panel closed. */
+@container main (max-width: 1000px) {
+  .page,
+  .signalPage {
+    --rc-page-px: 48px;
   }
 }
 
@@ -2450,6 +2810,7 @@ button.citationTag:hover {
   gap: var(--rc-spacing-2);
 }
 
+/* Detail-page strength label colors (Strong = orange, Moderate/Weak = purple). */
 .scoreStrengthStrong {
   color: var(--rc-orange-500);
 }
@@ -2812,6 +3173,190 @@ button.citationTag:hover {
   grid-template-columns:
     72px
     minmax(0, 1fr);
+}
+
+/* All-signals index (Figma 2677:10207) — Signal takes the flexible column,
+   then fixed Type / Records / HCPs / Strength columns. */
+.signalsTableColumns {
+  grid-template-columns:
+    minmax(0, 1fr)
+    140px
+    100px
+    100px
+    140px;
+}
+
+/* Figma 2677:10207: cells are top-aligned (items-start); numbers + badges sit
+   at the top of the row while a wrapping title extends below. */
+.recordsTableRow.signalsTableColumns {
+  align-items: start;
+}
+
+/* Header + data cells use the shared records-cell classes, but the All-signals
+   table follows Figma's roomier rhythm: header px-24 py-12, data cells p-24. */
+.recordsTableHead.signalsTableColumns .recordsHeadCell {
+  padding: var(--rc-spacing-3) var(--rc-spacing-6);
+  color: var(--rc-text-tertiary);
+  /* Safety net: header labels stay on one line and ellipsize instead of
+     spilling into the neighbouring column when the track gets cramped. This is
+     what previously let "Signal" and "Type" overlap once the title track
+     collapsed to 0. Inert at wide widths (labels are short). */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recordsTableRow.signalsTableColumns .recordsCell {
+  padding: var(--rc-spacing-6);
+}
+
+.signalsTitleCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.signalsTitleText {
+  color: var(--rc-text-primary);
+}
+
+/* Type column: Lead renders a badge; Supporting/Notable render as plain text. */
+.signalsTypeCell {
+  display: flex;
+  align-items: flex-start;
+}
+
+.signalsTypeText {
+  color: var(--rc-text-secondary);
+}
+
+/* Metric columns (Figma): left-aligned, regular weight, secondary tone. The
+   two-class selector outranks the shared `.recordsCell { color: primary }`. */
+.recordsCell.signalsNumCell {
+  text-align: left;
+  color: var(--rc-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.signalsStrengthCell {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rc-spacing-2);
+}
+
+/* Trend grouping inside the All-signals table. Each group starts with a full
+   width band naming the trend (clickable → opens the trend); the standalone
+   group uses a muted, static variant. */
+.signalsGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+  width: 100%;
+  padding: var(--rc-spacing-3) var(--rc-spacing-6);
+  background: var(--rc-layer-02);
+  /* Button reset (trend headers are clickable) — clear ALL sides so the UA
+     default button border doesn't show, then add Figma's subtle bottom rule. */
+  border: none;
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.signalsGroupHeader:hover {
+  background: var(--rc-layer-03);
+}
+
+.signalsGroupHeaderStatic,
+.signalsGroupHeaderStatic:hover {
+  cursor: default;
+  background: var(--rc-layer-02);
+}
+
+.signalsGroupIcon {
+  color: var(--rc-text-tertiary);
+  flex-shrink: 0;
+}
+
+.signalsGroupLabel {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
+.signalsGroupLabelMuted {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
+.signalsGroupDot {
+  color: var(--rc-text-tertiary);
+}
+
+.signalsGroupTitle {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--rc-text-tertiary);
+}
+
+/* Figma 2677:10207: every row (header, group band, data row) carries a subtle
+   bottom rule. Restore per-row dividers for signals and override the shared
+   `.recordsTableRow:last-child { border-bottom:none }` so a group's last row
+   still separates from the following group header. */
+.recordsTableRow.signalsTableColumns,
+.signalsGroup .recordsTableRow.signalsTableColumns:last-child {
+  border-bottom: 1px solid var(--rc-border-subtle-01);
+}
+
+/* ── All-signals table: responsive behaviour ───────────────────────────────
+   Wide layout (Figma 2677:10207) is unchanged — the base template above keeps
+   the flexible Signal column + fixed Type/Records/HCPs/Strength. The rules
+   below only engage as the *main* area (not the viewport) narrows, e.g. when
+   the Ask AI chat docks. All queries use @container main per demo-layout. */
+
+/* Tier 1 — reflow (≈ ≤900px main): give the Signal title a real minimum so it
+   can never collapse to one-word-per-line, shrink the numeric/badge columns,
+   and tighten horizontal cell padding so the flexible column keeps the space. */
+@container main (max-width: 900px) {
+  .signalsTableColumns {
+    grid-template-columns:
+      minmax(176px, 1fr) /* Signal — roomier floor so titles wrap on fewer lines */
+      104px /* Type */
+      84px /* Records */
+      72px /* HCPs */
+      108px; /* Strength */
+  }
+
+  .recordsTableHead.signalsTableColumns .recordsHeadCell,
+  .recordsTableRow.signalsTableColumns .recordsCell {
+    padding-inline: var(--rc-spacing-4);
+  }
+
+  /* Smaller signal title at narrow widths (~16px vs the wide-layout 18px
+     rc-heading-h7) so it wraps on fewer lines in the tighter track. */
+  .signalsTitleText {
+    font-size: 16px;
+    line-height: 22px;
+  }
+}
+
+/* Tier 2 — scroll fallback (last resort): once even the floored template can't
+   fit, the whole table scrolls horizontally as one unit instead of overlapping.
+   min-width matches the Tier-1 track minimums (176+104+84+72+108) so the head
+   row, group bands and data rows all stay column-aligned while scrolling.
+   Self-regulating: the scrollbar only appears when the content actually
+   overflows, so wide/normal widths are untouched. */
+.signalsTableWrap {
+  overflow-x: auto;
+}
+
+.signalsTableWrap .recordsTableHead.signalsTableColumns,
+.signalsTableWrap .signalsGroup {
+  min-width: 544px;
 }
 
 .recordsTableHead {

@@ -348,7 +348,7 @@ const DIM_COL_HEAD: Record<Dimension, string> = {
   institution: 'Institution',
   kit: 'KIT',
   month: 'Month',
-  tag: 'Theme',
+  tag: 'Insight tag',
   period: 'Window',
 };
 

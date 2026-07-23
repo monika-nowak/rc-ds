@@ -16,12 +16,17 @@ export type BadgeColor =
   | 'success'
   | 'warning'
   | 'error'
+  | 'orange'
   | 'info'
+  | 'blue'
   | 'purple'
   | 'lightPurple';
 
 function defaultIconTone(appearance: BadgeAppearance, color: BadgeColor): IconTone {
-  const darkTextEmphasis: BadgeColor[] = ['success', 'warning', 'error', 'lightPurple'];
+  // Subtle badges: the icon matches the badge text color (accent -800), per Figma DS.
+  // `inherit` resolves to the badge's `color` (currentColor) set by the subtle color classes.
+  if (appearance === 'subtle') return 'inherit';
+  const darkTextEmphasis: BadgeColor[] = ['success', 'warning', 'error', 'orange', 'lightPurple'];
   if (appearance === 'emphasis' && !darkTextEmphasis.includes(color)) {
     return 'on-color';
   }
@@ -29,7 +34,8 @@ function defaultIconTone(appearance: BadgeAppearance, color: BadgeColor): IconTo
   if (color === 'success') return 'success';
   if (color === 'warning') return 'warning';
   if (color === 'error') return 'error';
-  if (color === 'info') return 'info';
+  if (color === 'orange') return 'orange';
+  if (color === 'info' || color === 'blue') return 'info';
   return 'primary';
 }
 

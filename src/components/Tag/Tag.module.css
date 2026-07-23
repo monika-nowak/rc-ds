@@ -1,0 +1,117 @@
+/* Reference tag — unified answer-source / record chip (Figma 2286:4322).
+   radius-sm, symmetric 4px/8px padding, rc-label-md label. Purple = trend/signal,
+   blue = records. Optional 16px leading icon + trailing dismiss "×". */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--rc-spacing-1) var(--rc-spacing-2);
+  border: none;
+  border-radius: var(--rc-radius-sm);
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.label {
+  color: inherit;
+}
+
+/* 16px leading icon slot — inherits the accent -800 text color (= icon token). */
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: inherit;
+}
+
+.icon :global(svg) {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* Interactive chip (onClick) — pointer + hover transition. */
+.clickable {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+/* Inner interactive body (used only in the removable/compound variant). */
+.body {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.body:focus {
+  outline: none;
+}
+
+.body:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+/* Trailing dismiss "×" — matches the accent -800 text color. */
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--rc-radius-sm);
+}
+
+.remove:focus {
+  outline: none;
+}
+
+.remove:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+/* Focus-visible for the whole-chip button variant. */
+.tag:focus {
+  outline: none;
+}
+
+.tag.clickable:focus-visible {
+  outline: 2px solid var(--rc-focus-default);
+  outline-offset: 2px;
+}
+
+/* Colors */
+.purple {
+  background: var(--rc-background-accent-purple);
+  color: var(--rc-text-accent-purple);
+}
+.purple .icon {
+  color: var(--rc-icon-accent-purple);
+}
+.purple.clickable:hover {
+  background: var(--rc-background-accent-purple-hover);
+}
+
+.blue {
+  background: var(--rc-background-accent-blue);
+  color: var(--rc-text-accent-blue);
+}
+.blue .icon {
+  color: var(--rc-icon-accent-blue);
+}
+.blue.clickable:hover {
+  background: var(--rc-background-accent-blue-hover);
+}

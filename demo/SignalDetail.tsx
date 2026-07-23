@@ -3,39 +3,30 @@ import {
   ChartLine,
   ClipboardText,
   Database,
-  FirstAidKit,
-  Hospital,
-  Tag,
   Target,
 } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
-import type { ComponentType, ReactNode } from 'react';
-import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
+import type { ReactNode } from 'react';
 import { Badge } from '../src/components/Badge';
 import { Button } from '../src/components/Button';
 import { Card } from '../src/components/Card';
 import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
+import { ROLE_BADGE, STRENGTH_BADGE, roleKeyFromLabel } from '../src/lib/signalBadge';
 import {
   RECORDS,
   deriveBreakdown,
+  signalMetrics,
   signalStrength,
   type RecordEntry,
   type ScoreMetric,
   type Signal,
-  type StatIcon,
 } from './data';
 import type { ChatScope } from './Dashboard';
+import { RecordsMetricCardView, SegmentMetricCardView } from './MetricCards';
 import { ProofChart, THEME_BAR_SUBTITLE } from './ProofChart';
 import { selectProofPattern } from './proofPatterns';
 import styles from './demo.module.css';
-
-const STAT_ICONS: Record<StatIcon, ComponentType<PhosphorIconProps>> = {
-  database: Database,
-  'first-aid-kit': FirstAidKit,
-  hospital: Hospital,
-  tag: Tag,
-};
 
 // Split the "So What" narrative into up to two points to match the Figma
 // two-column layout. First sentence becomes point 1, the remainder point 2.
@@ -43,35 +34,6 @@ function splitSoWhat(text: string): string[] {
   const idx = text.indexOf('. ');
   if (idx === -1) return [text];
   return [text.slice(0, idx + 1).trim(), text.slice(idx + 2).trim()].filter(Boolean);
-}
-
-interface SignalStat {
-  icon: StatIcon;
-  value: string;
-  emphasis: string;
-  label: string;
-}
-
-function SignalStatCard({ stat }: { stat: SignalStat }) {
-  const StatIconCmp = STAT_ICONS[stat.icon];
-  return (
-    <article className={styles.statCardStandalone}>
-      <div className={styles.statMeasure}>
-        <div className={styles.statBody}>
-          <span className={styles.statIcon}>
-            <StatIconCmp size={16} weight="regular" />
-          </span>
-          <div className={styles.statText}>
-            <span className="rc-heading-h6">{stat.value}</span>
-            <span className="rc-body-sm">
-              <strong className={styles.statLabelEmphasis}>{stat.emphasis}</strong>
-              <span className={styles.statLabelSecondary}>{stat.label}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </article>
-  );
 }
 
 function SectionHeader({
@@ -239,12 +201,9 @@ export function SignalDetail({
   signal: Signal;
   onOpenRecord: (record: RecordEntry) => void;
 }) {
-  const stats: SignalStat[] = [
-    { icon: 'database', value: signal.records, emphasis: 'records', label: 'analyzed' },
-    { icon: 'first-aid-kit', value: signal.hcps, emphasis: 'HCPs', label: 'contributing' },
-    { icon: 'hospital', value: signal.specialties, emphasis: 'specialties', label: 'represented' },
-    { icon: 'tag', value: signal.instTypes, emphasis: 'institution', label: 'types' },
-  ];
+  // The three rich metric cards (records / HCPs / institutions), scoped to this
+  // signal's own records — same shared views the dashboard uses (Figma 2687:13173).
+  const metrics = signalMetrics(signal);
 
   const RECORDS_PAGE = 8;
   const signalRecords = signal.recs.map((id) => RECORDS[id]).filter(Boolean);
@@ -275,13 +234,43 @@ export function SignalDetail({
   };
   const proofPattern = selectProofPattern(proofScope);
 
+  // Strength/role badges — same source of truth (signalBadge) as cards + table.
+  // Rule: always show the strength badge; show the role badge only when the
+  // signal is a Lead (Supporting/Notable are not surfaced as a type badge).
+  const strength = signalStrength(Number.parseFloat(signal.strengthLabel));
+  const strengthCfg = STRENGTH_BADGE[strength.tone];
+  const isLead = roleKeyFromLabel(signal.role) === 'lead';
+
   return (
     <div className={styles.signalPage}>
       <section className={styles.signalHero}>
         <div className={styles.signalHeroInner}>
-          <span className={`rc-heading-h6 ${styles.signalKicker}`}>Signal {signal.seq}</span>
-          <h1 className={styles.signalTitle}>{signal.title}</h1>
+          <span className={`rc-heading-h7 ${styles.signalKicker}`}>Signal {signal.seq}</span>
           <div className={styles.signalBadgeRow}>
+            <Badge
+              appearance={strengthCfg.appearance}
+              color={strengthCfg.color}
+              icon={strengthCfg.icon}
+              iconTone={strengthCfg.iconTone}
+            >
+              {strength.label}
+            </Badge>
+            {isLead ? (
+              <Badge
+                appearance={ROLE_BADGE.lead.appearance}
+                color={ROLE_BADGE.lead.color}
+                icon={ROLE_BADGE.lead.icon}
+              >
+                {ROLE_BADGE.lead.label}
+              </Badge>
+            ) : null}
+          </div>
+          <h1 className={styles.signalTitle}>{signal.title}</h1>
+          {/* Same two footer chips the signal card shows: KIT + category. */}
+          <div className={styles.signalBadgeRow}>
+            <Badge appearance="subtle" color="neutral">
+              {signal.kit}
+            </Badge>
             <Badge appearance="subtle" color="neutral">
               {signal.category}
             </Badge>
@@ -296,10 +285,12 @@ export function SignalDetail({
           </aside>
 
           <div className={styles.signalContent}>
-            <div className={styles.signalStatGrid}>
-              {stats.map((stat) => (
-                <SignalStatCard key={stat.emphasis} stat={stat} />
-              ))}
+            <div className={styles.metricGrid}>
+              <RecordsMetricCardView card={metrics.records} />
+              <div className={styles.metricColumn}>
+                <SegmentMetricCardView card={metrics.hcps} />
+                <SegmentMetricCardView card={metrics.institutions} />
+              </div>
             </div>
 
             <div className={styles.sectionRow}>

@@ -1,70 +1,36 @@
 import {
+  Database,
   FirstAidKit,
   Heartbeat,
-  Hospital,
   Megaphone,
   Sparkle,
-  Syringe,
   TrendUp,
-  WifiMedium,
 } from '@phosphor-icons/react';
 import { useEffect } from 'react';
-import type { ComponentType, ReactNode } from 'react';
-import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
+import type { ReactNode } from 'react';
 import { Badge } from '../src/components/Badge';
+import { Tag } from '../src/components/Tag';
 import { Card } from '../src/components/Card';
 import { Divider } from '../src/components/Divider';
 import { Icon } from '../src/icons';
-import { evidence, magnitude, resolveScopeRecords } from './analytics';
+import { evidence, resolveScopeRecords } from './analytics';
 import {
   RECORDS,
   signalStrength,
+  trendMetrics,
   type RecordEntry,
   type Signal,
   type Trend,
 } from './data';
-import type { ChatScope } from './Dashboard';
+import { WHOLE_MAGNITUDE, type ChatScope } from './Dashboard';
+import {
+  RecordsMetricCardView,
+  SegmentMetricCardView,
+  SignalsMetricCardView,
+} from './MetricCards';
 import { ProofChart, THEME_BAR_SUBTITLE } from './ProofChart';
 import { selectProofPattern } from './proofPatterns';
 import styles from './demo.module.css';
-
-type TrendStatIcon = 'wifi-medium' | 'first-aid-kit' | 'hospital' | 'syringe';
-
-const TREND_STAT_ICONS: Record<TrendStatIcon, ComponentType<PhosphorIconProps>> = {
-  'wifi-medium': WifiMedium,
-  'first-aid-kit': FirstAidKit,
-  hospital: Hospital,
-  syringe: Syringe,
-};
-
-interface TrendStat {
-  icon: TrendStatIcon;
-  value: string;
-  emphasis: string;
-  label: string;
-}
-
-function TrendStatCard({ stat }: { stat: TrendStat }) {
-  const StatIconCmp = TREND_STAT_ICONS[stat.icon];
-  return (
-    <article className={styles.statCardStandalone}>
-      <div className={styles.statMeasure}>
-        <div className={styles.statBody}>
-          <span className={styles.statIcon}>
-            <StatIconCmp size={16} weight="regular" />
-          </span>
-          <div className={styles.statText}>
-            <span className="rc-heading-h6">{stat.value}</span>
-            <span className="rc-body-sm">
-              <strong className={styles.statLabelEmphasis}>{stat.emphasis}</strong>
-              <span className={styles.statLabelSecondary}>{stat.label}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
 
 function SectionHeader({
   icon,
@@ -127,12 +93,23 @@ function TrendSignalCard({
         variant="signal"
         hoverable
         strengthLabel={signalStrength(Number.parseFloat(signal.strengthLabel)).label}
+        strengthTone={signalStrength(Number.parseFloat(signal.strengthLabel)).tone}
         leadLabel={signal.leadLabel}
         title={signal.title}
         description={signal.description}
         stats={[
-          { value: signal.records, label: 'Records' },
-          { value: signal.hcps, label: 'HCPs' },
+          {
+            value: signal.records,
+            label: 'Records',
+            total: String(WHOLE_MAGNITUDE.records),
+            icon: <Database size={16} weight="regular" />,
+          },
+          {
+            value: signal.hcps,
+            label: 'HCPs',
+            total: String(WHOLE_MAGNITUDE.hcps),
+            icon: <FirstAidKit size={16} weight="regular" />,
+          },
         ]}
         footer={
           <div className={styles.signalTags}>
@@ -161,36 +138,10 @@ export function TrendDetail({
     shorthand: trend.label.replace('Trend ', 'T'),
   };
   const scopeRecords = resolveScopeRecords(proofScope);
-  const mag = magnitude(scopeRecords);
   const proofPattern = selectProofPattern(proofScope);
   const proof = evidence(scopeRecords, 1)[0] ?? scopeRecords[0];
 
-  const stats: TrendStat[] = [
-    {
-      icon: 'wifi-medium',
-      value: String(trend.signalCount),
-      emphasis: 'signals',
-      label: 'in this trend',
-    },
-    {
-      icon: 'first-aid-kit',
-      value: String(mag.hcps),
-      emphasis: 'HCPs',
-      label: 'contributing',
-    },
-    {
-      icon: 'hospital',
-      value: String(mag.institutions),
-      emphasis: 'institutions',
-      label: 'represented',
-    },
-    {
-      icon: 'syringe',
-      value: String(mag.specialties),
-      emphasis: 'specialties',
-      label: 'represented',
-    },
-  ];
+  const metrics = trendMetrics(trend);
 
   const leadSignals = trend.signals.filter((signal) => signal.role === 'Lead Signal');
   const supportingSignals = trend.signals.filter((signal) => signal.role !== 'Lead Signal');
@@ -208,7 +159,7 @@ export function TrendDetail({
     <div className={styles.signalPage}>
       <section className={`${styles.signalHero} ${styles.trendHero}`}>
         <div className={`${styles.heroContent} ${styles.trendHeroContent}`}>
-          <span className={`rc-heading-h6 ${styles.signalKicker}`}>{trend.label}</span>
+          <span className={`rc-heading-h7 ${styles.signalKicker}`}>{trend.label}</span>
           <h1 className={styles.signalTitle}>{trend.title}</h1>
         </div>
       </section>
@@ -216,10 +167,13 @@ export function TrendDetail({
       {/* Single centred content column — trend details have no scoring sidebar. */}
       <div className={`${styles.signalMain} ${styles.trendMain}`}>
         <div className={styles.signalContent}>
-          <div className={styles.signalStatGrid}>
-            {stats.map((stat) => (
-              <TrendStatCard key={stat.emphasis} stat={stat} />
-            ))}
+          <div className={styles.metricGrid}>
+            <div className={styles.metricColumn}>
+              <SignalsMetricCardView card={metrics.signals} />
+              <SegmentMetricCardView card={metrics.hcps} />
+              <SegmentMetricCardView card={metrics.institutions} />
+            </div>
+            <RecordsMetricCardView card={metrics.specialties} fillHeight />
           </div>
 
           <div className={styles.sectionRow}>
@@ -312,16 +266,9 @@ export function TrendDetail({
                   {considerationRecordChunks[index]?.length ? (
                     <div className={styles.considerationRefs}>
                       {considerationRecordChunks[index].slice(0, 5).map((id) => (
-                        <button
-                          key={id}
-                          type="button"
-                          className={styles.recordRefButton}
-                          onClick={() => onOpenRecord(RECORDS[id])}
-                        >
-                          <Badge appearance="subtle" color="neutral">
-                            R–{id}
-                          </Badge>
-                        </button>
+                        <Tag key={id} color="blue" onClick={() => onOpenRecord(RECORDS[id])}>
+                          R–{id}
+                        </Tag>
                       ))}
                     </div>
                   ) : null}

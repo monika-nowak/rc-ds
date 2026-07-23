@@ -164,7 +164,7 @@ const DIMENSION_LABEL: Record<Dimension, string> = {
   institution: 'institution type',
   kit: 'KIT',
   month: 'month',
-  tag: 'theme',
+  tag: 'insight tag',
   period: 'collection window',
 };
 

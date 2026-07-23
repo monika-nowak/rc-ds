@@ -10,11 +10,18 @@ export type IconTone =
   | 'error'
   | 'warning'
   | 'success'
+  | 'orange'
   | 'info'
   | 'ai'
+  /** Icon colored to match accent TEXT (-800) on subtle accent surfaces. */
+  | 'accentPurple'
+  | 'accentBlue'
+  | 'accentOrange'
   | 'inverse'
   | 'disabled'
-  | 'on-color';
+  | 'on-color'
+  /** Inherit the surrounding text color (e.g. subtle badges: icon matches -800 text). */
+  | 'inherit';
 
 export interface IconProps {
   /**

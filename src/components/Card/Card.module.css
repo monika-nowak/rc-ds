@@ -141,6 +141,11 @@
   white-space: nowrap;
 }
 
+.statOf {
+  color: var(--rc-text-tertiary);
+  white-space: nowrap;
+}
+
 .statsCompact {
   display: flex;
   flex-wrap: wrap;
@@ -150,6 +155,28 @@
 }
 
 .statCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rc-spacing-2);
+}
+
+/* Leading stat icon (compact/signal stats) — 16px, muted. Uses the icon token
+   `--rc-icon-secondary` (#757277) to match Figma (icon/secondary), not the
+   darker text token `--rc-text-secondary` (#5a575d) it previously used. */
+.statIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--rc-icon-secondary);
+}
+
+.statIcon svg {
+  display: block;
+}
+
+/* Value / "of Y" / unit cluster — baseline-aligned, tight 4px gap. */
+.statText {
   display: inline-flex;
   align-items: baseline;
   gap: var(--rc-spacing-1);

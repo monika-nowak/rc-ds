@@ -33,8 +33,8 @@ export const PROOF_PATTERN_META: Record<ProofPatternType, ProofPatternMeta> = {
   },
   A3: {
     type: 'A3',
-    title: 'Which themes carry the signal',
-    caption: 'Records per theme (records can carry more than one theme)',
+    title: 'Which insight tags carry the signal',
+    caption: 'Records per insight tag (records can carry more than one)',
   },
   A4: {
     type: 'A4',

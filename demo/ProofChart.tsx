@@ -48,7 +48,7 @@ const COMMUNITY_COLOR = 'var(--rc-background-accent-info)';
 /** Match the light-purple bars used in the dashboard theme breakdowns. */
 const THEME_BAR_COLOR = 'var(--rc-background-accent-light-purple-strong)';
 /** Exact in-card caption for the Figma theme-bar proof treatment. */
-export const THEME_BAR_SUBTITLE = 'Records per theme';
+export const THEME_BAR_SUBTITLE = 'Records per insight tag';
 
 /** Academic/Community series, shared by the stacked patterns (A1, A5). */
 const SETTING_SERIES: BarChartSeries[] = [
@@ -123,7 +123,7 @@ function buildConfig(type: ProofPatternType, scope: ChatScope): ChartConfig {
     case 'A3': {
       const result = groupBy(records, 'tag');
       const rows = result.rows.slice(0, MAX_ROWS);
-      const base = `${result.note} Records can carry more than one theme, so shares sum to more than 100%.`;
+      const base = `${result.note} Records can carry more than one insight tag, so shares sum to more than 100%.`;
       return {
         data: rows.map((row) => ({
           label: row.label,
@@ -134,8 +134,8 @@ function buildConfig(type: ProofPatternType, scope: ChatScope): ChartConfig {
         showTotals: false,
         showCategoryAxis: true,
         height: proofChartHeight(rows.length),
-        note: rankNote(base, rows.length, result.rows.length, 'themes'),
-        ariaLabel: 'Records per theme',
+        note: rankNote(base, rows.length, result.rows.length, 'insight tags'),
+        ariaLabel: 'Records per insight tag',
       };
     }
 
@@ -508,9 +508,9 @@ export interface ProofChartProps {
  */
 function patternTitle(type: ProofPatternType, scope: ChatScope): string {
   if (type === 'A3') {
-    if (scope.kind === 'trend') return 'Which themes carry this trend';
-    if (scope.kind === 'signal') return 'Which themes carry this signal';
-    return 'Which themes carry the most weight';
+    if (scope.kind === 'trend') return 'Which insight tags carry this trend';
+    if (scope.kind === 'signal') return 'Which insight tags carry this signal';
+    return 'Which insight tags carry the most weight';
   }
   return PROOF_PATTERN_META[type].title;
 }
